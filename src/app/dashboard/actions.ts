@@ -188,10 +188,11 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
         }
 
         const skillsCollection = await getCollection('skills');
-        const lastSkill = await skillsCollection.findOne({}, { sort: { order: -1 } });
-        const newOrder = (lastSkill?.order || 0) + 1;
-
-        const dataToInsert: any = { ...parsed.data, order: newOrder };
+        // Increment order of all existing skills
+        await skillsCollection.updateMany({}, { $inc: { order: 1 } });
+        
+        // Add new skill at the top (order: 0)
+        const dataToInsert: any = { ...parsed.data, order: 0 };
         if (!dataToInsert.image) {
             delete dataToInsert.image;
         }
@@ -273,10 +274,11 @@ export async function addCertification(prevState: AdminFormState, formData: Form
         }
         
         const certificationsCollection = await getCollection('certifications');
-        const lastCert = await certificationsCollection.findOne({}, { sort: { order: -1 } });
-        const newOrder = (lastCert?.order || 0) + 1;
-        
-        const dataToInsert: any = { ...parsed.data, order: newOrder };
+        // Increment order of all existing certifications
+        await certificationsCollection.updateMany({}, { $inc: { order: 1 } });
+
+        // Add new certification at the top (order: 0)
+        const dataToInsert: any = { ...parsed.data, order: 0 };
         
         if (!dataToInsert.image) {
             delete dataToInsert.image;

@@ -16,9 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useActionState, useEffect, useRef, useState, type ComponentProps, useCallback, useMemo } from 'react';
+import { useActionState, useEffect, useRef, useState, type ComponentProps, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import type { About } from '@/models/About';
 import type { Skill } from '@/models/Skill';
@@ -278,37 +277,6 @@ function ImageUpload({ fieldName, label, description, currentImage, error, aspec
     )
 }
 
-function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<HTMLFormElement>, onSuccess?: () => void) {
-    const { toast } = useToast();
-    const stableOnSuccess = useCallback(() => {
-        if (onSuccess) {
-            onSuccess();
-        } else {
-            formRef.current?.reset();
-            // This is a bit of a hack to reset the image preview
-            const imageUploadDiv = formRef.current?.querySelector('div[class*="border-dashed"]');
-            if(imageUploadDiv) {
-                const removeButton = imageUploadDiv.nextElementSibling?.querySelector('button[variant="destructive"]') as HTMLButtonElement;
-                if(removeButton) removeButton.click();
-            }
-        }
-    }, [onSuccess, formRef]);
-    
-    useEffect(() => {
-        if (!state) return;
-        if (state.message) {
-            toast({
-                variant: state.success ? 'default' : 'destructive',
-                title: state.success ? 'Success!' : 'Error',
-                description: state.message,
-            });
-            if (state.success) {
-                stableOnSuccess();
-            }
-        }
-    }, [state, toast, stableOnSuccess]);
-}
-
 function AboutSubmitButton({ label, hasDefaultValue }: { label: string; hasDefaultValue: boolean }) {
     const { pending } = useFormStatus();
     return (
@@ -460,7 +428,25 @@ export function SkillForm({ skill, onSuccess }: { skill?: Client<Skill>, onSucce
   const action = skill ? updateSkill : addSkill;
   const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
   const formRef = useRef<HTMLFormElement>(null);
-  useFormFeedback(state, formRef, onSuccess);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!state?.message) return;
+    toast({
+        variant: state.success ? 'default' : 'destructive',
+        title: state.success ? 'Success!' : 'Error',
+        description: state.message,
+    });
+    if (state.success) {
+        if (onSuccess) {
+            onSuccess();
+        } else {
+            formRef.current?.reset();
+            const removeButton = formRef.current?.querySelector('button[variant="destructive"].absolute') as HTMLButtonElement;
+            if(removeButton) removeButton.click();
+        }
+    }
+  }, [state, toast, onSuccess]);
   
   return (
     <Card>
@@ -504,8 +490,27 @@ export function ProjectForm({ project, onSuccess }: { project?: Client<Project>,
     const action = project ? updateProject : addProject;
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, onSuccess);
+    const { toast } = useToast();
     const [description, setDescription] = useState(project?.description ?? '');
+
+    useEffect(() => {
+        if (!state?.message) return;
+        toast({
+            variant: state.success ? 'default' : 'destructive',
+            title: state.success ? 'Success!' : 'Error',
+            description: state.message,
+        });
+        if (state.success) {
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                formRef.current?.reset();
+                setDescription('');
+                const removeButton = formRef.current?.querySelector('button[variant="destructive"].absolute') as HTMLButtonElement;
+                if(removeButton) removeButton.click();
+            }
+        }
+    }, [state, toast, onSuccess]);
 
     return (
         <Card>
@@ -539,8 +544,28 @@ export function AchievementForm({ achievement, onSuccess }: { achievement?: Clie
     const action = achievement ? updateAchievement : addAchievement;
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, onSuccess);
+    const { toast } = useToast();
     const [description, setDescription] = useState(achievement?.description ?? '');
+
+    useEffect(() => {
+        if (!state?.message) return;
+        toast({
+            variant: state.success ? 'default' : 'destructive',
+            title: state.success ? 'Success!' : 'Error',
+            description: state.message,
+        });
+        if (state.success) {
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                formRef.current?.reset();
+                setDescription('');
+                const removeButton = formRef.current?.querySelector('button[variant="destructive"].absolute') as HTMLButtonElement;
+                if(removeButton) removeButton.click();
+            }
+        }
+    }, [state, toast, onSuccess]);
+
 
     return (
         <Card>
@@ -571,7 +596,26 @@ export function CertificationForm({ certification, onSuccess }: { certification?
     const action = certification ? updateCertification : addCertification;
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, onSuccess);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        if (!state?.message) return;
+        toast({
+            variant: state.success ? 'default' : 'destructive',
+            title: state.success ? 'Success!' : 'Error',
+            description: state.message,
+        });
+        if (state.success) {
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                formRef.current?.reset();
+                const removeButton = formRef.current?.querySelector('button[variant="destructive"].absolute') as HTMLButtonElement;
+                if(removeButton) removeButton.click();
+            }
+        }
+    }, [state, toast, onSuccess]);
+
     return (
         <Card>
             <CardHeader>
@@ -598,7 +642,25 @@ export function EducationForm({ education, onSuccess }: { education?: Client<Edu
     const action = education ? updateEducation : addEducation;
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, onSuccess);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        if (!state?.message) return;
+        toast({
+            variant: state.success ? 'default' : 'destructive',
+            title: state.success ? 'Success!' : 'Error',
+            description: state.message,
+        });
+        if (state.success) {
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                formRef.current?.reset();
+                const removeButton = formRef.current?.querySelector('button[variant="destructive"].absolute') as HTMLButtonElement;
+                if(removeButton) removeButton.click();
+            }
+        }
+    }, [state, toast, onSuccess]);
 
     return (
         <Card>
@@ -626,8 +688,27 @@ export function WorkExperienceForm({ experience, onSuccess }: { experience?: Cli
     const action = experience ? updateWorkExperience : addWorkExperience;
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, onSuccess);
+    const { toast } = useToast();
     const [description, setDescription] = useState(experience?.description ?? '');
+
+    useEffect(() => {
+        if (!state?.message) return;
+        toast({
+            variant: state.success ? 'default' : 'destructive',
+            title: state.success ? 'Success!' : 'Error',
+            description: state.message,
+        });
+        if (state.success) {
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                formRef.current?.reset();
+                setDescription('');
+                const removeButton = formRef.current?.querySelector('button[variant="destructive"].absolute') as HTMLButtonElement;
+                if(removeButton) removeButton.click();
+            }
+        }
+    }, [state, toast, onSuccess]);
 
     return (
         <Card>
@@ -659,7 +740,26 @@ export function ProfileLinkForm({ link, onSuccess }: { link?: Client<ProfileLink
     const action = link ? updateProfileLink : addProfileLink;
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, onSuccess);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        if (!state?.message) return;
+        toast({
+            variant: state.success ? 'default' : 'destructive',
+            title: state.success ? 'Success!' : 'Error',
+            description: state.message,
+        });
+        if (state.success) {
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                formRef.current?.reset();
+                const removeButton = formRef.current?.querySelector('button[variant="destructive"].absolute') as HTMLButtonElement;
+                if(removeButton) removeButton.click();
+            }
+        }
+    }, [state, toast, onSuccess]);
+    
     return (
         <Card>
             <CardHeader>
