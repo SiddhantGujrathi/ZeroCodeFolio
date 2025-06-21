@@ -4,6 +4,7 @@ import {
     AboutForm, SkillForm, ProjectForm, AchievementForm, CertificationForm, EducationForm, WorkExperienceForm, ProfileLinkForm 
 } from "./PortfolioForms";
 import { 
+    AboutDisplay,
     SkillsDisplay, ProjectsDisplay, AchievementsDisplay, CertificationsDisplay, EducationDisplay, WorkExperienceDisplay, ProfileLinksDisplay 
 } from "./PortfolioDisplay";
 import { Separator } from "@/components/ui/separator";
@@ -53,6 +54,8 @@ export function AdminDashboard(props: AdminDashboardProps) {
                     </TabsList>
 
                     <TabsContent value="about" className="mt-4 space-y-6">
+                        <AboutDisplay about={about} />
+                        <Separator />
                         <AboutForm about={about} />
                     </TabsContent>
                     

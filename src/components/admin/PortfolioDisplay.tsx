@@ -42,29 +42,30 @@ function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg"
 }
 
 export function AboutDisplay({ about }: { about: Client<About> | null }) {
-    if (!about) {
-        return null;
-    }
     return (
          <div className="space-y-4">
              <h3 className="text-xl font-bold tracking-tight">Current Info</h3>
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center gap-4">
-                        <div className="relative h-20 w-20 rounded-full overflow-hidden border">
-                            <Image src={about.profileImage} alt={about.name} fill className="object-cover" />
+            {!about ? (
+                 <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
+            ) : (
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center gap-4">
+                            <div className="relative h-20 w-20 rounded-full overflow-hidden border">
+                                <Image src={about.profileImage} alt={about.name} fill className="object-cover" />
+                            </div>
+                            <div>
+                                <CardTitle>{about.name}</CardTitle>
+                                <CardDescription>{about.email} | {about.phone} | {about.location}</CardDescription>
+                            </div>
                         </div>
-                        <div>
-                            <CardTitle>{about.name}</CardTitle>
-                            <CardDescription>{about.email} | {about.phone} | {about.location}</CardDescription>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <p>{about.bio}</p>
-                    <a href={about.resumeUrl} className="text-sm text-primary hover:underline mt-2 inline-block">View Resume</a>
-                </CardContent>
-            </Card>
+                    </CardHeader>
+                    <CardContent>
+                        <p>{about.bio}</p>
+                        <a href={about.resumeUrl} className="text-sm text-primary hover:underline mt-2 inline-block">View Resume</a>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 }
