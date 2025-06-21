@@ -28,6 +28,8 @@ const aboutSchema = z.object({
     profileImage: z.string().min(1, "Profile image is required"),
 });
 
+const partialAboutSchema = aboutSchema.partial();
+
 const skillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
   image: z.string().min(1, "Image is required"),
@@ -88,7 +90,7 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
     const aboutCollection = await getAboutCollection();
     const dataFromForm = Object.fromEntries(formData.entries());
 
-    const parsed = aboutSchema.safeParse(dataFromForm);
+    const parsed = partialAboutSchema.safeParse(dataFromForm);
 
     if (!parsed.success) {
         return {
@@ -98,60 +100,25 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
         };
     }
 
+    const updatePayload: Partial<About> = {};
+    for (const key in parsed.data) {
+        const value = parsed.data[key as keyof typeof parsed.data];
+        if (value) { // Ensure value is not null, undefined, or an empty string
+            (updatePayload as any)[key] = value;
+        }
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
+        return { message: "No new information provided.", success: false, errors: {} };
+    }
+
     try {
-        const existingData = await aboutCollection.findOne({});
-        const updatePayload: Partial<About> = {};
-
-        for (const key in parsed.data) {
-            if (Object.prototype.hasOwnProperty.call(parsed.data, key)) {
-                const formValue = parsed.data[key as keyof typeof parsed.data];
-                const existingValue = existingData ? existingData[key as keyof typeof existingData] : undefined;
-                
-                if (formValue !== existingValue) {
-                    (updatePayload as any)[key] = formValue;
-                }
-            }
-        }
-
-        if (Object.keys(updatePayload).length === 0) {
-            return { message: "No changes to update.", success: true, errors: {} };
-        }
-
         await aboutCollection.updateOne({}, { $set: updatePayload }, { upsert: true });
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: 'About section updated successfully!', success: true, errors: {} };
+        const updatedFieldNames = Object.keys(updatePayload).join(', ');
+        return { message: `'${updatedFieldNames}' updated successfully!`, success: true, errors: {} };
 
-    } catch (e) {
-        console.error(e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
-    }
-}
-
-async function parseAndInsert<T extends z.ZodType<any, any>>(
-    formData: FormData,
-    schema: T,
-    collectionPromise: Promise<any>,
-    successMessage: string,
-    transform?: (data: z.infer<T>) => any
-): Promise<AdminFormState> {
-    const parsed = schema.safeParse(Object.fromEntries(formData.entries()));
-    if (!parsed.success) {
-        return {
-            message: 'Invalid form data.',
-            errors: parsed.error.flatten().fieldErrors,
-            success: false,
-        };
-    }
-
-    try {
-        const collection = await collectionPromise;
-        const dataToInsert = transform ? transform(parsed.data) : parsed.data;
-        await collection.insertOne(dataToInsert);
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: successMessage, success: true, errors: {} };
     } catch (e) {
         console.error(e);
         const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';

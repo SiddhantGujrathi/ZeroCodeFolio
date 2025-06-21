@@ -15,8 +15,19 @@ import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { stringToIconMap } from '@/lib/icon-map';
 import type { About } from '@/models/About';
+import { z } from 'zod';
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
+
+const aboutSchema = z.object({
+    name: z.string(),
+    bio: z.string(),
+    location: z.string(),
+    email: z.string(),
+    phone: z.string(),
+    resumeUrl: z.string(),
+    profileImage: z.string(),
+});
 
 function SubmitButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -32,6 +43,10 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
 } & ComponentProps<'input'>) {
     const [preview, setPreview] = useState<string | null>(currentImage || null);
     
+    useEffect(() => {
+        setPreview(currentImage || null);
+    }, [currentImage]);
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -53,10 +68,10 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
 
     return (
         <div className="space-y-2">
-            <Label>{label}</Label>
+            {label && <Label>{label}</Label>}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <div className="space-y-2 p-4 border-2 border-dashed rounded-lg text-center hover:border-primary" onPaste={handlePaste}>
-                    <p className="text-xs text-muted-foreground">{description}</p>
+                    {description && <p className="text-xs text-muted-foreground">{description}</p>}
                     <Input type="file" accept="image/*" onChange={handleImageChange} className="text-sm file:mr-2 file:text-muted-foreground" />
                     <input type="hidden" name={fieldName} value={preview || ''} />
                     {error && <p className="text-sm text-destructive">{error}</p>}
@@ -82,7 +97,7 @@ function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<
       });
       if (state.success) {
         formRef.current?.reset();
-        onReset?.();
+        if (onReset) onReset();
       }
     }
   }, [state, toast, formRef, onReset]);
@@ -90,37 +105,90 @@ function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<
 
 const availableIcons = Object.keys(stringToIconMap);
 
-export function AboutForm({ about }: { about: Client<About> | null }) {
-    const initialState: AdminFormState = { message: null, errors: {}, success: false };
-    const [state, dispatch] = useActionState(updateAbout, initialState);
+
+function AboutFieldForm({ fieldName, label, defaultValue, children }: {
+    fieldName: keyof z.infer<typeof aboutSchema>,
+    label: string,
+    defaultValue?: string | null,
+    children: React.ReactNode,
+}) {
+    const [state, dispatch] = useActionState(updateAbout, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef);
     
+    const { toast } = useToast();
+    useEffect(() => {
+        if (state?.message && state.message !== 'Invalid form data.') {
+            toast({
+                variant: state.success ? 'default' : 'destructive',
+                title: state.success ? 'Success!' : 'Error',
+                description: state.message,
+            });
+        }
+    }, [state, toast]);
+
+    return (
+        <div className="p-4 border rounded-lg space-y-3 bg-card/50">
+            <form ref={formRef} action={dispatch} className="space-y-3">
+                <Label className="text-base font-semibold">{label}</Label>
+                {children}
+                {state?.errors?.[fieldName] && <p className="text-sm text-destructive mt-1">{state.errors[fieldName][0]}</p>}
+                <Button type="submit" className="w-full" disabled={useFormStatus().pending}>
+                    {useFormStatus().pending ? 'Saving...' : (defaultValue ? `Update ${label}` : `Add ${label}`)}
+                </Button>
+            </form>
+        </div>
+    )
+}
+
+export function AboutForm({ about }: { about: Client<About> | null }) {
     return (
         <Card className="border-0 shadow-none">
-            <CardHeader><CardTitle>Manage About Section</CardTitle></CardHeader>
-            <CardContent>
-                <form ref={formRef} action={dispatch} className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2"><Label>Name</Label><Input name="name" defaultValue={about?.name} />{state?.errors?.name && <p className="text-sm text-destructive">{state.errors.name}</p>}</div>
-                        <div className="space-y-2"><Label>Email</Label><Input name="email" type="email" defaultValue={about?.email} />{state?.errors?.email && <p className="text-sm text-destructive">{state.errors.email}</p>}</div>
-                        <div className="space-y-2"><Label>Phone</Label><Input name="phone" defaultValue={about?.phone} />{state?.errors?.phone && <p className="text-sm text-destructive">{state.errors.phone}</p>}</div>
-                        <div className="space-y-2"><Label>Location</Label><Input name="location" defaultValue={about?.location} />{state?.errors?.location && <p className="text-sm text-destructive">{state.errors.location}</p>}</div>
-                    </div>
-                    <div className="space-y-2"><Label>Bio</Label><Textarea name="bio" defaultValue={about?.bio} />{state?.errors?.bio && <p className="text-sm text-destructive">{state.errors.bio}</p>}</div>
-                    <div className="space-y-2"><Label>Resume URL</Label><Input name="resumeUrl" type="url" defaultValue={about?.resumeUrl} />{state?.errors?.resumeUrl && <p className="text-sm text-destructive">{state.errors.resumeUrl}</p>}</div>
-                    <ImageUpload fieldName="profileImage" label="Profile Image" description="Upload/paste your profile picture." currentImage={about?.profileImage} error={state?.errors?.profileImage} />
-                    <SubmitButton>Update About Section</SubmitButton>
-                </form>
+            <CardHeader>
+                <CardTitle>Manage About Section</CardTitle>
+                <CardDescription>Update each field individually.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                 <div className="grid md:grid-cols-2 gap-6">
+                    <AboutFieldForm fieldName="name" label="Name" defaultValue={about?.name}>
+                        <Input name="name" defaultValue={about?.name ?? ''} />
+                    </AboutFieldForm>
+                    <AboutFieldForm fieldName="email" label="Email" defaultValue={about?.email}>
+                        <Input name="email" type="email" defaultValue={about?.email ?? ''} />
+                    </AboutFieldForm>
+                    <AboutFieldForm fieldName="phone" label="Phone" defaultValue={about?.phone}>
+                        <Input name="phone" defaultValue={about?.phone ?? ''} />
+                    </AboutFieldForm>
+                    <AboutFieldForm fieldName="location" label="Location" defaultValue={about?.location}>
+                        <Input name="location" defaultValue={about?.location ?? ''} />
+                    </AboutFieldForm>
+                </div>
+                
+                <AboutFieldForm fieldName="bio" label="Bio" defaultValue={about?.bio}>
+                    <Textarea name="bio" defaultValue={about?.bio ?? ''} className="min-h-[120px]" />
+                </AboutFieldForm>
+
+                <AboutFieldForm fieldName="resumeUrl" label="Resume URL" defaultValue={about?.resumeUrl}>
+                    <Input name="resumeUrl" type="url" defaultValue={about?.resumeUrl ?? ''} />
+                </AboutFieldForm>
+
+                <AboutFieldForm fieldName="profileImage" label="Profile Image" defaultValue={about?.profileImage}>
+                    <ImageUpload 
+                        fieldName="profileImage" 
+                        label="" 
+                        description="Upload or paste a new profile image to update it." 
+                        currentImage={about?.profileImage}
+                    />
+                </AboutFieldForm>
             </CardContent>
         </Card>
-    )
+    );
 }
 
 export function SkillForm() {
   const [state, dispatch] = useActionState(addSkill, { message: null, errors: {}, success: false });
   const formRef = useRef<HTMLFormElement>(null);
-  useFormFeedback(state, formRef);
+  const [preview, setPreview] = useState<string | null>(null);
+  useFormFeedback(state, formRef, () => setPreview(null));
   
   return (
     <Card className="border-0 shadow-none">
