@@ -1,4 +1,4 @@
-
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 'use client';
 
 import { useFormStatus } from 'react-dom';
@@ -335,12 +335,9 @@ function BioSubmitButton() {
 function BioEditorForm({ bio }: { bio?: string | null }) {
     const [state, dispatch] = useActionState(updateAbout, { message: null, success: false });
     const { toast } = useToast();
-
-    // The editor's value is controlled by this state.
     const [editorValue, setEditorValue] = useState(bio || '');
 
     useEffect(() => {
-        // This effect now only runs when the server action's state changes.
         if (state?.message) {
             toast({
                 variant: state.success ? 'default' : 'destructive',

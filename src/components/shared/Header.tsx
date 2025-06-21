@@ -1,4 +1,4 @@
-
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 "use client";
 
 import { useState, useEffect } from "react";

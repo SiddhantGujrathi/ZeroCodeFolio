@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import Image from 'next/image';
 import React from 'react';
 import { stringToIconMap } from '@/lib/icon-map';

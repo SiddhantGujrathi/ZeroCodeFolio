@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import Link from "next/link";
 import Image from "next/image";
 import { Download, Mail } from "lucide-react";

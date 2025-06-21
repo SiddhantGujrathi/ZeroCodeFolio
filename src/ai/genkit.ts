@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
 

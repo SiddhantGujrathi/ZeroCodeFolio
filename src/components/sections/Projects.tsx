@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import { ProjectCard } from "@/components/shared/ProjectCard";
 import { getProjectsCollection } from "@/models/Project";
 import type { Project } from "@/models/Project";

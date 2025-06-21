@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 

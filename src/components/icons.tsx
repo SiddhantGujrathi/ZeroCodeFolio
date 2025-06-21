@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import type { SVGProps } from "react";
 
 export const JavascriptIcon = (props: SVGProps<SVGSVGElement>) => (

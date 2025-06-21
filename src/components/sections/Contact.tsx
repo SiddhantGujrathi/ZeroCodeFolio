@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAboutCollection } from "@/models/About";

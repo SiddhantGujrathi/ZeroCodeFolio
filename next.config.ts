@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {

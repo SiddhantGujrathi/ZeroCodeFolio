@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import { z } from 'zod';
 
 export const LoginFormSchema = z.object({

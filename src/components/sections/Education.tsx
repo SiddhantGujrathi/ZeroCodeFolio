@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import Image from "next/image";
 import { getEducationCollection } from "@/models/Education";
 import { BookOpenCheck } from "lucide-react";

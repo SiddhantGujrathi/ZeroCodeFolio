@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import type { Collection, Document, ObjectId } from 'mongodb';
 import clientPromise from '@/lib/mongodb';
 

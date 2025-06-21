@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import { getProfileLinksCollection } from "@/models/ProfileLink";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";

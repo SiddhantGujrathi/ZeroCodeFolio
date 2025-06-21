@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import Image from "next/image";
 import { Briefcase } from "lucide-react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";

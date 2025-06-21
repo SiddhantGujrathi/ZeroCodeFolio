@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import React from 'react';
 import { getSkillsCollection } from "@/models/Skill";
 import { Shapes } from "lucide-react";

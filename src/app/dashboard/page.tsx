@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { DatabaseSetup } from "@/components/admin/DatabaseSetup";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

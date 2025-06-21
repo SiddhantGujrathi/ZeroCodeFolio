@@ -1,3 +1,4 @@
+// Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 "use client"
 
 import { useToast } from "@/hooks/use-toast"
