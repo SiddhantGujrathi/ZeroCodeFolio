@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Briefcase } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { getWorkExperienceCollection } from "@/models/WorkExperience";
 
 
@@ -23,32 +23,31 @@ export async function WorkExperience() {
             My professional journey and key roles.
           </p>
         </div>
-        <div className="relative mt-12">
-           <div className="absolute left-1/2 top-0 -translate-x-1/2 h-full w-px bg-border" aria-hidden="true" />
-           <div className="space-y-12">
-            {experiences.map((exp, index) => (
-                <div key={exp._id.toString()} className="relative flex items-start">
-                    <div className="absolute left-1/2 top-6 -translate-x-1/2">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground relative overflow-hidden">
-                           {exp.icon ? (
-                               <Image src={exp.icon} alt={exp.companyName} fill className="object-contain p-1" data-ai-hint={exp.iconHint || 'company logo'} />
-                           ) : (
-                               <Briefcase className="h-5 w-5" />
-                           )}
-                        </span>
-                    </div>
-                    <Card className={`w-[calc(50%-2rem)] ${index % 2 === 0 ? 'mr-auto' : 'ml-auto'}`}>
-                        <CardHeader>
-                            <CardTitle>{exp.role}</CardTitle>
-                            <CardDescription>{exp.companyName}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground">{exp.description}</p>
-                        </CardContent>
-                    </Card>
-                </div>
-            ))}
-           </div>
+        <div className="mt-12 max-w-4xl mx-auto space-y-8">
+          {experiences.map((exp) => (
+            <Card key={exp._id.toString()} className="flex flex-col sm:flex-row items-start gap-6 p-6 transition-shadow hover:shadow-lg">
+              <div className="relative h-16 w-16 flex-shrink-0 self-center sm:self-start">
+                {exp.icon ? (
+                  <Image 
+                    src={exp.icon} 
+                    alt={exp.companyName} 
+                    fill 
+                    className="rounded-full object-contain p-1" 
+                    data-ai-hint={exp.iconHint || 'company logo'} 
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center rounded-full bg-secondary">
+                    <Briefcase className="h-8 w-8 text-secondary-foreground" />
+                  </span>
+                )}
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl">{exp.role}</CardTitle>
+                <CardDescription className="mt-1">{exp.companyName}</CardDescription>
+                <p className="mt-4 text-sm text-muted-foreground whitespace-pre-wrap">{exp.description}</p>
+              </div>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
