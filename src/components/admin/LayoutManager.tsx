@@ -18,7 +18,7 @@ function SubmitButton() {
     );
 }
 
-const allPossibleSections = ['Hero', 'Skills', 'WorkExperience', 'Projects', 'Education', 'Achievements', 'Contact'];
+const allPossibleSections = ['About', 'Skills', 'WorkExperience', 'Projects', 'Education', 'Achievements', 'Contact'];
 
 export function LayoutManager({ layout }: { layout: Layout }) {
     const [navLinks, setNavLinks] = useState(layout.navLinks);

@@ -23,7 +23,7 @@ export const DEFAULT_NAV_LINKS: NavLink[] = [
 ];
 
 export const DEFAULT_SECTIONS: string[] = [
-    'Hero', 'Skills', 'WorkExperience', 'Projects', 'Education', 'Achievements', 'Contact'
+    'About', 'Skills', 'WorkExperience', 'Projects', 'Education', 'Achievements', 'Contact'
 ];
 
 export async function getLayoutCollection(): Promise<Collection<Layout>> {

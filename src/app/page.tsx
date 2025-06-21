@@ -10,7 +10,7 @@ import { Education } from "@/components/sections/Education";
 import { getLayout } from "@/models/Layout";
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
-  Hero,
+  About: Hero,
   Skills,
   WorkExperience,
   Projects,
