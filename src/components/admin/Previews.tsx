@@ -41,7 +41,7 @@ function PreviewWrapper({ title, children }: { title: string; children: React.Re
                     This is a preview of how the &quot;{title}&quot; section will appear to visitors on your site.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="bg-muted/30 border-2 border-dashed border-border/60 rounded-lg p-4 sm:p-6 overflow-x-auto">
+            <CardContent className="bg-muted/30 border border-foreground/20 rounded-lg p-4 sm:p-6 overflow-x-auto">
                 <div className="max-w-full w-full">
                     {children}
                 </div>
@@ -165,7 +165,9 @@ export function AchievementsPreview({ achievements, certifications }: { achievem
                                </CardHeader>
                                <CardContent>
                                    <CardTitle className="text-lg">{achievement.title}</CardTitle>
-                                   <CardDescription className="mt-1 text-sm">{achievement.description}</CardDescription>
+                                   <div className="mt-1 text-sm text-card-foreground/80">
+                                       <SlateViewer value={achievement.description} />
+                                   </div>
                                </CardContent>
                             </Card>
                         ))}
@@ -284,7 +286,9 @@ export function WorkExperiencePreview({ workExperience }: { workExperience: Clie
                         <div className="flex-1">
                           <CardTitle className="text-xl">{exp.role}</CardTitle>
                           <CardDescription className="mt-1">{exp.companyName}</CardDescription>
-                          <p className="mt-4 text-sm text-muted-foreground whitespace-pre-wrap">{exp.description}</p>
+                          <div className="mt-4 text-sm text-muted-foreground">
+                            <SlateViewer value={exp.description} />
+                          </div>
                         </div>
                       </Card>
                     ))}
@@ -325,5 +329,7 @@ export function ProfileLinksPreview({ profileLinks, about }: { profileLinks: Cli
 }
 
 
+
+    
 
     
