@@ -41,7 +41,7 @@ function PreviewWrapper({ title, children }: { title: string; children: React.Re
                     This is a preview of how the &quot;{title}&quot; section will appear to visitors on your site.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="bg-muted/20 border rounded-md p-4 sm:p-6 overflow-x-auto">
+            <CardContent className="bg-muted/30 border-2 border-dashed border-border/60 rounded-lg p-4 sm:p-6 overflow-x-auto">
                 <div className="max-w-full w-full">
                     {children}
                 </div>
@@ -324,3 +324,6 @@ export function ProfileLinksPreview({ profileLinks, about }: { profileLinks: Cli
     );
 }
 
+
+
+    
