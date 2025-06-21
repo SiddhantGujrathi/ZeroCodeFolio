@@ -16,18 +16,18 @@ export function SkillHexagon({ skill }: SkillHexagonProps) {
     return (
         <div className="hexagon-container">
             <div className="hexagon">
-                <div className="relative h-16 w-16 flex items-center justify-center">
+                <div className="relative h-12 w-12 flex items-center justify-center">
                 {(() => {
                     if (skill.image) {
                         return <Image src={skill.image} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint || 'skill icon'} />;
                     }
                     if (IconComponent) {
-                        return <IconComponent className="h-12 w-12 text-primary" />;
+                        return <IconComponent className="h-10 w-10 text-primary" />;
                     }
                     return <Image src={'https://placehold.co/100x100.png'} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint || 'skill icon'} />;
                 })()}
                 </div>
-                <p className="mt-2 font-semibold text-sm">{skill.title}</p>
+                <p className="mt-1 font-semibold text-sm">{skill.title}</p>
             </div>
         </div>
     );

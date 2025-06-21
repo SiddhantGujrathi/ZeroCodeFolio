@@ -76,8 +76,8 @@
 }
 
 .hexagon-container {
-  width: 150px;
-  height: 170px;
+  width: 110px;
+  height: 125px;
 }
 
 .hexagon {
@@ -90,7 +90,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: center;
   transition: all 0.2s ease-in-out;
   border: 1px solid hsl(var(--border));
