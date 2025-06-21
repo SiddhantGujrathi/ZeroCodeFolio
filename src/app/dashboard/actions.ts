@@ -90,7 +90,17 @@ async function getCollection(collectionName: string) {
     return db.collection(collectionName);
 }
 
-const DB_ERROR_MESSAGE = 'Database Connection Error. Please ensure your IP address is whitelisted in MongoDB Atlas and that your MONGODB_URI environment variable is correct.';
+const DB_CONN_ERROR = "Database Connection Failed. Please ensure your current IP address is whitelisted in MongoDB Atlas under 'Network Access' and that your MONGODB_URI is correct.";
+const UNEXPECTED_ERROR = "An unexpected error occurred. Please check your database credentials and permissions.";
+
+function handleDbError(e: unknown): AdminFormState {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    if (e instanceof Error && (e.name === 'MongoNetworkError' || e.message.includes('timed out'))) {
+        return { message: `${DB_CONN_ERROR} Full error: ${errorMessage}`, success: false };
+    }
+    return { message: `${UNEXPECTED_ERROR} Full error: ${errorMessage}`, success: false };
+}
+
 
 export async function updateAbout(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     try {
@@ -131,61 +141,32 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
 
     } catch (e) {
         console.error("Failed to update about section:", e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to update. An unexpected error occurred: ${errorMessage}`, success: false };
+        return handleDbError(e);
     }
 }
 
 export async function addSkill(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     try {
         const parsed = skillSchema.safeParse(Object.fromEntries(formData.entries()));
-
         if (!parsed.success) {
-            return {
-                message: 'Invalid form data.',
-                errors: parsed.error.flatten().fieldErrors,
-                success: false,
-            };
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
 
         const dataToInsert = { ...parsed.data };
-
         if (!dataToInsert.image) {
             delete dataToInsert.image;
         }
 
         const skillsCollection = await getCollection('skills');
-        const result = await skillsCollection.insertOne(dataToInsert);
-
-        if (!result.insertedId) {
-            return { 
-                message: 'Database Error: The skill was not saved. The operation was not acknowledged by the database.', 
-                success: false 
-            };
-        }
+        await skillsCollection.insertOne(dataToInsert);
         
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Skill added successfully!', success: true };
 
     } catch (e) {
-        console.error("Critical error in addSkill:", e);
-        const errorMessage = e instanceof Error ? e.message : String(e);
-
-        if (e instanceof Error && (e.name === 'MongoNetworkError' || e.message.includes('timed out'))) {
-            return { 
-                message: `Database Connection Failed. Please ensure your current IP address is whitelisted in MongoDB Atlas under 'Network Access'. Full error: ${errorMessage}`, 
-                success: false 
-            };
-        }
-
-        return { 
-            message: `An unexpected error occurred while adding the skill. Please check your database credentials and permissions. Full error: ${errorMessage}`, 
-            success: false 
-        };
+        console.error("Failed to add skill:", e);
+        return handleDbError(e);
     }
 }
 
@@ -209,20 +190,14 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
         }
 
         const projectsCollection = await getCollection('projects');
-        const result = await projectsCollection.insertOne(dataToInsert);
-        if (!result.insertedId) {
-            return { message: 'Database Error: The project was not saved. The operation was not acknowledged by the database.', success: false };
-        }
+        await projectsCollection.insertOne(dataToInsert);
+
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Project added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add project:", e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to add project. An unexpected error occurred: ${errorMessage}`, success: false };
+        return handleDbError(e);
     }
 }
 
@@ -240,20 +215,14 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
         }
 
         const achievementsCollection = await getCollection('achievements');
-        const result = await achievementsCollection.insertOne(dataToInsert);
-        if (!result.insertedId) {
-            return { message: 'Database Error: The achievement was not saved. The operation was not acknowledged by the database.', success: false };
-        }
+        await achievementsCollection.insertOne(dataToInsert);
+
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Achievement added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add achievement:", e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to add achievement. An unexpected error occurred: ${errorMessage}`, success: false };
+        return handleDbError(e);
     }
 }
 
@@ -270,20 +239,14 @@ export async function addCertification(prevState: AdminFormState, formData: Form
         }
 
         const certificationsCollection = await getCollection('certifications');
-        const result = await certificationsCollection.insertOne(dataToInsert);
-        if (!result.insertedId) {
-            return { message: 'Database Error: The certification was not saved. The operation was not acknowledged by the database.', success: false };
-        }
+        await certificationsCollection.insertOne(dataToInsert);
+
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Certification added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add certification:", e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to add certification. An unexpected error occurred: ${errorMessage}`, success: false };
+        return handleDbError(e);
     }
 }
 
@@ -294,20 +257,14 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
             return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
         const educationCollection = await getCollection('education');
-        const result = await educationCollection.insertOne(parsed.data);
-        if (!result.insertedId) {
-            return { message: 'Database Error: The education record was not saved. The operation was not acknowledged by the database.', success: false };
-        }
+        await educationCollection.insertOne(parsed.data);
+
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Education added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add education:", e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to add education record. An unexpected error occurred: ${errorMessage}`, success: false };
+        return handleDbError(e);
     }
 }
 
@@ -318,20 +275,14 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
             return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
         const workExperienceCollection = await getCollection('workExperience');
-        const result = await workExperienceCollection.insertOne(parsed.data);
-        if (!result.insertedId) {
-            return { message: 'Database Error: The work experience was not saved. The operation was not acknowledged by the database.', success: false };
-        }
+        await workExperienceCollection.insertOne(parsed.data);
+
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Work experience added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add work experience:", e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to add work experience. An unexpected error occurred: ${errorMessage}`, success: false };
+        return handleDbError(e);
     }
 }
 
@@ -342,20 +293,14 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
             return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
         const profileLinksCollection = await getCollection('profileLinks');
-        const result = await profileLinksCollection.insertOne(parsed.data);
-        if (!result.insertedId) {
-            return { message: 'Database Error: The profile link was not saved. The operation was not acknowledged by the database.', success: false };
-        }
+        await profileLinksCollection.insertOne(parsed.data);
+
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Profile link added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add profile link:", e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to add profile link. An unexpected error occurred: ${errorMessage}`, success: false };
+        return handleDbError(e);
     }
 }
 
@@ -375,11 +320,7 @@ async function deleteItem(collectionName: string, id: string): Promise<AdminForm
         return { message: 'Item deleted successfully.', success: true };
     } catch (e) {
         console.error(`Failed to delete item from ${collectionName}:`, e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to delete item. An unexpected error occurred: ${errorMessage}`, success: false };
+        return handleDbError(e);
     }
 }
 
