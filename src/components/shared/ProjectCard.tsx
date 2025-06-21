@@ -32,12 +32,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <CardHeader>
         <div className="aspect-video overflow-hidden rounded-md border">
           <Image
-            src={projectImage}
+            src={projectImage || 'https://placehold.co/600x400.png'}
             alt={title}
             width={600}
             height={400}
             className="h-full w-full object-cover transition-transform hover:scale-105"
-            data-ai-hint={imageAiHint}
+            data-ai-hint={imageAiHint || 'project image'}
           />
         </div>
       </CardHeader>

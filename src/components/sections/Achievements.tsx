@@ -40,7 +40,7 @@ export async function Achievements() {
                     <Card key={achievement._id.toString()}>
                        <CardHeader>
                             <div className="aspect-video relative border rounded-md overflow-hidden">
-                                <Image src={achievement.image} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint} />
+                                <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
                             </div>
                        </CardHeader>
                        <CardContent>
@@ -57,7 +57,7 @@ export async function Achievements() {
                     <Card key={cert._id.toString()} className="flex flex-col">
                        <CardHeader className="flex-1">
                             <div className="aspect-video relative border rounded-md overflow-hidden">
-                                <Image src={cert.image} alt={cert.title} fill className="object-cover" data-ai-hint={cert.imageAiHint} />
+                                <Image src={cert.image || 'https://placehold.co/600x400.png'} alt={cert.title} fill className="object-cover" data-ai-hint={cert.imageAiHint || 'certificate'} />
                             </div>
                        </CardHeader>
                        <CardContent className="flex-1">

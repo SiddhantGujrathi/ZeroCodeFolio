@@ -33,7 +33,7 @@ export async function Hero() {
   return (
     <section id="about" className="container flex flex-col items-center justify-center py-20 text-center md:py-32">
         <Avatar className="h-28 w-28 border-2 border-primary">
-          <AvatarImage src={about.profileImage} alt={about.name} />
+          {about.profileImage && <AvatarImage src={about.profileImage} alt={about.name} />}
           <AvatarFallback>{about.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <h1 className="mt-4 font-headline text-4xl font-bold tracking-tight md:text-6xl">
