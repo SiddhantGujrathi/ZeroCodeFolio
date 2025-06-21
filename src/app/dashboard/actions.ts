@@ -65,7 +65,7 @@ const educationSchema = z.object({
   degreeName: z.string().min(1, "Degree name is required"),
   period: z.string().min(1, "Period is required"),
   cgpa: z.string().min(1, "CGPA is required"),
-  icon: z.string().min(1, "Icon name is required"),
+  icon: z.string().optional(),
   iconHint: z.string().optional(),
 });
 
@@ -256,8 +256,14 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
         if (!parsed.success) {
             return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
+
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.icon) {
+            delete dataToInsert.icon;
+        }
+        
         const educationCollection = await getCollection('education');
-        await educationCollection.insertOne(parsed.data);
+        await educationCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
         revalidatePath('/dashboard');

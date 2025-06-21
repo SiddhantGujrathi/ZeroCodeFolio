@@ -308,7 +308,7 @@ export function EducationDisplay({ education }: { education: Client<Education>[]
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[50px]">Icon</TableHead>
+                                <TableHead className="w-[80px]">Icon</TableHead>
                                 <TableHead>Degree</TableHead>
                                 <TableHead>Period</TableHead>
                                 <TableHead>CGPA</TableHead>
@@ -319,7 +319,9 @@ export function EducationDisplay({ education }: { education: Client<Education>[]
                             {education.map(edu => (
                                 <TableRow key={edu._id}>
                                     <TableCell>
-                                        <DynamicIcon name={edu.icon} className="h-6 w-6 text-primary" />
+                                        <div className="relative h-10 w-10">
+                                            {edu.icon && <Image src={edu.icon} alt={edu.degreeName} fill className="object-contain rounded-md" />}
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <p className="font-medium">{edu.degreeName}</p>

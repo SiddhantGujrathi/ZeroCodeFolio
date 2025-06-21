@@ -352,7 +352,12 @@ export function CertificationForm() {
 export function EducationForm() {
     const [state, dispatch] = useActionState(addEducation, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef);
+    const handleReset = useCallback(() => {
+        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
+        if (removeButton) removeButton.click();
+    }, []);
+    useFormFeedback(state, formRef, handleReset);
+
     return (
         <Card>
             <CardHeader>
@@ -365,8 +370,8 @@ export function EducationForm() {
                     <div className="space-y-2"><Label>Degree Name</Label><Input name="degreeName" />{state?.errors?.degreeName && <p className="text-sm text-destructive">{state.errors.degreeName}</p>}</div>
                     <div className="space-y-2"><Label>Period</Label><Input name="period" placeholder="e.g., 2020-2024" />{state?.errors?.period && <p className="text-sm text-destructive">{state.errors.period}</p>}</div>
                     <div className="space-y-2"><Label>CGPA</Label><Input name="cgpa" />{state?.errors?.cgpa && <p className="text-sm text-destructive">{state.errors.cgpa}</p>}</div>
-                    <div className="space-y-2"><Label>Icon</Label><Input name="icon" placeholder="e.g., GraduationCap" /><p className="text-xs text-muted-foreground pt-1">Available: {availableIcons.join(', ')}</p>{state?.errors?.icon && <p className="text-sm text-destructive">{state.errors.icon}</p>}</div>
-                    <div className="space-y-2"><Label>Icon Hint</Label><Input name="iconHint" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
+                    <ImageUpload fieldName="icon" label="Education Icon / Image" description="Upload/paste an image for the school/college." error={state?.errors?.icon} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'university logo' or 'graduation cap'" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
                     <SubmitButton>Add Education</SubmitButton>
                 </form>
             </CardContent>

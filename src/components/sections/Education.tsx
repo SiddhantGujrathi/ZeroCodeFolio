@@ -1,13 +1,6 @@
-import type { ComponentProps } from "react";
-import { GraduationCap } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import Image from "next/image";
+import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { getEducationCollection } from "@/models/Education";
-import { stringToIconMap } from "@/lib/icon-map";
-
-function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
-  const Icon = stringToIconMap[name] || GraduationCap;
-  return <Icon {...props} />;
-}
 
 export async function Education() {
   const educationCollection = await getEducationCollection();
@@ -28,17 +21,16 @@ export async function Education() {
             My academic background and qualifications.
           </p>
         </div>
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
+        <div className="mt-12 space-y-8">
           {educations.map((edu) => (
-            <Card key={edu._id.toString()} className="flex">
-              <div className="p-6 flex items-center justify-center">
-                  <DynamicIcon name={edu.icon} className="h-10 w-10 text-primary" />
+            <Card key={edu._id.toString()} className="flex flex-col sm:flex-row items-center p-6 gap-6 transition-shadow hover:shadow-lg">
+              <div className="relative h-20 w-20 flex-shrink-0">
+                  <Image src={edu.icon || 'https://placehold.co/400x400.png'} alt={edu.collegeName} fill className="object-contain rounded-full" data-ai-hint={edu.iconHint || 'university logo'} />
               </div>
-              <div className="p-6 pl-0 flex-1">
-                  <CardTitle className="text-lg">{edu.degreeName}</CardTitle>
+              <div className="flex-1 text-center sm:text-left">
+                  <CardTitle className="text-xl">{edu.degreeName}</CardTitle>
                   <CardDescription className="mt-1">{edu.collegeName}</CardDescription>
-                  <p className="mt-2 text-sm text-muted-foreground">{edu.period}</p>
-                  <p className="text-sm text-muted-foreground">CGPA: {edu.cgpa}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{edu.period} | CGPA: {edu.cgpa}</p>
               </div>
             </Card>
           ))}

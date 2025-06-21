@@ -7,7 +7,7 @@ export interface Education extends Document {
   degreeName: string;
   period: string;
   cgpa: string;
-  icon: string;
+  icon?: string;
   iconHint?: string;
 }
 
