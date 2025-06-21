@@ -13,7 +13,7 @@ export type AdminFormState = {
 
 export type SetupResult = {
     overall: { success: boolean; message: string };
-    details: { collection: string; status: 'success' | 'error'; message: string }[];
+    details: { collection: string; status: 'success' | 'error'; message:string }[];
 }
 
 const aboutSchema = z.object({

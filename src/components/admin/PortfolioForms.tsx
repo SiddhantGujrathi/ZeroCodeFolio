@@ -33,6 +33,7 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
 } & ComponentProps<'input'>) {
     const [preview, setPreview] = useState<string | null>(currentImage || null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const hiddenInputRef = useRef<HTMLInputElement>(null);
     
     useEffect(() => {
         setPreview(currentImage || null);
@@ -42,7 +43,13 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => setPreview(reader.result as string);
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                setPreview(result);
+                if (hiddenInputRef.current) {
+                    hiddenInputRef.current.value = result;
+                }
+            };
             reader.readAsDataURL(file);
         }
     };
@@ -52,15 +59,30 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
+        if (hiddenInputRef.current) {
+            hiddenInputRef.current.value = '';
+        }
     };
 
     const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-        const file = e.clipboardData.items?.[0]?.getAsFile();
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onloadend = () => setPreview(reader.result as string);
-            reader.readAsDataURL(file);
-            e.preventDefault();
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const result = reader.result as string;
+                        setPreview(result);
+                        if (hiddenInputRef.current) {
+                            hiddenInputRef.current.value = result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    e.preventDefault();
+                    break;
+                }
+            }
         }
     };
 
@@ -71,7 +93,7 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
                 <div className="space-y-2 p-4 border-2 border-dashed rounded-lg text-center hover:border-primary" onPaste={handlePaste}>
                     {description && <p className="text-xs text-muted-foreground">{description}</p>}
                     <Input type="file" accept="image/*" onChange={handleImageChange} className="text-sm file:mr-2 file:text-muted-foreground" ref={fileInputRef} />
-                    <input type="hidden" name={fieldName} value={preview || ''} />
+                    <input type="hidden" name={fieldName} ref={hiddenInputRef} defaultValue={preview || ''} />
                     {error && <p className="text-sm text-destructive">{error}</p>}
                 </div>
                 {preview && (
@@ -96,7 +118,8 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
 function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<HTMLFormElement>, onReset?: () => void) {
   const { toast } = useToast();
   useEffect(() => {
-    if (state?.message) {
+    if (!state) return;
+    if (state.message) {
       toast({
         variant: state.success ? 'default' : 'destructive',
         title: state.success ? 'Success!' : 'Error',
@@ -121,16 +144,17 @@ function AboutFieldForm({ fieldName, label, defaultValue, children }: {
 }) {
     const [state, dispatch] = useActionState(updateAbout, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    
     const { toast } = useToast();
+
     useEffect(() => {
-        if (state?.message && state.message !== 'Invalid form data. Please ensure all fields are correctly filled.') {
-            toast({
-                variant: state.success ? 'default' : 'destructive',
-                title: state.success ? 'Success!' : 'Error',
-                description: state.message,
-            });
-        }
+      if (!state) return;
+      if (state.message) {
+        toast({
+            variant: state.success ? 'default' : 'destructive',
+            title: state.success ? 'Success!' : 'Error',
+            description: state.message,
+        });
+      }
     }, [state, toast]);
 
     return (
@@ -150,6 +174,13 @@ function AboutFieldForm({ fieldName, label, defaultValue, children }: {
 }
 
 export function AboutForm({ about }: { about: Client<About> | null }) {
+    const [imagePreview, setImagePreview] = useState(about?.profileImage || null);
+    
+    const handleImageReset = () => {
+        const removeButton = document.querySelector('#about-image-form button[variant="destructive"]') as HTMLButtonElement;
+        if (removeButton) removeButton.click();
+    };
+
     return (
         <Card>
             <CardHeader>
@@ -180,14 +211,16 @@ export function AboutForm({ about }: { about: Client<About> | null }) {
                     <Input name="resumeUrl" type="url" defaultValue={about?.resumeUrl ?? ''} />
                 </AboutFieldForm>
 
-                <AboutFieldForm fieldName="profileImage" label="Profile Image" defaultValue={about?.profileImage}>
-                    <ImageUpload 
-                        fieldName="profileImage" 
-                        label="" 
-                        description="Upload or paste a new profile image to update it." 
-                        currentImage={about?.profileImage}
-                    />
-                </AboutFieldForm>
+                <div id="about-image-form">
+                    <AboutFieldForm fieldName="profileImage" label="Profile Image" defaultValue={about?.profileImage}>
+                        <ImageUpload 
+                            fieldName="profileImage" 
+                            label="" 
+                            description="Upload or paste a new profile image to update it." 
+                            currentImage={about?.profileImage}
+                        />
+                    </AboutFieldForm>
+                </div>
             </CardContent>
         </Card>
     );
@@ -197,10 +230,12 @@ export function SkillForm() {
   const [state, dispatch] = useActionState(addSkill, { message: null, errors: {}, success: false });
   const formRef = useRef<HTMLFormElement>(null);
   
-  useFormFeedback(state, formRef, () => {
+  const handleReset = () => {
     const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-    removeButton?.click();
-  });
+    if (removeButton) removeButton.click();
+  };
+  
+  useFormFeedback(state, formRef, handleReset);
   
   return (
     <Card>
@@ -231,10 +266,11 @@ export function SkillForm() {
 export function ProjectForm() {
     const [state, dispatch] = useActionState(addProject, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, () => {
+    const handleReset = () => {
         const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        removeButton?.click();
-    });
+        if (removeButton) removeButton.click();
+    };
+    useFormFeedback(state, formRef, handleReset);
 
     return (
         <Card>
@@ -261,10 +297,11 @@ export function ProjectForm() {
 export function AchievementForm() {
     const [state, dispatch] = useActionState(addAchievement, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, () => {
+    const handleReset = () => {
         const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        removeButton?.click();
-    });
+        if (removeButton) removeButton.click();
+    };
+    useFormFeedback(state, formRef, handleReset);
     return (
         <Card>
             <CardHeader>
@@ -287,10 +324,11 @@ export function AchievementForm() {
 export function CertificationForm() {
     const [state, dispatch] = useActionState(addCertification, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef, () => {
+    const handleReset = () => {
         const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        removeButton?.click();
-    });
+        if (removeButton) removeButton.click();
+    };
+    useFormFeedback(state, formRef, handleReset);
     return (
         <Card>
             <CardHeader>
