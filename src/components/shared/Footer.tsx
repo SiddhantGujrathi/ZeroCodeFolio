@@ -1,5 +1,4 @@
 import { getProfileLinksCollection } from "@/models/ProfileLink";
-import { getAboutCollection } from "@/models/About";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
@@ -8,14 +7,11 @@ export async function Footer() {
     const profileLinksCollection = await getProfileLinksCollection();
     const links = await profileLinksCollection.find({}).toArray();
 
-    const aboutCollection = await getAboutCollection();
-    const about = await aboutCollection.findOne({});
-  
   return (
     <footer className="border-t border-border/40 py-6">
       <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} {about?.name || 'Siddhant Gujrathi'}. All rights reserved.
+          © {new Date().getFullYear()} Siddhant Gujrathi. All rights reserved.
         </p>
         <div className="flex items-center space-x-2">
           {links.map((link) => (
