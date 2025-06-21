@@ -31,6 +31,8 @@ const partialAboutSchema = aboutSchema.partial();
 
 const skillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
+  image: z.string().optional(),
+  imageAiHint: z.string().optional(),
 });
 
 const projectSchema = z.object({
@@ -144,40 +146,50 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
 
     if (!parsed.success) {
         return {
-            message: 'Invalid form data. Please ensure the title is provided.',
+            message: 'Invalid form data.',
             errors: parsed.error.flatten().fieldErrors,
             success: false,
         };
     }
 
-    const { title } = parsed.data;
+    const dataToInsert = parsed.data;
 
     try {
-        const client = await clientPromise;
-        const db = client.db('portfolio');
-        const skillsCollection = db.collection('skills');
-
-        const result = await skillsCollection.insertOne({ title });
-
-        if (!result.insertedId) {
-            return {
-                message: 'Database Error: Failed to insert the skill. The operation was not acknowledged.',
-                success: false,
-            };
+        if (dataToInsert.image?.startsWith('data:image/')) {
+            dataToInsert.image = await uploadImage(dataToInsert.image);
+        } else if (dataToInsert.image === '') {
+            dataToInsert.image = undefined;
         }
 
+        const skillsCollection = await getCollection('skills');
+        const result = await skillsCollection.insertOne(dataToInsert);
+
+        if (!result.insertedId) {
+            return { 
+                message: 'Database Error: The skill was not saved. The operation was not acknowledged by the database.', 
+                success: false 
+            };
+        }
+        
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Skill added successfully!', success: true };
+
     } catch (e) {
-        console.error("Failed to add skill:", e);
+        console.error("Critical error in addSkill:", e);
         const errorMessage = e instanceof Error ? e.message : String(e);
-        
-        if (errorMessage.includes('querySrv ENOTFOUND') || errorMessage.includes('connect ETIMEDOUT')) {
-            return { message: `Database Connection Error: Could not connect. Check your MONGODB_URI and network access. Error: ${errorMessage}`, success: false };
+
+        if (e instanceof Error && (e.name === 'MongoNetworkError' || e.message.includes('timed out'))) {
+            return { 
+                message: `Database Connection Failed. Please ensure your current IP address is whitelisted in MongoDB Atlas under 'Network Access'. Full error: ${errorMessage}`, 
+                success: false 
+            };
         }
-        
-        return { message: `Failed to add skill. Please check your Atlas IP Whitelist and user permissions. Error: ${errorMessage}`, success: false };
+
+        return { 
+            message: `An unexpected error occurred while adding the skill. Please check your database credentials and permissions. Full error: ${errorMessage}`, 
+            success: false 
+        };
     }
 }
 
@@ -189,7 +201,7 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
     }
 
     const { tags, ...rest } = parsed.data;
-    const dataToInsert = {
+    const dataToInsert: any = {
         ...rest,
         tags: tags.split(',').map(tag => tag.trim()),
         createdAt: new Date(),
@@ -226,7 +238,7 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
 
-    const dataToInsert = parsed.data;
+    const dataToInsert: any = parsed.data;
 
     try {
         if (dataToInsert.image?.startsWith('data:image/')) {
@@ -258,7 +270,7 @@ export async function addCertification(prevState: AdminFormState, formData: Form
     if (!parsed.success) {
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
-    const dataToInsert = parsed.data;
+    const dataToInsert: any = parsed.data;
     try {
         if (dataToInsert.image?.startsWith('data:image/')) {
             dataToInsert.image = await uploadImage(dataToInsert.image);

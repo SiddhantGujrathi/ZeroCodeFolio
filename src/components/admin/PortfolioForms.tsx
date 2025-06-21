@@ -197,7 +197,10 @@ export function SkillForm() {
   const [state, dispatch] = useActionState(addSkill, { message: null, errors: {}, success: false });
   const formRef = useRef<HTMLFormElement>(null);
   
-  useFormFeedback(state, formRef);
+  useFormFeedback(state, formRef, () => {
+    const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
+    removeButton?.click();
+  });
   
   return (
     <Card>
@@ -211,6 +214,12 @@ export function SkillForm() {
             <Label>Skill Title</Label>
             <Input name="title" placeholder="e.g., React" />
             {state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}
+          </div>
+          <ImageUpload fieldName="image" label="Skill Icon / Image" description="Upload/paste an image for the skill." error={state?.errors?.image} />
+          <div className="space-y-2">
+             <Label>Image AI Hint</Label>
+             <Input name="imageAiHint" placeholder="e.g., 'java icon' or 'python logo'" />
+             {state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint[0]}</p>}
           </div>
           <SubmitButton>Add Skill</SubmitButton>
         </form>
