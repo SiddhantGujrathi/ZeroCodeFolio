@@ -19,13 +19,13 @@ export type AdminFormState = {
 }
 
 const aboutSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    bio: z.string().min(1, "Bio is required"),
-    location: z.string().min(1, "Location is required"),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().min(1, "Phone is required"),
-    resumeUrl: z.string().url("Must be a valid URL"),
-    profileImage: z.string().min(1, "Profile image is required"),
+    name: z.string(),
+    bio: z.string(),
+    location: z.string(),
+    email: z.string().email("Invalid email address").or(z.literal('')),
+    phone: z.string(),
+    resumeUrl: z.string().url("Must be a valid URL").or(z.literal('')),
+    profileImage: z.string(),
 });
 
 const partialAboutSchema = aboutSchema.partial();
@@ -90,11 +90,10 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
     const aboutCollection = await getAboutCollection();
     const dataFromForm = Object.fromEntries(formData.entries());
 
-    // Special handling for the image form. If the user doesn't select an image,
-    // the hidden input sends an empty string. We'll treat this as "no action"
-    // instead of a validation error.
+    // If the profileImage field is submitted with an empty value, it means no new image
+    // was uploaded. We treat this as a successful no-op rather than an error.
     if (dataFromForm.profileImage === '') {
-        return { message: "No image provided to update.", success: false, errors: {} };
+        return { message: "No new profile image was selected.", success: true, errors: {} };
     }
 
     const parsed = partialAboutSchema.safeParse(dataFromForm);
