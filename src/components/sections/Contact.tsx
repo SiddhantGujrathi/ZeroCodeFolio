@@ -1,10 +1,15 @@
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAboutCollection } from "@/models/About";
+import { getProfileLinksCollection } from "@/models/ProfileLink";
+import Image from "next/image";
 
 export async function Contact() {
   const aboutCollection = await getAboutCollection();
   const about = await aboutCollection.findOne({});
+
+  const profileLinksCollection = await getProfileLinksCollection();
+  const links = await profileLinksCollection.find({}).toArray();
 
   return (
     <div className="container">
@@ -25,6 +30,20 @@ export async function Contact() {
           </a>
         </Button>
       </div>
+
+      {links.length > 0 && (
+        <div className="mt-8 flex items-center justify-center space-x-2">
+          {links.map((link) => (
+             <Button key={link._id.toString()} variant="ghost" size="icon" className="h-12 w-12" asChild>
+                <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
+                    <div className="relative h-6 w-6">
+                        <Image src={link.icon || 'https://placehold.co/100x100.png'} alt={link.platform} fill className="object-contain" data-ai-hint={link.iconHint || 'logo'} />
+                    </div>
+                </a>
+           </Button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
