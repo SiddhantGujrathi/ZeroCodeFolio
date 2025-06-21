@@ -59,8 +59,8 @@ export default async function DashboardPage() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col items-center p-4 bg-muted/50">
-            <div className="w-full max-w-6xl space-y-6">
+        <main className="flex min-h-screen flex-col p-4 sm:p-6 md:p-8 bg-muted/50">
+            <div className="w-full max-w-7xl mx-auto space-y-6">
                 <Card className="w-full">
                     <CardHeader>
                         <div className="flex justify-between items-start">

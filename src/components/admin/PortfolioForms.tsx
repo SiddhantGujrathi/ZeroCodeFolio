@@ -15,19 +15,8 @@ import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { stringToIconMap } from '@/lib/icon-map';
 import type { About } from '@/models/About';
-import { z } from 'zod';
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
-
-const aboutSchema = z.object({
-    name: z.string(),
-    bio: z.string(),
-    location: z.string(),
-    email: z.string(),
-    phone: z.string(),
-    resumeUrl: z.string(),
-    profileImage: z.string(),
-});
 
 function SubmitButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -107,7 +96,7 @@ const availableIcons = Object.keys(stringToIconMap);
 
 
 function AboutFieldForm({ fieldName, label, defaultValue, children }: {
-    fieldName: keyof z.infer<typeof aboutSchema>,
+    fieldName: keyof Client<About>,
     label: string,
     defaultValue?: string | null,
     children: React.ReactNode,
@@ -117,7 +106,7 @@ function AboutFieldForm({ fieldName, label, defaultValue, children }: {
     
     const { toast } = useToast();
     useEffect(() => {
-        if (state?.message && state.message !== 'Invalid form data.') {
+        if (state?.message && state.message !== 'Invalid form data. Please ensure all fields are correctly filled.') {
             toast({
                 variant: state.success ? 'default' : 'destructive',
                 title: state.success ? 'Success!' : 'Error',
@@ -127,12 +116,14 @@ function AboutFieldForm({ fieldName, label, defaultValue, children }: {
     }, [state, toast]);
 
     return (
-        <div className="p-4 border rounded-lg space-y-3 bg-card/50">
+        <div className="space-y-3">
             <form ref={formRef} action={dispatch} className="space-y-3">
-                <Label className="text-base font-semibold">{label}</Label>
-                {children}
+                <div className="space-y-2">
+                    <Label className="font-semibold">{label}</Label>
+                    {children}
+                </div>
                 {state?.errors?.[fieldName] && <p className="text-sm text-destructive mt-1">{state.errors[fieldName][0]}</p>}
-                <Button type="submit" className="w-full" disabled={useFormStatus().pending}>
+                <Button type="submit" size="sm" className="w-full" disabled={useFormStatus().pending}>
                     {useFormStatus().pending ? 'Saving...' : (defaultValue ? `Update ${label}` : `Add ${label}`)}
                 </Button>
             </form>
@@ -142,13 +133,13 @@ function AboutFieldForm({ fieldName, label, defaultValue, children }: {
 
 export function AboutForm({ about }: { about: Client<About> | null }) {
     return (
-        <Card className="border-0 shadow-none">
+        <Card>
             <CardHeader>
                 <CardTitle>Manage About Section</CardTitle>
-                <CardDescription>Update each field individually.</CardDescription>
+                <CardDescription>Update each field individually. Changes are saved one by one.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-                 <div className="grid md:grid-cols-2 gap-6">
+            <CardContent className="space-y-8">
+                 <div className="grid md:grid-cols-2 gap-8">
                     <AboutFieldForm fieldName="name" label="Name" defaultValue={about?.name}>
                         <Input name="name" defaultValue={about?.name ?? ''} />
                     </AboutFieldForm>
@@ -191,8 +182,11 @@ export function SkillForm() {
   useFormFeedback(state, formRef, () => setPreview(null));
   
   return (
-    <Card className="border-0 shadow-none">
-      <CardHeader><CardTitle>Add New Skill</CardTitle></CardHeader>
+    <Card>
+      <CardHeader>
+        <CardTitle>Add New Skill</CardTitle>
+        <CardDescription>Add a new skill to be displayed in your portfolio.</CardDescription>
+      </CardHeader>
       <CardContent>
         <form ref={formRef} action={dispatch} className="space-y-4">
           <div className="space-y-2"><Label>Skill Title</Label><Input name="title" placeholder="e.g., React" />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
@@ -211,17 +205,20 @@ export function ProjectForm() {
     useFormFeedback(state, formRef);
 
     return (
-        <Card className="border-0 shadow-none">
-            <CardHeader><CardTitle>Add New Project</CardTitle></CardHeader>
+        <Card>
+            <CardHeader>
+                <CardTitle>Add New Project</CardTitle>
+                <CardDescription>Showcase a new project you've worked on.</CardDescription>
+            </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
-                    <div className="space-y-2"><Label>Project Title</Label><Input name="title" /><>{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</></div>
-                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
-                    <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input name="tags" />{state?.errors?.tags && <p className="text-sm text-destructive">{state.errors.tags}</p>}</div>
+                    <div className="space-y-2"><Label>Project Title</Label><Input name="title" />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}</div>
+                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description[0]}</p>}</div>
+                    <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input name="tags" />{state?.errors?.tags && <p className="text-sm text-destructive">{state.errors.tags[0]}</p>}</div>
                     <ImageUpload fieldName="projectImage" label="Project Image" description="Upload/paste a project image." error={state?.errors?.projectImage} />
-                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
-                    <div className="space-y-2"><Label>Website URL</Label><Input name="websiteUrl" type="url" />{state?.errors?.websiteUrl && <p className="text-sm text-destructive">{state.errors.websiteUrl}</p>}</div>
-                    <div className="space-y-2"><Label>GitHub URL</Label><Input name="githubUrl" type="url" />{state?.errors?.githubUrl && <p className="text-sm text-destructive">{state.errors.githubUrl}</p>}</div>
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint[0]}</p>}</div>
+                    <div className="space-y-2"><Label>Website URL</Label><Input name="websiteUrl" type="url" />{state?.errors?.websiteUrl && <p className="text-sm text-destructive">{state.errors.websiteUrl[0]}</p>}</div>
+                    <div className="space-y-2"><Label>GitHub URL</Label><Input name="githubUrl" type="url" />{state?.errors?.githubUrl && <p className="text-sm text-destructive">{state.errors.githubUrl[0]}</p>}</div>
                     <SubmitButton>Add Project</SubmitButton>
                 </form>
             </CardContent>
@@ -234,8 +231,11 @@ export function AchievementForm() {
     const formRef = useRef<HTMLFormElement>(null);
     useFormFeedback(state, formRef);
     return (
-        <Card className="border-0 shadow-none">
-            <CardHeader><CardTitle>Add New Achievement</CardTitle></CardHeader>
+        <Card>
+            <CardHeader>
+                <CardTitle>Add New Achievement</CardTitle>
+                <CardDescription>Highlight a new accomplishment.</CardDescription>
+            </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
                     <div className="space-y-2"><Label>Title</Label><Input name="title" />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
@@ -254,8 +254,11 @@ export function CertificationForm() {
     const formRef = useRef<HTMLFormElement>(null);
     useFormFeedback(state, formRef);
     return (
-        <Card className="border-0 shadow-none">
-            <CardHeader><CardTitle>Add New Certification</CardTitle></CardHeader>
+        <Card>
+            <CardHeader>
+                <CardTitle>Add New Certification</CardTitle>
+                <CardDescription>Add a new certification or credential.</CardDescription>
+            </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
                     <div className="space-y-2"><Label>Title</Label><Input name="title" />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
@@ -276,8 +279,11 @@ export function EducationForm() {
     const formRef = useRef<HTMLFormElement>(null);
     useFormFeedback(state, formRef);
     return (
-        <Card className="border-0 shadow-none">
-            <CardHeader><CardTitle>Add Education</CardTitle></CardHeader>
+        <Card>
+            <CardHeader>
+                <CardTitle>Add Education</CardTitle>
+                <CardDescription>Detail your academic background.</CardDescription>
+            </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
                     <div className="space-y-2"><Label>College Name</Label><Input name="collegeName" />{state?.errors?.collegeName && <p className="text-sm text-destructive">{state.errors.collegeName}</p>}</div>
@@ -298,8 +304,11 @@ export function WorkExperienceForm() {
     const formRef = useRef<HTMLFormElement>(null);
     useFormFeedback(state, formRef);
     return (
-        <Card className="border-0 shadow-none">
-            <CardHeader><CardTitle>Add Work Experience</CardTitle></CardHeader>
+        <Card>
+            <CardHeader>
+                <CardTitle>Add Work Experience</CardTitle>
+                <CardDescription>Add a new role to your professional journey.</CardDescription>
+            </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
                     <div className="space-y-2"><Label>Role</Label><Input name="role" />{state?.errors?.role && <p className="text-sm text-destructive">{state.errors.role}</p>}</div>
@@ -319,8 +328,11 @@ export function ProfileLinkForm() {
     const formRef = useRef<HTMLFormElement>(null);
     useFormFeedback(state, formRef);
     return (
-        <Card className="border-0 shadow-none">
-            <CardHeader><CardTitle>Add Profile Link</CardTitle></CardHeader>
+        <Card>
+            <CardHeader>
+                <CardTitle>Add Profile Link</CardTitle>
+                <CardDescription>Add a link to your social or professional profiles.</CardDescription>
+            </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
                     <div className="space-y-2"><Label>Platform</Label><Input name="platform" placeholder="e.g., GitHub" />{state?.errors?.platform && <p className="text-sm text-destructive">{state.errors.platform}</p>}</div>

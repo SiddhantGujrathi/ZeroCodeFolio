@@ -1,7 +1,8 @@
-import type { Collection, Document, WithId } from 'mongodb';
+import type { Collection, Document, ObjectId } from 'mongodb';
 import clientPromise from '@/lib/mongodb';
 
 export interface About extends Document {
+  _id?: ObjectId; // Optional for inserts, available when fetching
   name: string;
   bio: string;
   location: string;

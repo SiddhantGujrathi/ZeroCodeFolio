@@ -7,7 +7,6 @@ import {
     AboutDisplay,
     SkillsDisplay, ProjectsDisplay, AchievementsDisplay, CertificationsDisplay, EducationDisplay, WorkExperienceDisplay, ProfileLinksDisplay 
 } from "./PortfolioDisplay";
-import { Separator } from "@/components/ui/separator";
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -42,7 +41,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
             </CardHeader>
             <CardContent>
                 <Tabs defaultValue="about" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8">
+                    <TabsList className="w-full justify-start overflow-x-auto">
                         <TabsTrigger value="about">About</TabsTrigger>
                         <TabsTrigger value="skills">Skills</TabsTrigger>
                         <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -53,52 +52,60 @@ export function AdminDashboard(props: AdminDashboardProps) {
                         <TabsTrigger value="links">Links</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="about" className="mt-4 space-y-6">
-                        <AboutDisplay about={about} />
-                        <Separator />
-                        <AboutForm about={about} />
+                    <TabsContent value="about" className="mt-6">
+                        <div className="grid gap-6 lg:grid-cols-2">
+                             <AboutDisplay about={about} />
+                             <AboutForm about={about} />
+                        </div>
                     </TabsContent>
                     
-                    <TabsContent value="skills" className="mt-4 space-y-6">
-                        <SkillsDisplay skills={skills} />
-                        <Separator />
-                        <SkillForm />
+                    <TabsContent value="skills" className="mt-6">
+                         <div className="grid gap-6 lg:grid-cols-2">
+                            <SkillsDisplay skills={skills} />
+                            <SkillForm />
+                        </div>
                     </TabsContent>
 
-                    <TabsContent value="projects" className="mt-4 space-y-6">
-                        <ProjectsDisplay projects={projects} />
-                        <Separator />
-                        <ProjectForm />
+                    <TabsContent value="projects" className="mt-6">
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            <ProjectsDisplay projects={projects} />
+                            <ProjectForm />
+                        </div>
                     </TabsContent>
 
-                    <TabsContent value="achievements" className="mt-4 space-y-6">
-                        <AchievementsDisplay achievements={achievements} />
-                        <Separator />
-                        <AchievementForm />
+                    <TabsContent value="achievements" className="mt-6">
+                         <div className="grid gap-6 lg:grid-cols-2">
+                            <AchievementsDisplay achievements={achievements} />
+                            <AchievementForm />
+                        </div>
                     </TabsContent>
 
-                    <TabsContent value="certifications" className="mt-4 space-y-6">
-                        <CertificationsDisplay certifications={certifications} />
-                        <Separator />
-                        <CertificationForm />
+                    <TabsContent value="certifications" className="mt-6">
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            <CertificationsDisplay certifications={certifications} />
+                            <CertificationForm />
+                        </div>
                     </TabsContent>
 
-                    <TabsContent value="education" className="mt-4 space-y-6">
-                        <EducationDisplay education={education} />
-                        <Separator />
-                        <EducationForm />
+                    <TabsContent value="education" className="mt-6">
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            <EducationDisplay education={education} />
+                            <EducationForm />
+                        </div>
                     </TabsContent>
 
-                    <TabsContent value="experience" className="mt-4 space-y-6">
-                        <WorkExperienceDisplay workExperience={workExperience} />
-                        <Separator />
-                        <WorkExperienceForm />
+                    <TabsContent value="experience" className="mt-6">
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            <WorkExperienceDisplay workExperience={workExperience} />
+                            <WorkExperienceForm />
+                        </div>
                     </TabsContent>
                     
-                    <TabsContent value="links" className="mt-4 space-y-6">
-                        <ProfileLinksDisplay profileLinks={profileLinks} />
-                        <Separator />
-                        <ProfileLinkForm />
+                    <TabsContent value="links" className="mt-6">
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            <ProfileLinksDisplay profileLinks={profileLinks} />
+                            <ProfileLinkForm />
+                        </div>
                     </TabsContent>
 
                 </Tabs>

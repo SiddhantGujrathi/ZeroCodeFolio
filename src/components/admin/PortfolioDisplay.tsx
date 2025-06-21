@@ -7,6 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { stringToIconMap } from "@/lib/icon-map";
 import { Globe } from "lucide-react";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
 import type { Project } from "@/models/Project";
@@ -19,23 +29,6 @@ import type { ProfileLink } from "@/models/ProfileLink";
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
 
-function SectionDisplay<T>({ title, items, children, emptyText = "Nothing is added yet." }: { title: string, items: T[], children: (item: T) => React.ReactNode, emptyText?: string }) {
-    if (items.length === 0) {
-        return (
-            <div>
-                <h3 className="text-xl font-bold tracking-tight">{title}</h3>
-                <p className="text-muted-foreground text-center py-4">{emptyText}</p>
-            </div>
-        );
-    }
-    return (
-        <div className="space-y-4">
-            <h3 className="text-xl font-bold tracking-tight">{title}</h3>
-            {children(items as any)}
-        </div>
-    );
-}
-
 function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
   const Icon = stringToIconMap[name] || Globe;
   return <Icon {...props} />;
@@ -43,197 +36,314 @@ function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg"
 
 export function AboutDisplay({ about }: { about: Client<About> | null }) {
     return (
-         <div className="space-y-4">
-             <h3 className="text-xl font-bold tracking-tight">Current Info</h3>
+        <Card>
+            <CardHeader>
+                <CardTitle>Current Info</CardTitle>
+                <CardDescription>This is the information currently on your portfolio.</CardDescription>
+            </CardHeader>
+            <CardContent>
             {!about ? (
                  <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
             ) : (
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center gap-4">
-                            <div className="relative h-20 w-20 rounded-full overflow-hidden border">
-                                {about.profileImage && <Image src={about.profileImage} alt={about.name || 'Profile Image'} fill className="object-cover" />}
-                            </div>
-                            <div>
-                                <CardTitle>{about.name}</CardTitle>
-                                <CardDescription>{about.email} | {about.phone} | {about.location}</CardDescription>
-                            </div>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                        <div className="relative h-24 w-24 rounded-full overflow-hidden border-2 border-primary">
+                             {about.profileImage && <Image src={about.profileImage} alt={about.name || 'Profile Image'} fill className="object-cover" />}
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p>{about.bio}</p>
-                        {about.resumeUrl && <a href={about.resumeUrl} className="text-sm text-primary hover:underline mt-2 inline-block">View Resume</a>}
-                    </CardContent>
-                </Card>
+                        <div>
+                            <h3 className="text-xl font-bold">{about.name}</h3>
+                            <p className="text-muted-foreground">{about.email}</p>
+                            <p className="text-muted-foreground">{about.phone} | {about.location}</p>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <h4 className="font-semibold">Bio</h4>
+                        <p className="text-muted-foreground">{about.bio}</p>
+                    </div>
+                    {about.resumeUrl && (
+                         <div className="space-y-2">
+                            <h4 className="font-semibold">Resume</h4>
+                            <a href={about.resumeUrl} className="text-sm text-primary hover:underline" target="_blank" rel="noopener noreferrer">View Resume</a>
+                        </div>
+                    )}
+                </div>
             )}
-        </div>
+            </CardContent>
+        </Card>
     );
 }
 
 
 export function SkillsDisplay({ skills }: { skills: Client<Skill>[] }) {
     return (
-        <SectionDisplay title="Current Skills" items={skills}>
-            {(items: Client<Skill>[]) => (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {items.map(skill => (
-                        <Card key={skill._id} className="p-4 flex flex-col items-center justify-center text-center">
-                            <div className="relative h-12 w-12">
-                                <Image src={skill.image} alt={skill.title} fill className="object-contain" />
-                            </div>
-                            <p className="mt-2 font-semibold text-sm">{skill.title}</p>
-                        </Card>
-                    ))}
-                </div>
-            )}
-        </SectionDisplay>
+        <Card>
+            <CardHeader>
+                <CardTitle>Current Skills</CardTitle>
+                <CardDescription>The skills currently displayed on your portfolio.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {skills.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[80px]">Image</TableHead>
+                                <TableHead>Title</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {skills.map(skill => (
+                                <TableRow key={skill._id}>
+                                    <TableCell>
+                                        <div className="relative h-10 w-10">
+                                            {skill.image && <Image src={skill.image} alt={skill.title} fill className="object-contain rounded-md" />}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="font-medium">{skill.title}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
 export function ProjectsDisplay({ projects }: { projects: Client<Project>[] }) {
-    return (
-        <SectionDisplay title="Current Projects" items={projects}>
-             {(items: Client<Project>[]) => (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {items.map(project => (
-                        <Card key={project._id} className="overflow-hidden">
-                             <CardHeader className="p-0">
-                                <div className="aspect-video overflow-hidden border-b">
-                                    <Image src={project.projectImage} alt={project.title} width={400} height={250} className="w-full h-full object-cover" />
+     return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Current Projects</CardTitle>
+                <CardDescription>The projects currently on your portfolio.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {projects.length > 0 ? (
+                    <div className="space-y-4">
+                        {projects.map(project => (
+                            <Card key={project._id} className="overflow-hidden flex flex-col sm:flex-row">
+                                <div className="sm:w-1/3">
+                                    <div className="aspect-video overflow-hidden border-b sm:border-b-0 sm:border-r">
+                                        {project.projectImage && <Image src={project.projectImage} alt={project.title} width={400} height={250} className="w-full h-full object-cover" />}
+                                    </div>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="p-4">
-                                <CardTitle className="text-lg">{project.title}</CardTitle>
-                                <CardDescription className="text-sm mt-1">{project.description}</CardDescription>
-                            </CardContent>
-                            <CardFooter className="p-4 pt-0">
-                                <div className="flex flex-wrap gap-1">
-                                    {project.tags.map(tag => (
-                                        <Badge key={tag} variant="secondary">{tag}</Badge>
-                                    ))}
+                                <div className="sm:w-2/3">
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">{project.title}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <CardDescription className="text-sm mt-1">{project.description}</CardDescription>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <div className="flex flex-wrap gap-1">
+                                            {project.tags.map(tag => (
+                                                <Badge key={tag} variant="secondary">{tag}</Badge>
+                                            ))}
+                                        </div>
+                                    </CardFooter>
                                 </div>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
-             )}
-        </SectionDisplay>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
 export function AchievementsDisplay({ achievements }: { achievements: Client<Achievement>[] }) {
-    return (
-        <SectionDisplay title="Current Achievements" items={achievements}>
-            {(items: Client<Achievement>[]) => (
-                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {items.map(achievement => (
-                        <Card key={achievement._id}>
-                            <CardHeader className="p-0">
-                                <div className="aspect-video overflow-hidden border-b">
-                                     <Image src={achievement.image} alt={achievement.title} width={400} height={250} className="w-full h-full object-cover" />
+     return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Current Achievements</CardTitle>
+                <CardDescription>Your proudest achievements.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {achievements.length > 0 ? (
+                    <div className="space-y-4">
+                        {achievements.map(achievement => (
+                             <Card key={achievement._id} className="overflow-hidden flex flex-col sm:flex-row">
+                                <div className="sm:w-1/3">
+                                    <div className="aspect-video overflow-hidden border-b sm:border-b-0 sm:border-r">
+                                        {achievement.image && <Image src={achievement.image} alt={achievement.title} width={400} height={250} className="w-full h-full object-cover" />}
+                                    </div>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="p-4">
-                                <CardTitle className="text-lg">{achievement.title}</CardTitle>
-                                <CardDescription className="text-sm mt-1">{achievement.description}</CardDescription>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            )}
-        </SectionDisplay>
+                                <div className="sm:w-2/3">
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">{achievement.title}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <CardDescription className="text-sm mt-1">{achievement.description}</CardDescription>
+                                    </CardContent>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
 
 export function CertificationsDisplay({ certifications }: { certifications: Client<Certification>[] }) {
     return (
-        <SectionDisplay title="Current Certifications" items={certifications}>
-            {(items: Client<Certification>[]) => (
-                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {items.map(cert => (
-                        <Card key={cert._id}>
-                             <CardHeader className="p-0">
-                                <div className="aspect-video overflow-hidden border-b">
-                                     <Image src={cert.image} alt={cert.title} width={400} height={250} className="w-full h-full object-cover" />
+        <Card>
+            <CardHeader>
+                <CardTitle>Current Certifications</CardTitle>
+                <CardDescription>Your certifications and credentials.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {certifications.length > 0 ? (
+                     <div className="space-y-4">
+                        {certifications.map(cert => (
+                             <Card key={cert._id} className="overflow-hidden flex flex-col sm:flex-row">
+                                 <div className="sm:w-1/3">
+                                    <div className="aspect-video overflow-hidden border-b sm:border-b-0 sm:border-r">
+                                        {cert.image && <Image src={cert.image} alt={cert.title} width={400} height={250} className="w-full h-full object-cover" />}
+                                    </div>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="p-4">
-                                <CardTitle className="text-lg">{cert.title}</CardTitle>
-                                <CardDescription className="text-sm mt-1">{cert.issuedBy} - {cert.date}</CardDescription>
-                                <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-sm mt-2 inline-block hover:underline">View Certificate</a>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            )}
-        </SectionDisplay>
+                               <div className="sm:w-2/3">
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">{cert.title}</CardTitle>
+                                        <CardDescription className="text-sm mt-1">{cert.issuedBy} - {cert.date}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-sm mt-2 inline-block hover:underline">View Certificate</a>
+                                    </CardContent>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
 export function EducationDisplay({ education }: { education: Client<Education>[] }) {
     return (
-        <SectionDisplay title="Current Education" items={education}>
-             {(items: Client<Education>[]) => (
-                 <div className="space-y-2">
-                    {items.map(edu => (
-                        <Card key={edu._id}>
-                            <CardHeader className="flex flex-row items-center gap-4">
-                                <DynamicIcon name={edu.icon} className="h-8 w-8 text-primary" />
-                                <div>
-                                    <CardTitle className="text-base">{edu.degreeName} at {edu.collegeName}</CardTitle>
-                                    <CardDescription className="text-sm">{edu.period} | CGPA: {edu.cgpa}</CardDescription>
-                                </div>
-                            </CardHeader>
-                        </Card>
-                    ))}
-                </div>
-             )}
-        </SectionDisplay>
+        <Card>
+            <CardHeader>
+                <CardTitle>Current Education</CardTitle>
+                <CardDescription>Your academic background.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {education.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[50px]">Icon</TableHead>
+                                <TableHead>Degree</TableHead>
+                                <TableHead>Period</TableHead>
+                                <TableHead>CGPA</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {education.map(edu => (
+                                <TableRow key={edu._id}>
+                                    <TableCell>
+                                        <DynamicIcon name={edu.icon} className="h-6 w-6 text-primary" />
+                                    </TableCell>
+                                    <TableCell>
+                                        <p className="font-medium">{edu.degreeName}</p>
+                                        <p className="text-muted-foreground text-sm">{edu.collegeName}</p>
+                                    </TableCell>
+                                    <TableCell>{edu.period}</TableCell>
+                                    <TableCell>{edu.cgpa}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                     <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
 export function WorkExperienceDisplay({ workExperience }: { workExperience: Client<WorkExperience>[] }) {
     return (
-        <SectionDisplay title="Current Work Experience" items={workExperience}>
-             {(items: Client<WorkExperience>[]) => (
-                 <div className="space-y-2">
-                    {items.map(exp => (
-                        <Card key={exp._id}>
-                            <CardHeader className="flex flex-row items-center gap-4">
-                                <DynamicIcon name={exp.icon} className="h-8 w-8 text-primary" />
-                                <div>
-                                    <CardTitle className="text-base">{exp.role} at {exp.companyName}</CardTitle>
-                                    <CardDescription className="text-sm">{exp.description}</CardDescription>
-                                </div>
-                            </CardHeader>
-                        </Card>
-                    ))}
-                </div>
-             )}
-        </SectionDisplay>
+        <Card>
+            <CardHeader>
+                <CardTitle>Current Work Experience</CardTitle>
+                <CardDescription>Your professional experience.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {workExperience.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                             <TableRow>
+                                <TableHead className="w-[50px]">Icon</TableHead>
+                                <TableHead>Role</TableHead>
+                                <TableHead>Description</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {workExperience.map(exp => (
+                                <TableRow key={exp._id}>
+                                     <TableCell>
+                                        <DynamicIcon name={exp.icon} className="h-6 w-6 text-primary" />
+                                    </TableCell>
+                                    <TableCell>
+                                        <p className="font-medium">{exp.role}</p>
+                                        <p className="text-muted-foreground text-sm">{exp.companyName}</p>
+                                    </TableCell>
+                                    <TableCell>{exp.description}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
 
 export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<ProfileLink>[] }) {
     return (
-        <SectionDisplay title="Current Profile Links" items={profileLinks}>
-             {(items: Client<ProfileLink>[]) => (
-                 <div className="space-y-2">
-                    {items.map(link => (
-                        <Card key={link._id}>
-                            <CardHeader className="flex flex-row items-center gap-4">
-                                <DynamicIcon name={link.icon} className="h-8 w-8 text-primary" />
-                                <div>
-                                    <CardTitle className="text-base">{link.platform}</CardTitle>
-                                    <CardDescription className="text-sm truncate">{link.url}</CardDescription>
-                                </div>
-                            </CardHeader>
-                        </Card>
-                    ))}
-                </div>
-             )}
-        </SectionDisplay>
+        <Card>
+            <CardHeader>
+                <CardTitle>Current Profile Links</CardTitle>
+                <CardDescription>Your social and professional links.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {profileLinks.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[50px]">Icon</TableHead>
+                                <TableHead>Platform</TableHead>
+                                <TableHead>URL</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {profileLinks.map(link => (
+                                <TableRow key={link._id}>
+                                    <TableCell>
+                                        <DynamicIcon name={link.icon} className="h-6 w-6 text-primary" />
+                                    </TableCell>
+                                    <TableCell className="font-medium">{link.platform}</TableCell>
+                                    <TableCell><a href={link.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary truncate">{link.url}</a></TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
