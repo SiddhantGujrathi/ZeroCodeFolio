@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from "next/image";
@@ -7,7 +8,17 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { 
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Trash2, Pencil, ArrowUp, ArrowDown } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { AdminFormState } from "@/app/dashboard/actions";
@@ -34,44 +45,71 @@ import type { ProfileLink } from "@/models/ProfileLink";
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
 
-function DeleteButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" disabled={pending}>
-            {pending ? <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-current"></div> : <Trash2 className="h-4 w-4" />}
-        </Button>
-    );
-}
 
-function DeleteItemForm({ action, itemId }: { action: (prevState: AdminFormState, formData: FormData) => Promise<AdminFormState>, itemId: string }) {
+function DeleteItemDialog({ action, itemId, itemName, children }: { 
+    action: (prevState: AdminFormState, formData: FormData) => Promise<AdminFormState>, 
+    itemId: string,
+    itemName: string,
+    children: React.ReactNode
+}) {
+  const [open, setOpen] = useState(false);
+  const [formKey, setFormKey] = useState(0); 
   const [state, dispatch] = useActionState(action, { message: null, success: false });
   const { toast } = useToast();
 
   useEffect(() => {
     if (state?.message) {
-      if (state.success === false && state.message !== "Invalid ID.") {
-         toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: state.message,
-         });
-      }
-      if (state.success === true) {
-        toast({
-            title: 'Success',
-            description: state.message,
-        });
-      }
+        if (state.success) {
+            toast({ title: 'Success', description: state.message });
+            setOpen(false);
+        } else if (state.message !== "Invalid ID.") {
+             toast({ variant: 'destructive', title: 'Error', description: state.message });
+        }
     }
   }, [state, toast]);
 
+  const handleOpenChange = (isOpen: boolean) => {
+      if(isOpen) {
+          setFormKey(k => k + 1);
+      }
+      setOpen(isOpen);
+  }
+  
+  function DeleteConfirmationButton() {
+      const { pending } = useFormStatus();
+      return (
+          <AlertDialogAction asChild>
+              <Button type="submit" variant="destructive" disabled={pending}>
+                  {pending ? "Deleting..." : "Yes, delete"}
+              </Button>
+          </AlertDialogAction>
+      );
+  }
+
   return (
-    <form action={dispatch}>
-      <input type="hidden" name="id" value={itemId} />
-      <DeleteButton />
-    </form>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
+        <AlertDialogTrigger asChild>
+            {children}
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+            <form action={dispatch} key={formKey}>
+                <input type="hidden" name="id" value={itemId} />
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete "{itemName}".
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <DeleteConfirmationButton />
+                </AlertDialogFooter>
+            </form>
+        </AlertDialogContent>
+    </AlertDialog>
   );
 }
+
 
 // Dialog Components
 function EditSkillDialog({ skill }: { skill: Client<Skill> }) {
@@ -295,7 +333,11 @@ export function SkillsDisplay({ skills }: { skills: Client<Skill>[] }) {
                                                 <Button type="button" size="icon" variant="ghost" disabled={index === orderedSkills.length - 1} onClick={() => moveSkill(index, 'down')}><ArrowDown className="h-4 w-4" /></Button>
                                             </div>
                                             <EditSkillDialog skill={skill} />
-                                            <DeleteItemForm action={deleteSkill} itemId={skill._id!} />
+                                            <DeleteItemDialog action={deleteSkill} itemId={skill._id!} itemName={skill.title}>
+                                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </DeleteItemDialog>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -334,7 +376,11 @@ export function ProjectsDisplay({ projects }: { projects: Client<Project>[] }) {
                                             <CardTitle className="text-lg">{project.title}</CardTitle>
                                              <div className="flex-shrink-0 flex items-center">
                                                 <EditProjectDialog project={project} />
-                                                <DeleteItemForm action={deleteProject} itemId={project._id!} />
+                                                <DeleteItemDialog action={deleteProject} itemId={project._id!} itemName={project.title}>
+                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </DeleteItemDialog>
                                              </div>
                                         </div>
                                     </CardHeader>
@@ -383,7 +429,11 @@ export function AchievementsDisplay({ achievements }: { achievements: Client<Ach
                                             <CardTitle className="text-lg">{achievement.title}</CardTitle>
                                             <div className="flex-shrink-0 flex items-center">
                                                 <EditAchievementDialog achievement={achievement} />
-                                                <DeleteItemForm action={deleteAchievement} itemId={achievement._id!} />
+                                                <DeleteItemDialog action={deleteAchievement} itemId={achievement._id!} itemName={achievement.title}>
+                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </DeleteItemDialog>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -428,7 +478,11 @@ export function CertificationsDisplay({ certifications }: { certifications: Clie
                                             </div>
                                             <div className="flex-shrink-0 flex items-center">
                                                 <EditCertificationDialog certification={cert} />
-                                                <DeleteItemForm action={deleteCertification} itemId={cert._id!} />
+                                                <DeleteItemDialog action={deleteCertification} itemId={cert._id!} itemName={cert.title}>
+                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </DeleteItemDialog>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -471,7 +525,11 @@ export function EducationDisplay({ education }: { education: Client<Education>[]
                                 </div>
                                 <div className="flex-shrink-0 flex items-center">
                                     <EditEducationDialog educationItem={edu} />
-                                    <DeleteItemForm action={deleteEducation} itemId={edu._id!} />
+                                    <DeleteItemDialog action={deleteEducation} itemId={edu._id!} itemName={edu.degreeName}>
+                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </DeleteItemDialog>
                                 </div>
                             </Card>
                         ))}
@@ -510,7 +568,11 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
                                 </div>
                                 <div className="flex-shrink-0 flex items-center">
                                     <EditWorkExperienceDialog experience={exp} />
-                                    <DeleteItemForm action={deleteWorkExperience} itemId={exp._id!} />
+                                    <DeleteItemDialog action={deleteWorkExperience} itemId={exp._id!} itemName={exp.role}>
+                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </DeleteItemDialog>
                                 </div>
                             </Card>
                         ))}
@@ -546,7 +608,11 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
                                 </div>
                                 <div className="flex-shrink-0 flex items-center">
                                     <EditProfileLinkDialog link={link} />
-                                    <DeleteItemForm action={deleteProfileLink} itemId={link._id!} />
+                                    <DeleteItemDialog action={deleteProfileLink} itemId={link._id!} itemName={link.platform}>
+                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </DeleteItemDialog>
                                 </div>
                             </Card>
                         ))}
@@ -558,3 +624,5 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
         </Card>
     );
 }
+
+    
