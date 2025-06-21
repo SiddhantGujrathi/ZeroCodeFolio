@@ -1,7 +1,18 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return [
+      {
+        source: '/c2lkZGhhbnQ=',
+        destination: '/dashboard',
+      },
+      {
+        source: '/c2lkZGhhbnQ=/:path*',
+        destination: '/dashboard/:path*',
+      },
+    ];
+  },
   serverActions: {
     bodySizeLimit: '10mb',
   },
