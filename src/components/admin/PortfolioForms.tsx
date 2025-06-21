@@ -2,27 +2,41 @@
 
 import { useFormStatus } from 'react-dom';
 import { 
-    updateAbout, addSkill, addProject, addAchievement, addCertification, 
-    addEducation, addWorkExperience, addProfileLink, type AdminFormState 
+    updateAbout, 
+    addSkill, updateSkill, 
+    addProject, updateProject, 
+    addAchievement, updateAchievement, 
+    addCertification, updateCertification, 
+    addEducation, updateEducation,
+    addWorkExperience, updateWorkExperience,
+    addProfileLink, updateProfileLink,
+    type AdminFormState 
 } from '@/app/dashboard/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useActionState, useEffect, useRef, useState, type ComponentProps, useCallback } from 'react';
+import { useActionState, useEffect, useRef, useState, type ComponentProps } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import type { About } from '@/models/About';
+import type { Skill } from '@/models/Skill';
+import type { Project } from '@/models/Project';
+import type { Achievement } from '@/models/Achievement';
+import type { Certification } from '@/models/Certification';
+import type { Education } from '@/models/Education';
+import type { WorkExperience } from '@/models/WorkExperience';
+import type { ProfileLink } from '@/models/ProfileLink';
 import { Trash2 } from 'lucide-react';
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
 
-function SubmitButton({ children }: { children: React.ReactNode }) {
+function SubmitButton({ children, isUpdate }: { children: React.ReactNode, isUpdate?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" className="w-full mt-2" disabled={pending}>
-      {pending ? 'Submitting...' : children}
+      {pending ? (isUpdate ? 'Updating...' : 'Adding...') : children}
     </Button>
   );
 }
@@ -114,7 +128,7 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
     )
 }
 
-function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<HTMLFormElement>, onReset?: () => void) {
+function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<HTMLFormElement>, onSuccess?: () => void) {
   const { toast } = useToast();
   useEffect(() => {
     if (!state) return;
@@ -125,11 +139,16 @@ function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<
         description: state.message,
       });
       if (state.success) {
-        formRef.current?.reset();
-        if (onReset) onReset();
+        if (onSuccess) {
+            onSuccess();
+        } else {
+            formRef.current?.reset();
+            const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
+            if (removeButton) removeButton.click();
+        }
       }
     }
-  }, [state, toast, formRef, onReset]);
+  }, [state, toast, formRef, onSuccess]);
 }
 
 function AboutSubmitButton({ label, hasDefaultValue }: { label: string; hasDefaultValue: boolean }) {
@@ -222,210 +241,194 @@ export function AboutForm({ about }: { about: Client<About> | null }) {
     );
 }
 
-export function SkillForm() {
-  const [state, dispatch] = useActionState(addSkill, { message: null, errors: {}, success: false });
+export function SkillForm({ skill, onSuccess }: { skill?: Client<Skill>, onSuccess?: () => void }) {
+  const action = skill ? updateSkill : addSkill;
+  const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
   const formRef = useRef<HTMLFormElement>(null);
-  
-  const handleReset = useCallback(() => {
-    const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-    if (removeButton) removeButton.click();
-  }, []);
-  
-  useFormFeedback(state, formRef, handleReset);
+  useFormFeedback(state, formRef, onSuccess);
   
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add New Skill</CardTitle>
-        <CardDescription>Add a new skill to be displayed in your portfolio.</CardDescription>
+        <CardTitle>{skill ? 'Edit Skill' : 'Add New Skill'}</CardTitle>
+        <CardDescription>{skill ? 'Edit the details of this skill.' : 'Add a new skill to be displayed.'}</CardDescription>
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={dispatch} className="space-y-4">
+          {skill && <input type="hidden" name="id" value={skill._id} />}
           <div className="space-y-2">
             <Label>Skill Title</Label>
-            <Input name="title" placeholder="e.g., React" />
+            <Input name="title" placeholder="e.g., React" defaultValue={skill?.title ?? ''} />
             {state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}
           </div>
-          <ImageUpload fieldName="image" label="Skill Icon / Image" description="Upload/paste an image for the skill." error={state?.errors?.image} />
+          <ImageUpload fieldName="image" label="Skill Icon / Image" description="Upload/paste an image for the skill." currentImage={skill?.image} error={state?.errors?.image} />
           <div className="space-y-2">
              <Label>Image AI Hint</Label>
-             <Input name="imageAiHint" placeholder="e.g., 'java icon' or 'python logo'" />
+             <Input name="imageAiHint" placeholder="e.g., 'java icon' or 'python logo'" defaultValue={skill?.imageAiHint ?? ''} />
              {state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint[0]}</p>}
           </div>
-          <SubmitButton>Add Skill</SubmitButton>
+          <SubmitButton isUpdate={!!skill}>{skill ? 'Update Skill' : 'Add Skill'}</SubmitButton>
         </form>
       </CardContent>
     </Card>
   );
 }
 
-export function ProjectForm() {
-    const [state, dispatch] = useActionState(addProject, { message: null, errors: {}, success: false });
+export function ProjectForm({ project, onSuccess }: { project?: Client<Project>, onSuccess?: () => void }) {
+    const action = project ? updateProject : addProject;
+    const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = useCallback(() => {
-        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        if (removeButton) removeButton.click();
-    }, []);
-    useFormFeedback(state, formRef, handleReset);
+    useFormFeedback(state, formRef, onSuccess);
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Add New Project</CardTitle>
-                <CardDescription>Showcase a new project you've worked on.</CardDescription>
+                <CardTitle>{project ? 'Edit Project' : 'Add New Project'}</CardTitle>
+                <CardDescription>{project ? 'Edit the details of this project.' : 'Showcase a new project you\'ve worked on.'}</CardDescription>
             </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
-                    <div className="space-y-2"><Label>Project Title</Label><Input name="title" />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}</div>
-                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description[0]}</p>}</div>
-                    <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input name="tags" />{state?.errors?.tags && <p className="text-sm text-destructive">{state.errors.tags[0]}</p>}</div>
-                    <ImageUpload fieldName="projectImage" label="Project Image" description="Upload/paste a project image." error={state?.errors?.projectImage} />
-                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint[0]}</p>}</div>
-                    <div className="space-y-2"><Label>Website URL</Label><Input name="websiteUrl" type="url" />{state?.errors?.websiteUrl && <p className="text-sm text-destructive">{state.errors.websiteUrl[0]}</p>}</div>
-                    <div className="space-y-2"><Label>GitHub URL</Label><Input name="githubUrl" type="url" />{state?.errors?.githubUrl && <p className="text-sm text-destructive">{state.errors.githubUrl[0]}</p>}</div>
-                    <SubmitButton>Add Project</SubmitButton>
+                    {project && <input type="hidden" name="id" value={project._id} />}
+                    <div className="space-y-2"><Label>Project Title</Label><Input name="title" defaultValue={project?.title ?? ''} />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}</div>
+                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={project?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description[0]}</p>}</div>
+                    <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input name="tags" defaultValue={project?.tags?.join(', ') ?? ''} />{state?.errors?.tags && <p className="text-sm text-destructive">{state.errors.tags[0]}</p>}</div>
+                    <ImageUpload fieldName="projectImage" label="Project Image" description="Upload/paste a project image." currentImage={project?.projectImage} error={state?.errors?.projectImage} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" defaultValue={project?.imageAiHint ?? ''} />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint[0]}</p>}</div>
+                    <div className="space-y-2"><Label>Website URL</Label><Input name="websiteUrl" type="url" defaultValue={project?.websiteUrl ?? ''} />{state?.errors?.websiteUrl && <p className="text-sm text-destructive">{state.errors.websiteUrl[0]}</p>}</div>
+                    <div className="space-y-2"><Label>GitHub URL</Label><Input name="githubUrl" type="url" defaultValue={project?.githubUrl ?? ''} />{state?.errors?.githubUrl && <p className="text-sm text-destructive">{state.errors.githubUrl[0]}</p>}</div>
+                    <SubmitButton isUpdate={!!project}>{project ? 'Update Project' : 'Add Project'}</SubmitButton>
                 </form>
             </CardContent>
         </Card>
     );
 }
 
-export function AchievementForm() {
-    const [state, dispatch] = useActionState(addAchievement, { message: null, errors: {}, success: false });
+export function AchievementForm({ achievement, onSuccess }: { achievement?: Client<Achievement>, onSuccess?: () => void }) {
+    const action = achievement ? updateAchievement : addAchievement;
+    const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = useCallback(() => {
-        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        if (removeButton) removeButton.click();
-    }, []);
-    useFormFeedback(state, formRef, handleReset);
+    useFormFeedback(state, formRef, onSuccess);
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Add New Achievement</CardTitle>
-                <CardDescription>Highlight a new accomplishment.</CardDescription>
+                <CardTitle>{achievement ? 'Edit Achievement' : 'Add New Achievement'}</CardTitle>
+                <CardDescription>{achievement ? 'Edit this accomplishment.' : 'Highlight a new accomplishment.'}</CardDescription>
             </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
-                    <div className="space-y-2"><Label>Title</Label><Input name="title" />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
-                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
-                    <ImageUpload fieldName="image" label="Achievement Image" description="Upload/paste an image." error={state?.errors?.image} />
-                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
-                    <SubmitButton>Add Achievement</SubmitButton>
+                    {achievement && <input type="hidden" name="id" value={achievement._id} />}
+                    <div className="space-y-2"><Label>Title</Label><Input name="title" defaultValue={achievement?.title ?? ''} />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
+                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={achievement?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
+                    <ImageUpload fieldName="image" label="Achievement Image" description="Upload/paste an image." currentImage={achievement?.image} error={state?.errors?.image} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" defaultValue={achievement?.imageAiHint ?? ''} />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
+                    <SubmitButton isUpdate={!!achievement}>{achievement ? 'Update Achievement' : 'Add Achievement'}</SubmitButton>
                 </form>
             </CardContent>
         </Card>
     );
 }
 
-export function CertificationForm() {
-    const [state, dispatch] = useActionState(addCertification, { message: null, errors: {}, success: false });
+export function CertificationForm({ certification, onSuccess }: { certification?: Client<Certification>, onSuccess?: () => void }) {
+    const action = certification ? updateCertification : addCertification;
+    const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = useCallback(() => {
-        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        if (removeButton) removeButton.click();
-    }, []);
-    useFormFeedback(state, formRef, handleReset);
+    useFormFeedback(state, formRef, onSuccess);
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Add New Certification</CardTitle>
-                <CardDescription>Add a new certification or credential.</CardDescription>
+                <CardTitle>{certification ? 'Edit Certification' : 'Add New Certification'}</CardTitle>
+                <CardDescription>{certification ? 'Edit this certification.' : 'Add a new certification or credential.'}</CardDescription>
             </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
-                    <div className="space-y-2"><Label>Title</Label><Input name="title" />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
-                    <div className="space-y-2"><Label>Issued By</Label><Input name="issuedBy" />{state?.errors?.issuedBy && <p className="text-sm text-destructive">{state.errors.issuedBy}</p>}</div>
-                    <div className="space-y-2"><Label>Date</Label><Input name="date" type="date" />{state?.errors?.date && <p className="text-sm text-destructive">{state.errors.date}</p>}</div>
-                    <div className="space-y-2"><Label>Certificate URL</Label><Input name="certificateUrl" type="url" />{state?.errors?.certificateUrl && <p className="text-sm text-destructive">{state.errors.certificateUrl}</p>}</div>
-                    <ImageUpload fieldName="image" label="Certificate Image" description="Upload/paste an image." error={state?.errors?.image} />
-                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
-                    <SubmitButton>Add Certification</SubmitButton>
+                    {certification && <input type="hidden" name="id" value={certification._id} />}
+                    <div className="space-y-2"><Label>Title</Label><Input name="title" defaultValue={certification?.title ?? ''} />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
+                    <div className="space-y-2"><Label>Issued By</Label><Input name="issuedBy" defaultValue={certification?.issuedBy ?? ''} />{state?.errors?.issuedBy && <p className="text-sm text-destructive">{state.errors.issuedBy}</p>}</div>
+                    <div className="space-y-2"><Label>Date</Label><Input name="date" type="date" defaultValue={certification?.date ?? ''} />{state?.errors?.date && <p className="text-sm text-destructive">{state.errors.date}</p>}</div>
+                    <div className="space-y-2"><Label>Certificate URL</Label><Input name="certificateUrl" type="url" defaultValue={certification?.certificateUrl ?? ''} />{state?.errors?.certificateUrl && <p className="text-sm text-destructive">{state.errors.certificateUrl}</p>}</div>
+                    <ImageUpload fieldName="image" label="Certificate Image" description="Upload/paste an image." currentImage={certification?.image} error={state?.errors?.image} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" defaultValue={certification?.imageAiHint ?? ''} />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
+                    <SubmitButton isUpdate={!!certification}>{certification ? 'Update Certification' : 'Add Certification'}</SubmitButton>
                 </form>
             </CardContent>
         </Card>
     );
 }
 
-export function EducationForm() {
-    const [state, dispatch] = useActionState(addEducation, { message: null, errors: {}, success: false });
+export function EducationForm({ education, onSuccess }: { education?: Client<Education>, onSuccess?: () => void }) {
+    const action = education ? updateEducation : addEducation;
+    const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = useCallback(() => {
-        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        if (removeButton) removeButton.click();
-    }, []);
-    useFormFeedback(state, formRef, handleReset);
+    useFormFeedback(state, formRef, onSuccess);
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Add Education</CardTitle>
-                <CardDescription>Detail your academic background.</CardDescription>
+                <CardTitle>{education ? 'Edit Education' : 'Add Education'}</CardTitle>
+                <CardDescription>{education ? 'Edit this education entry.' : 'Detail your academic background.'}</CardDescription>
             </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
-                    <div className="space-y-2"><Label>College Name</Label><Input name="collegeName" />{state?.errors?.collegeName && <p className="text-sm text-destructive">{state.errors.collegeName}</p>}</div>
-                    <div className="space-y-2"><Label>Degree Name</Label><Input name="degreeName" />{state?.errors?.degreeName && <p className="text-sm text-destructive">{state.errors.degreeName}</p>}</div>
-                    <div className="space-y-2"><Label>Period</Label><Input name="period" placeholder="e.g., 2020-2024" />{state?.errors?.period && <p className="text-sm text-destructive">{state.errors.period}</p>}</div>
-                    <div className="space-y-2"><Label>CGPA</Label><Input name="cgpa" />{state?.errors?.cgpa && <p className="text-sm text-destructive">{state.errors.cgpa}</p>}</div>
-                    <ImageUpload fieldName="icon" label="Education Icon / Image" description="Upload/paste an image for the school/college." error={state?.errors?.icon} />
-                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'university logo' or 'graduation cap'" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
-                    <SubmitButton>Add Education</SubmitButton>
+                    {education && <input type="hidden" name="id" value={education._id} />}
+                    <div className="space-y-2"><Label>College Name</Label><Input name="collegeName" defaultValue={education?.collegeName ?? ''} />{state?.errors?.collegeName && <p className="text-sm text-destructive">{state.errors.collegeName}</p>}</div>
+                    <div className="space-y-2"><Label>Degree Name</Label><Input name="degreeName" defaultValue={education?.degreeName ?? ''} />{state?.errors?.degreeName && <p className="text-sm text-destructive">{state.errors.degreeName}</p>}</div>
+                    <div className="space-y-2"><Label>Period</Label><Input name="period" placeholder="e.g., 2020-2024" defaultValue={education?.period ?? ''} />{state?.errors?.period && <p className="text-sm text-destructive">{state.errors.period}</p>}</div>
+                    <div className="space-y-2"><Label>CGPA</Label><Input name="cgpa" defaultValue={education?.cgpa ?? ''} />{state?.errors?.cgpa && <p className="text-sm text-destructive">{state.errors.cgpa}</p>}</div>
+                    <ImageUpload fieldName="icon" label="Education Icon / Image" description="Upload/paste an image for the school/college." currentImage={education?.icon} error={state?.errors?.icon} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'university logo' or 'graduation cap'" defaultValue={education?.iconHint ?? ''} />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
+                    <SubmitButton isUpdate={!!education}>{education ? 'Update Education' : 'Add Education'}</SubmitButton>
                 </form>
             </CardContent>
         </Card>
     );
 }
 
-export function WorkExperienceForm() {
-    const [state, dispatch] = useActionState(addWorkExperience, { message: null, errors: {}, success: false });
+export function WorkExperienceForm({ experience, onSuccess }: { experience?: Client<WorkExperience>, onSuccess?: () => void }) {
+    const action = experience ? updateWorkExperience : addWorkExperience;
+    const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = useCallback(() => {
-        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        if (removeButton) removeButton.click();
-    }, []);
-    useFormFeedback(state, formRef, handleReset);
+    useFormFeedback(state, formRef, onSuccess);
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Add Work Experience</CardTitle>
-                <CardDescription>Add a new role to your professional journey.</CardDescription>
+                <CardTitle>{experience ? 'Edit Work Experience' : 'Add Work Experience'}</CardTitle>
+                <CardDescription>{experience ? 'Edit this work experience.' : 'Add a new role to your professional journey.'}</CardDescription>
             </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
-                    <div className="space-y-2"><Label>Role</Label><Input name="role" />{state?.errors?.role && <p className="text-sm text-destructive">{state.errors.role}</p>}</div>
-                    <div className="space-y-2"><Label>Company Name</Label><Input name="companyName" />{state?.errors?.companyName && <p className="text-sm text-destructive">{state.errors.companyName}</p>}</div>
-                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
-                    <ImageUpload fieldName="icon" label="Company Icon / Logo" description="Upload/paste a company logo." error={state?.errors?.icon} />
-                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'company logo' or 'briefcase'" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
-                    <SubmitButton>Add Work Experience</SubmitButton>
+                    {experience && <input type="hidden" name="id" value={experience._id} />}
+                    <div className="space-y-2"><Label>Role</Label><Input name="role" defaultValue={experience?.role ?? ''} />{state?.errors?.role && <p className="text-sm text-destructive">{state.errors.role}</p>}</div>
+                    <div className="space-y-2"><Label>Company Name</Label><Input name="companyName" defaultValue={experience?.companyName ?? ''} />{state?.errors?.companyName && <p className="text-sm text-destructive">{state.errors.companyName}</p>}</div>
+                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={experience?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
+                    <ImageUpload fieldName="icon" label="Company Icon / Logo" description="Upload/paste a company logo." currentImage={experience?.icon} error={state?.errors?.icon} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'company logo' or 'briefcase'" defaultValue={experience?.iconHint ?? ''} />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
+                    <SubmitButton isUpdate={!!experience}>{experience ? 'Update Experience' : 'Add Experience'}</SubmitButton>
                 </form>
             </CardContent>
         </Card>
     );
 }
 
-export function ProfileLinkForm() {
-    const [state, dispatch] = useActionState(addProfileLink, { message: null, errors: {}, success: false });
+export function ProfileLinkForm({ link, onSuccess }: { link?: Client<ProfileLink>, onSuccess?: () => void }) {
+    const action = link ? updateProfileLink : addProfileLink;
+    const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = useCallback(() => {
-        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-        if (removeButton) removeButton.click();
-    }, []);
-    useFormFeedback(state, formRef, handleReset);
+    useFormFeedback(state, formRef, onSuccess);
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Add Profile Link</CardTitle>
-                <CardDescription>Add a link to your social or professional profiles.</CardDescription>
+                <CardTitle>{link ? 'Edit Profile Link' : 'Add Profile Link'}</CardTitle>
+                <CardDescription>{link ? 'Edit this profile link.' : 'Add a link to your social or professional profiles.'}</CardDescription>
             </CardHeader>
             <CardContent>
                 <form ref={formRef} action={dispatch} className="space-y-4">
-                    <div className="space-y-2"><Label>Platform</Label><Input name="platform" placeholder="e.g., GitHub" />{state?.errors?.platform && <p className="text-sm text-destructive">{state.errors.platform}</p>}</div>
-                    <div className="space-y-2"><Label>URL</Label><Input name="url" type="url" />{state?.errors?.url && <p className="text-sm text-destructive">{state.errors.url}</p>}</div>
-                    <ImageUpload fieldName="icon" label="Platform Icon / Logo" description="Upload/paste an icon for the platform." error={state?.errors?.icon} />
-                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'github logo'" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
-                    <SubmitButton>Add Profile Link</SubmitButton>
+                    {link && <input type="hidden" name="id" value={link._id} />}
+                    <div className="space-y-2"><Label>Platform</Label><Input name="platform" placeholder="e.g., GitHub" defaultValue={link?.platform ?? ''} />{state?.errors?.platform && <p className="text-sm text-destructive">{state.errors.platform}</p>}</div>
+                    <div className="space-y-2"><Label>URL</Label><Input name="url" type="url" defaultValue={link?.url ?? ''} />{state?.errors?.url && <p className="text-sm text-destructive">{state.errors.url}</p>}</div>
+                    <ImageUpload fieldName="icon" label="Platform Icon / Logo" description="Upload/paste an icon for the platform." currentImage={link?.icon} error={state?.errors?.icon} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'github logo'" defaultValue={link?.iconHint ?? ''} />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
+                    <SubmitButton isUpdate={!!link}>{link ? 'Update Link' : 'Add Link'}</SubmitButton>
                 </form>
             </CardContent>
         </Card>

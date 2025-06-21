@@ -33,6 +33,8 @@ const skillSchema = z.object({
   image: z.string().optional(),
   imageAiHint: z.string().optional(),
 });
+const updateSkillSchema = skillSchema.extend({ id: z.string().min(1) });
+
 
 const projectSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -43,6 +45,7 @@ const projectSchema = z.object({
   websiteUrl: z.string().url("Must be a valid URL").or(z.literal('')).optional(),
   githubUrl: z.string().url("Must be a valid URL").or(z.literal('')).optional(),
 });
+const updateProjectSchema = projectSchema.extend({ id: z.string().min(1) });
 
 const achievementSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -50,6 +53,7 @@ const achievementSchema = z.object({
   image: z.string().optional(),
   imageAiHint: z.string().optional(),
 });
+const updateAchievementSchema = achievementSchema.extend({ id: z.string().min(1) });
 
 const certificationSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -59,6 +63,7 @@ const certificationSchema = z.object({
   image: z.string().optional(),
   imageAiHint: z.string().optional(),
 });
+const updateCertificationSchema = certificationSchema.extend({ id: z.string().min(1) });
 
 const educationSchema = z.object({
   collegeName: z.string().min(1, "College name is required"),
@@ -68,6 +73,7 @@ const educationSchema = z.object({
   icon: z.string().optional(),
   iconHint: z.string().optional(),
 });
+const updateEducationSchema = educationSchema.extend({ id: z.string().min(1) });
 
 const workExperienceSchema = z.object({
   role: z.string().min(1, "Role is required"),
@@ -76,6 +82,7 @@ const workExperienceSchema = z.object({
   icon: z.string().optional(),
   iconHint: z.string().optional(),
 });
+const updateWorkExperienceSchema = workExperienceSchema.extend({ id: z.string().min(1) });
 
 const profileLinkSchema = z.object({
   platform: z.string().min(1, "Platform is required"),
@@ -83,6 +90,8 @@ const profileLinkSchema = z.object({
   icon: z.string().optional(),
   iconHint: z.string().optional(),
 });
+const updateProfileLinkSchema = profileLinkSchema.extend({ id: z.string().min(1) });
+
 
 async function getCollection(collectionName: string) {
     const client = await clientPromise;
@@ -319,6 +328,177 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
         return handleDbError(e);
     }
 }
+
+export async function updateSkill(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = updateSkillSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+
+        const { id, ...dataToUpdate } = parsed.data;
+        if (!dataToUpdate.image) {
+            delete (dataToUpdate as any).image;
+        }
+
+        const collection = await getCollection('skills');
+        await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
+
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Skill updated successfully!', success: true };
+
+    } catch (e) {
+        console.error("Failed to update skill:", e);
+        return handleDbError(e);
+    }
+}
+
+export async function updateProject(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = updateProjectSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+
+        const { id, tags, ...rest } = parsed.data;
+        const dataToUpdate: any = { ...rest, tags: tags.split(',').map(tag => tag.trim()) };
+        if (!dataToUpdate.projectImage) {
+            delete dataToUpdate.projectImage;
+        }
+
+        const collection = await getCollection('projects');
+        await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
+
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Project updated successfully!', success: true };
+    } catch (e) {
+        console.error("Failed to update project:", e);
+        return handleDbError(e);
+    }
+}
+
+export async function updateAchievement(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = updateAchievementSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+
+        const { id, ...dataToUpdate } = parsed.data;
+        if (!dataToUpdate.image) {
+            delete (dataToUpdate as any).image;
+        }
+
+        const collection = await getCollection('achievements');
+        await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
+
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Achievement updated successfully!', success: true };
+    } catch (e) {
+        console.error("Failed to update achievement:", e);
+        return handleDbError(e);
+    }
+}
+
+export async function updateCertification(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = updateCertificationSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+
+        const { id, ...dataToUpdate } = parsed.data;
+        if (!dataToUpdate.image) {
+            delete (dataToUpdate as any).image;
+        }
+
+        const collection = await getCollection('certifications');
+        await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
+
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Certification updated successfully!', success: true };
+    } catch (e) {
+        console.error("Failed to update certification:", e);
+        return handleDbError(e);
+    }
+}
+
+export async function updateEducation(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = updateEducationSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+
+        const { id, ...dataToUpdate } = parsed.data;
+        if (!dataToUpdate.icon) {
+            delete (dataToUpdate as any).icon;
+        }
+
+        const collection = await getCollection('education');
+        await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
+
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Education updated successfully!', success: true };
+    } catch (e) {
+        console.error("Failed to update education:", e);
+        return handleDbError(e);
+    }
+}
+
+export async function updateWorkExperience(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = updateWorkExperienceSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+        
+        const { id, ...dataToUpdate } = parsed.data;
+        if (!dataToUpdate.icon) {
+            delete (dataToUpdate as any).icon;
+        }
+        
+        const collection = await getCollection('workExperience');
+        await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
+        
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Work experience updated successfully!', success: true };
+    } catch (e) {
+        console.error("Failed to update work experience:", e);
+        return handleDbError(e);
+    }
+}
+
+export async function updateProfileLink(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = updateProfileLinkSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+        
+        const { id, ...dataToUpdate } = parsed.data;
+        if (!dataToUpdate.icon) {
+            delete (dataToUpdate as any).icon;
+        }
+        
+        const collection = await getCollection('profileLinks');
+        await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
+        
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Profile link updated successfully!', success: true };
+    } catch (e) {
+        console.error("Failed to update profile link:", e);
+        return handleDbError(e);
+    }
+}
+
 
 const deleteSchema = z.object({
   id: z.string().min(1, "ID is required"),

@@ -1,26 +1,23 @@
 'use client';
 
 import Image from "next/image";
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Trash2, Pencil } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { AdminFormState } from "@/app/dashboard/actions";
 import { 
     deleteSkill, deleteProject, deleteAchievement, deleteCertification, 
     deleteEducation, deleteWorkExperience, deleteProfileLink
 } from "@/app/dashboard/actions";
+import { 
+    SkillForm, ProjectForm, AchievementForm, CertificationForm, EducationForm, WorkExperienceForm, ProfileLinkForm 
+} from './PortfolioForms';
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -73,6 +70,71 @@ function DeleteItemForm({ action, itemId }: { action: (prevState: AdminFormState
   );
 }
 
+// Dialog Components
+function EditSkillDialog({ skill }: { skill: Client<Skill> }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]"><SkillForm skill={skill} onSuccess={() => setOpen(false)} /></DialogContent>
+        </Dialog>
+    );
+}
+function EditProjectDialog({ project }: { project: Client<Project> }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><ProjectForm project={project} onSuccess={() => setOpen(false)} /></DialogContent>
+        </Dialog>
+    );
+}
+function EditAchievementDialog({ achievement }: { achievement: Client<Achievement> }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><AchievementForm achievement={achievement} onSuccess={() => setOpen(false)} /></DialogContent>
+        </Dialog>
+    );
+}
+function EditCertificationDialog({ certification }: { certification: Client<Certification> }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><CertificationForm certification={certification} onSuccess={() => setOpen(false)} /></DialogContent>
+        </Dialog>
+    );
+}
+function EditEducationDialog({ educationItem }: { educationItem: Client<Education> }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><EducationForm education={educationItem} onSuccess={() => setOpen(false)} /></DialogContent>
+        </Dialog>
+    );
+}
+function EditWorkExperienceDialog({ experience }: { experience: Client<WorkExperience> }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><WorkExperienceForm experience={experience} onSuccess={() => setOpen(false)} /></DialogContent>
+        </Dialog>
+    );
+}
+function EditProfileLinkDialog({ link }: { link: Client<ProfileLink> }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><ProfileLinkForm link={link} onSuccess={() => setOpen(false)} /></DialogContent>
+        </Dialog>
+    );
+}
+
 
 export function AboutDisplay({ about }: { about: Client<About> | null }) {
     return (
@@ -113,7 +175,6 @@ export function AboutDisplay({ about }: { about: Client<About> | null }) {
     );
 }
 
-
 export function SkillsDisplay({ skills }: { skills: Client<Skill>[] }) {
     return (
         <Card>
@@ -140,7 +201,8 @@ export function SkillsDisplay({ skills }: { skills: Client<Skill>[] }) {
                                         </div>
                                     </TableCell>
                                     <TableCell className="font-medium">{skill.title}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-right flex justify-end items-center">
+                                        <EditSkillDialog skill={skill} />
                                         <DeleteItemForm action={deleteSkill} itemId={skill._id!} />
                                     </TableCell>
                                 </TableRow>
@@ -176,7 +238,8 @@ export function ProjectsDisplay({ projects }: { projects: Client<Project>[] }) {
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
                                             <CardTitle className="text-lg">{project.title}</CardTitle>
-                                             <div className="flex-shrink-0">
+                                             <div className="flex-shrink-0 flex items-center">
+                                                <EditProjectDialog project={project} />
                                                 <DeleteItemForm action={deleteProject} itemId={project._id!} />
                                              </div>
                                         </div>
@@ -224,7 +287,8 @@ export function AchievementsDisplay({ achievements }: { achievements: Client<Ach
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
                                             <CardTitle className="text-lg">{achievement.title}</CardTitle>
-                                            <div className="flex-shrink-0">
+                                            <div className="flex-shrink-0 flex items-center">
+                                                <EditAchievementDialog achievement={achievement} />
                                                 <DeleteItemForm action={deleteAchievement} itemId={achievement._id!} />
                                             </div>
                                         </div>
@@ -243,7 +307,6 @@ export function AchievementsDisplay({ achievements }: { achievements: Client<Ach
         </Card>
     );
 }
-
 
 export function CertificationsDisplay({ certifications }: { certifications: Client<Certification>[] }) {
     return (
@@ -269,7 +332,8 @@ export function CertificationsDisplay({ certifications }: { certifications: Clie
                                                 <CardTitle className="text-lg">{cert.title}</CardTitle>
                                                 <CardDescription className="text-sm mt-1">{cert.issuedBy} - {cert.date}</CardDescription>
                                             </div>
-                                            <div className="flex-shrink-0">
+                                            <div className="flex-shrink-0 flex items-center">
+                                                <EditCertificationDialog certification={cert} />
                                                 <DeleteItemForm action={deleteCertification} itemId={cert._id!} />
                                             </div>
                                         </div>
@@ -322,7 +386,8 @@ export function EducationDisplay({ education }: { education: Client<Education>[]
                                     </TableCell>
                                     <TableCell>{edu.period}</TableCell>
                                     <TableCell>{edu.cgpa}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-right flex justify-end items-center">
+                                        <EditEducationDialog educationItem={edu} />
                                         <DeleteItemForm action={deleteEducation} itemId={edu._id!} />
                                     </TableCell>
                                 </TableRow>
@@ -368,7 +433,8 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
                                         <p className="text-muted-foreground text-sm">{exp.companyName}</p>
                                     </TableCell>
                                     <TableCell>{exp.description}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-right flex justify-end items-center">
+                                        <EditWorkExperienceDialog experience={exp} />
                                         <DeleteItemForm action={deleteWorkExperience} itemId={exp._id!} />
                                     </TableCell>
                                 </TableRow>
@@ -382,7 +448,6 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
         </Card>
     );
 }
-
 
 export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<ProfileLink>[] }) {
     return (
@@ -412,7 +477,8 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
                                     </TableCell>
                                     <TableCell className="font-medium">{link.platform}</TableCell>
                                     <TableCell><a href={link.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary truncate">{link.url}</a></TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-right flex justify-end items-center">
+                                        <EditProfileLinkDialog link={link} />
                                         <DeleteItemForm action={deleteProfileLink} itemId={link._id!} />
                                     </TableCell>
                                 </TableRow>
