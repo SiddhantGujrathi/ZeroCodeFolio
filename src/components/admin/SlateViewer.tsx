@@ -23,22 +23,24 @@ const serialize = (nodes: any[]): React.ReactNode => {
         }
 
         const children = serialize(node.children);
+        const style = { textAlign: node.align } as React.CSSProperties;
+
 
         switch (node.type) {
             case 'heading-one':
-                return <h1 key={i} className="text-3xl font-bold mb-4">{children}</h1>;
+                return <h1 key={i} className="text-3xl font-bold mb-4" style={style}>{children}</h1>;
             case 'heading-two':
-                return <h2 key={i} className="text-2xl font-bold mb-3">{children}</h2>;
+                return <h2 key={i} className="text-2xl font-bold mb-3" style={style}>{children}</h2>;
             case 'paragraph':
-                return <p key={i} className="mb-4 last:mb-0">{children}</p>;
+                return <p key={i} className="mb-4 last:mb-0" style={style}>{children}</p>;
             case 'bulleted-list':
-                return <ul key={i} className="list-disc pl-5 space-y-2 mb-4">{children}</ul>;
+                return <ul key={i} className="list-disc pl-5 space-y-2 mb-4" style={style}>{children}</ul>;
             case 'numbered-list':
-                return <ol key={i} className="list-decimal pl-5 space-y-2 mb-4">{children}</ol>;
+                return <ol key={i} className="list-decimal pl-5 space-y-2 mb-4" style={style}>{children}</ol>;
             case 'list-item':
-                return <li key={i}>{children}</li>;
+                return <li key={i} style={style}>{children}</li>;
             default:
-                return <p key={i}>{children}</p>;
+                return <p key={i} style={style}>{children}</p>;
         }
     });
 };

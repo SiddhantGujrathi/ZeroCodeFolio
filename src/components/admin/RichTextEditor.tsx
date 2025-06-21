@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, Text } from 'slate';
+import { createEditor, Descendant, Editor, Transforms, Element as SlateElement } from 'slate';
 import { Slate, Editable, withReact, useSlate, ReactEditor } from 'slate-react';
 import { withHistory } from 'slate-history';
 import isHotkey from 'is-hotkey';
-import { Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Pilcrow } from 'lucide-react';
+import { Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Pilcrow, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { BaseEditor } from 'slate';
@@ -13,12 +13,13 @@ import type { HistoryEditor } from 'slate-history';
 
 // TypeScript Definitions
 type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
-type ParagraphElement = { type: 'paragraph'; children: CustomText[] };
-type HeadingOneElement = { type: 'heading-one'; children: CustomText[] };
-type HeadingTwoElement = { type: 'heading-two'; children: CustomText[] };
-type BulletedListElement = { type: 'bulleted-list'; children: ListItemElement[] };
-type NumberedListElement = { type: 'numbered-list'; children: ListItemElement[] };
-type ListItemElement = { type: 'list-item'; children: CustomText[] };
+type AlignableElement = { align?: 'left' | 'center' | 'right' | 'justify' };
+type ParagraphElement = { type: 'paragraph'; children: CustomText[] } & AlignableElement;
+type HeadingOneElement = { type: 'heading-one'; children: CustomText[] } & AlignableElement;
+type HeadingTwoElement = { type: 'heading-two'; children: CustomText[] } & AlignableElement;
+type BulletedListElement = { type: 'bulleted-list'; children: ListItemElement[] } & AlignableElement;
+type NumberedListElement = { type: 'numbered-list'; children: ListItemElement[] } & AlignableElement;
+type ListItemElement = { type: 'list-item'; children: CustomText[] } & AlignableElement;
 type CustomElement = ParagraphElement | HeadingOneElement | HeadingTwoElement | BulletedListElement | NumberedListElement | ListItemElement;
 type FormattedText = { text: string; bold?: boolean; italic?: boolean; underline?: boolean };
 type CustomText = FormattedText;
@@ -108,19 +109,20 @@ const isBlockActive = (editor: CustomEditor, format: string, blockType: 'type' |
 };
 
 const Element = ({ attributes, children, element }: any) => {
+  const style = { textAlign: element.align };
   switch (element.type) {
     case 'heading-one':
-      return <h1 {...attributes}>{children}</h1>;
+      return <h1 {...attributes} style={style}>{children}</h1>;
     case 'heading-two':
-        return <h2 {...attributes}>{children}</h2>;
+        return <h2 {...attributes} style={style}>{children}</h2>;
     case 'bulleted-list':
-      return <ul {...attributes}>{children}</ul>;
+      return <ul {...attributes} style={style}>{children}</ul>;
     case 'numbered-list':
-      return <ol {...attributes}>{children}</ol>;
+      return <ol {...attributes} style={style}>{children}</ol>;
     case 'list-item':
-      return <li {...attributes}>{children}</li>;
+      return <li {...attributes} style={style}>{children}</li>;
     default:
-      return <p {...attributes}>{children}</p>;
+      return <p {...attributes} style={style}>{children}</p>;
   }
 };
 
@@ -208,7 +210,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
           }
         }}
       >
-        <div className="flex items-center gap-1 p-2 border-b">
+        <div className="flex flex-wrap items-center gap-1 p-2 border-b">
             <MarkButton format="bold" icon={Bold} />
             <MarkButton format="italic" icon={Italic} />
             <MarkButton format="underline" icon={Underline} />
@@ -219,6 +221,11 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
             <div className="mx-1 h-6 w-px bg-border" />
             <BlockButton format="numbered-list" icon={ListOrdered} />
             <BlockButton format="bulleted-list" icon={List} />
+            <div className="mx-1 h-6 w-px bg-border" />
+            <BlockButton format="left" icon={AlignLeft} />
+            <BlockButton format="center" icon={AlignCenter} />
+            <BlockButton format="right" icon={AlignRight} />
+            <BlockButton format="justify" icon={AlignJustify} />
         </div>
         <div className="p-4 prose prose-sm dark:prose-invert max-w-none focus-within:outline-none">
             <Editable
