@@ -88,7 +88,7 @@ export async function login(prevState: FormState, formData: FormData): Promise<F
   } catch (error) {
     console.error(error);
     if (error instanceof Error && error.name === 'MongoNetworkError') {
-        return { message: 'Failed to connect to the database. Please check your network connection and credentials.' };
+        return { message: 'Database Connection Error. Please ensure your IP address is whitelisted in MongoDB Atlas and that your credentials are correct.' };
     }
     return { message: 'An unexpected error occurred. Please try again.' };
   }

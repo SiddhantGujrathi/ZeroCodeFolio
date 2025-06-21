@@ -26,6 +26,8 @@ const partialAboutSchema = aboutSchema.partial();
 
 const skillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
+  image: z.string().optional(),
+  imageAiHint: z.string().optional(),
 });
 
 const projectSchema = z.object({
@@ -78,14 +80,13 @@ const profileLinkSchema = z.object({
   iconHint: z.string().optional(),
 });
 
-const DB_NAME = 'portfolio';
-const GENERIC_ERROR_MESSAGE = `Database operation failed. This could be a connection issue (e.g., check your IP whitelist in Atlas), a permissions problem, or an incorrect database/collection name.`;
-
 async function getCollection(collectionName: string) {
     const client = await clientPromise;
-    const db = client.db(DB_NAME);
+    const db = client.db('portfolio');
     return db.collection(collectionName);
 }
+
+const DB_ERROR_MESSAGE = 'Database Connection Error. Please ensure your IP address is whitelisted in MongoDB Atlas and that your MONGODB_URI environment variable is correct.';
 
 export async function updateAbout(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const dataFromForm = Object.fromEntries(formData.entries());
@@ -127,8 +128,11 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
 
     } catch (e) {
         console.error("Failed to update about section:", e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -139,6 +143,12 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
     }
     const dataToInsert = parsed.data;
     try {
+        if (dataToInsert.image?.startsWith('data:image/')) {
+            dataToInsert.image = await uploadImage(dataToInsert.image);
+        } else if (dataToInsert.image === '') {
+            dataToInsert.image = undefined;
+        }
+
         const skillsCollection = await getCollection('skills');
         const result = await skillsCollection.insertOne(dataToInsert);
 
@@ -150,8 +160,11 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
         return { message: 'Skill added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add skill:", e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -185,8 +198,11 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
         return { message: 'Project added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add project:", e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -215,8 +231,11 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
         return { message: 'Achievement added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add achievement:", e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -243,8 +262,11 @@ export async function addCertification(prevState: AdminFormState, formData: Form
         return { message: 'Certification added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add certification:", e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -264,8 +286,11 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
         return { message: 'Education added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add education:", e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -285,8 +310,11 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
         return { message: 'Work experience added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add work experience:", e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -306,8 +334,11 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
         return { message: 'Profile link added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add profile link:", e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -327,8 +358,11 @@ async function deleteItem(collectionName: string, id: string): Promise<AdminForm
         return { message: 'Item deleted successfully.', success: true };
     } catch (e) {
         console.error(`Failed to delete item from ${collectionName}:`, e);
+        if (e instanceof Error && e.name === 'MongoNetworkError') {
+            return { message: DB_ERROR_MESSAGE, success: false };
+        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
