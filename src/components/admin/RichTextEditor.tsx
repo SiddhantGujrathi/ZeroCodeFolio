@@ -17,7 +17,7 @@ type AlignableElement = { align?: 'left' | 'center' | 'right' | 'justify' };
 type ParagraphElement = { type: 'paragraph'; children: CustomText[] } & AlignableElement;
 type HeadingOneElement = { type: 'heading-one'; children: CustomText[] } & AlignableElement;
 type HeadingTwoElement = { type: 'heading-two'; children: CustomText[] } & AlignableElement;
-type ListItemElement = { type: 'list-item'; children: CustomText[] } & AlignableElement;
+type ListItemElement = { type: 'list-item'; children: CustomText[] };
 type BulletedListElement = { type: 'bulleted-list'; children: ListItemElement[] } & AlignableElement;
 type NumberedListElement = { type: 'numbered-list'; children: ListItemElement[] } & AlignableElement;
 type CustomElement = ParagraphElement | HeadingOneElement | HeadingTwoElement | BulletedListElement | NumberedListElement | ListItemElement;
@@ -77,17 +77,17 @@ const toggleBlock = (editor: CustomEditor, format: string) => {
   let newProperties: Partial<SlateElement>;
   if (TEXT_ALIGN_TYPES.includes(format)) {
     newProperties = {
-      align: isActive ? undefined : format,
-    } as Partial<SlateElement>;
+      align: isActive ? undefined : format as 'left' | 'center' | 'right' | 'justify',
+    };
   } else {
     newProperties = {
-      type: isActive ? 'paragraph' : isList ? 'list-item' : format,
-    } as Partial<SlateElement>;
+      type: isActive ? 'paragraph' : isList ? 'list-item' : format as 'heading-one' | 'heading-two' | 'paragraph',
+    };
   }
   Transforms.setNodes<SlateElement>(editor, newProperties);
 
   if (!isActive && isList) {
-    const block = { type: format, children: [] } as SlateElement;
+    const block = { type: format, children: [] } as BulletedListElement | NumberedListElement;
     Transforms.wrapNodes(editor, block);
   }
 };
@@ -116,9 +116,9 @@ const Element = ({ attributes, children, element }: any) => {
     case 'heading-two':
         return <h2 {...attributes} style={style}>{children}</h2>;
     case 'bulleted-list':
-      return <ul {...attributes} style={style}>{children}</ul>;
+      return <ul className="list-disc pl-5" {...attributes} style={style}>{children}</ul>;
     case 'numbered-list':
-      return <ol {...attributes} style={style}>{children}</ol>;
+      return <ol className="list-decimal pl-5" {...attributes} style={style}>{children}</ol>;
     case 'list-item':
       return <li {...attributes} style={style}>{children}</li>;
     default:
@@ -143,6 +143,7 @@ const MarkButton = ({ format, icon: Icon }: { format: 'bold' | 'italic' | 'under
   const editor = useSlate();
   return (
     <Button
+      type="button"
       variant="outline"
       size="icon"
       className={cn("h-8 w-8", {
@@ -162,6 +163,7 @@ const BlockButton = ({ format, icon: Icon }: { format: string, icon: React.Eleme
     const editor = useSlate();
     return (
       <Button
+        type="button"
         variant="outline"
         size="icon"
         className={cn("h-8 w-8", {
@@ -261,7 +263,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
         }}
       >
         <Toolbar />
-        <div className="p-4 prose prose-sm dark:prose-invert max-w-none focus-within:outline-none">
+        <div className="p-4 prose prose-sm dark:prose-invert max-w-none focus-within:outline-none min-h-[150px]">
             <Editable
               renderElement={renderElement}
               renderLeaf={renderLeaf}
