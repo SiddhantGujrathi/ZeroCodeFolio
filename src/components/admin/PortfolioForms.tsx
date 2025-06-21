@@ -30,7 +30,7 @@ export function SkillForm() {
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state.message) {
+    if (state?.message) {
       toast({
         variant: state.success ? 'default' : 'destructive',
         title: state.success ? 'Success!' : 'Error',
@@ -53,7 +53,7 @@ export function SkillForm() {
           <div className="space-y-2">
             <Label htmlFor="name">Skill Name</Label>
             <Input id="name" name="name" placeholder="e.g., React" required />
-            {state.errors?.name && <p className="text-sm text-destructive">{state.errors.name}</p>}
+            {state?.errors?.name && <p className="text-sm text-destructive">{state.errors.name}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="icon">Icon Name</Label>
@@ -61,7 +61,7 @@ export function SkillForm() {
             <p className="text-xs text-muted-foreground pt-1">
               Available icons: {availableIcons.join(', ')}
             </p>
-            {state.errors?.icon && <p className="text-sm text-destructive">{state.errors.icon}</p>}
+            {state?.errors?.icon && <p className="text-sm text-destructive">{state.errors.icon}</p>}
           </div>
           <SubmitButton>Add Skill</SubmitButton>
         </form>
@@ -78,7 +78,7 @@ export function ProjectForm() {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
   
     useEffect(() => {
-      if (state.message) {
+      if (state?.message) {
         toast({
           variant: state.success ? 'default' : 'destructive',
           title: state.success ? 'Success!' : 'Error',
@@ -131,17 +131,17 @@ export function ProjectForm() {
                     <div className="space-y-2">
                         <Label htmlFor="title-project">Project Title</Label>
                         <Input id="title-project" name="title" placeholder="My Awesome Project" required />
-                         {state.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}
+                         {state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description-project">Description</Label>
                         <Textarea id="description-project" name="description" placeholder="A brief description of the project." required />
-                        {state.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}
+                        {state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="tags-project">Tags (comma-separated)</Label>
                         <Input id="tags-project" name="tags" placeholder="React, Next.js, Tailwind CSS" required />
-                        {state.errors?.tags && <p className="text-sm text-destructive">{state.errors.tags}</p>}
+                        {state?.errors?.tags && <p className="text-sm text-destructive">{state.errors.tags}</p>}
                     </div>
                     <div 
                         className="space-y-2 rounded-lg border-2 border-dashed p-4 text-center hover:border-primary"
@@ -157,7 +157,7 @@ export function ProjectForm() {
                             className="text-sm file:mr-2 file:text-muted-foreground"
                         />
                         <input type="hidden" name="projectImage" value={imagePreview || ''} />
-                         {state.errors?.projectImage && <p className="text-sm text-destructive">{state.errors.projectImage}</p>}
+                         {state?.errors?.projectImage && <p className="text-sm text-destructive">{state.errors.projectImage}</p>}
                     </div>
 
                     {imagePreview && (
@@ -176,12 +176,12 @@ export function ProjectForm() {
                      <div className="space-y-2">
                         <Label htmlFor="websiteUrl-project">Website URL</Label>
                         <Input id="websiteUrl-project" name="websiteUrl" type="url" placeholder="https://example.com" />
-                         {state.errors?.websiteUrl && <p className="text-sm text-destructive">{state.errors.websiteUrl}</p>}
+                         {state?.errors?.websiteUrl && <p className="text-sm text-destructive">{state.errors.websiteUrl}</p>}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="githubUrl-project">GitHub URL</Label>
                         <Input id="githubUrl-project" name="githubUrl" type="url" placeholder="https://github.com/user/repo" />
-                         {state.errors?.githubUrl && <p className="text-sm text-destructive">{state.errors.githubUrl}</p>}
+                         {state?.errors?.githubUrl && <p className="text-sm text-destructive">{state.errors.githubUrl}</p>}
                     </div>
                     <SubmitButton>Add Project</SubmitButton>
                 </form>
@@ -197,7 +197,7 @@ export function AchievementForm() {
     const formRef = useRef<HTMLFormElement>(null);
   
     useEffect(() => {
-      if (state.message) {
+      if (state?.message) {
         toast({
           variant: state.success ? 'default' : 'destructive',
           title: state.success ? 'Success!' : 'Error',
@@ -220,12 +220,12 @@ export function AchievementForm() {
                     <div className="space-y-2">
                         <Label htmlFor="title-achievement">Title</Label>
                         <Input id="title-achievement" name="title" placeholder="e.g., 5-Star Coder on HackerRank" required />
-                         {state.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}
+                         {state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description-achievement">Description</Label>
                         <Textarea id="description-achievement" name="description" placeholder="A brief description of the achievement." required />
-                        {state.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}
+                        {state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}
                     </div>
                     <SubmitButton>Add Achievement</SubmitButton>
                 </form>
