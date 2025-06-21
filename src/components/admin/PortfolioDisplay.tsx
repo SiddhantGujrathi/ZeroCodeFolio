@@ -190,6 +190,7 @@ export function AboutDisplay({ about }: { about: Client<About> | null }) {
                         </div>
                         <div>
                             <h3 className="text-xl font-bold">{about.name}</h3>
+                            {about.tagline && <p className="text-md font-semibold text-primary">{about.tagline}</p>}
                             <p className="text-muted-foreground">{about.email}</p>
                             <p className="text-muted-foreground">{about.phone} | {about.location}</p>
                         </div>

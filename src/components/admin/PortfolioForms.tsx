@@ -389,8 +389,7 @@ function BioEditorForm({ bio }: { bio?: string | null }) {
         <div className="space-y-3">
             <form action={dispatch} className="space-y-3">
                 <div className="space-y-2">
-                    <div className="flex justify-between items-center mb-1">
-                        <Label className="font-semibold">Bio</Label>
+                    <div className="flex justify-end items-center mb-1 h-4">
                         {isDirty && <span className="text-xs font-semibold text-yellow-500 animate-pulse">Unsaved changes</span>}
                     </div>
                     <RichTextEditor
@@ -418,6 +417,9 @@ export function AboutForm({ about }: { about: Client<About> | null }) {
                     <AboutFieldForm fieldName="name" label="Name" defaultValue={about?.name}>
                         <Input name="name" defaultValue={about?.name ?? ''} />
                     </AboutFieldForm>
+                    <AboutFieldForm fieldName="tagline" label="Professional Line" defaultValue={about?.tagline}>
+                        <Input name="tagline" placeholder="e.g. Full Stack Developer" defaultValue={about?.tagline ?? ''} />
+                    </AboutFieldForm>
                     <AboutFieldForm fieldName="email" label="Email" defaultValue={about?.email}>
                         <Input name="email" type="email" defaultValue={about?.email ?? ''} />
                     </AboutFieldForm>
@@ -429,7 +431,10 @@ export function AboutForm({ about }: { about: Client<About> | null }) {
                     </AboutFieldForm>
                 </div>
                 
-                <BioEditorForm bio={about?.bio} />
+                <div>
+                  <h3 className="text-lg font-semibold leading-none tracking-tight mb-4">Bio</h3>
+                  <BioEditorForm bio={about?.bio} />
+                </div>
 
                 <AboutFieldForm fieldName="resumeUrl" label="Resume URL" defaultValue={about?.resumeUrl}>
                     <Input name="resumeUrl" type="url" defaultValue={about?.resumeUrl ?? ''} />

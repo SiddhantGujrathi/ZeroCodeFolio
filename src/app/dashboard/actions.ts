@@ -18,6 +18,7 @@ export type SetupResult = {
 
 const aboutSchema = z.object({
     name: z.string().optional(),
+    tagline: z.string().optional(),
     bio: z.string().optional(),
     location: z.string().optional(),
     email: z.string().email("Invalid email address").or(z.literal('')).optional(),

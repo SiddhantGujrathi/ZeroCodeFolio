@@ -77,6 +77,7 @@ export function AboutPreview({ about }: { about: Client<About> | null }) {
                     <h1 className="mt-4 font-headline text-4xl font-bold tracking-tight md:text-6xl">
                       {about.name}
                     </h1>
+                    {about.tagline && <p className="mt-2 text-xl text-muted-foreground font-medium">{about.tagline}</p>}
                     <div className="mt-6 max-w-2xl text-balance">
                       <SlateViewer value={about.bio} />
                     </div>
@@ -335,3 +336,4 @@ export function ProfileLinksPreview({ profileLinks, about }: { profileLinks: Cli
     
 
     
+

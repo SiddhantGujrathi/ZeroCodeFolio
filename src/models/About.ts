@@ -4,6 +4,7 @@ import clientPromise from '@/lib/mongodb';
 export interface About extends Document {
   _id?: ObjectId;
   name: string;
+  tagline?: string;
   bio: string;
   location: string;
   email: string;
