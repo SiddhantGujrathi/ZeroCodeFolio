@@ -4,12 +4,30 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { getSkillsCollection } from "@/models/Skill";
+import { getProjectsCollection } from "@/models/Project";
+import { getAchievementsCollection } from "@/models/Achievement";
 
 export default async function DashboardPage() {
     const session = await getSession();
 
     if (!session) {
         redirect('/login');
+    }
+
+    let skills: any[] = [];
+    let projects: any[] = [];
+    let achievements: any[] = [];
+
+    if (session.role === 'admin') {
+        const skillsCollection = await getSkillsCollection();
+        skills = (await skillsCollection.find({}).sort({ _id: -1 }).toArray()).map(d => ({...d, _id: d._id.toString()}));
+        
+        const projectsCollection = await getProjectsCollection();
+        projects = (await projectsCollection.find({}).sort({ _id: -1 }).toArray()).map(d => ({...d, _id: d._id.toString()}));
+
+        const achievementsCollection = await getAchievementsCollection();
+        achievements = (await achievementsCollection.find({}).sort({ _id: -1 }).toArray()).map(d => ({...d, _id: d._id.toString()}));
     }
 
     return (
@@ -37,7 +55,7 @@ export default async function DashboardPage() {
                     </CardContent>
                 </Card>
 
-                {session.role === 'admin' && <AdminDashboard />}
+                {session.role === 'admin' && <AdminDashboard skills={skills} projects={projects} achievements={achievements} />}
             </div>
         </main>
     );
