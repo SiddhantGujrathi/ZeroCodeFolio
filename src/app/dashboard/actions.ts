@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { uploadImage } from '@/lib/cloudinary';
 
 export type AdminFormState = {
   message: string | null;
@@ -104,10 +105,24 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
             success: false,
         };
     }
+    
+    const updateData = parsed.data;
 
     try {
         const aboutCollection = await getCollection('about');
-        await aboutCollection.updateOne({}, { $set: parsed.data }, { upsert: true });
+        let operation: any;
+
+        if (updateData.profileImage?.startsWith('data:image/')) {
+            const imageUrl = await uploadImage(updateData.profileImage);
+            operation = { $set: { profileImage: imageUrl } };
+        } else if (updateData.profileImage === '') {
+            operation = { $unset: { profileImage: "" } };
+        } else {
+            operation = { $set: updateData };
+        }
+        
+        await aboutCollection.updateOne({}, operation, { upsert: true });
+
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: `'${fieldName}' updated successfully!`, success: true };
@@ -124,9 +139,16 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
     if (!parsed.success) {
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
+    const dataToInsert = parsed.data;
     try {
+        if (dataToInsert.image?.startsWith('data:image/')) {
+            dataToInsert.image = await uploadImage(dataToInsert.image);
+        } else if (dataToInsert.image === '') {
+            dataToInsert.image = undefined;
+        }
+
         const skillsCollection = await getCollection('skills');
-        const result = await skillsCollection.insertOne(parsed.data);
+        const result = await skillsCollection.insertOne(dataToInsert);
 
         if (!result.insertedId) {
             return { message: 'Database insertion failed. The record was not created.', success: false };
@@ -146,15 +168,22 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
     if (!parsed.success) {
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
-    try {
-        const projectsCollection = await getCollection('projects');
-        const { tags, ...rest } = parsed.data;
-        const dataToInsert = {
-            ...rest,
-            tags: tags.split(',').map(tag => tag.trim()),
-            createdAt: new Date(),
-        };
 
+    const { tags, ...rest } = parsed.data;
+    const dataToInsert = {
+        ...rest,
+        tags: tags.split(',').map(tag => tag.trim()),
+        createdAt: new Date(),
+    };
+
+    try {
+        if (dataToInsert.projectImage?.startsWith('data:image/')) {
+            dataToInsert.projectImage = await uploadImage(dataToInsert.projectImage);
+        } else if (dataToInsert.projectImage === '') {
+            dataToInsert.projectImage = undefined;
+        }
+
+        const projectsCollection = await getCollection('projects');
         const result = await projectsCollection.insertOne(dataToInsert);
         if (!result.insertedId) {
             return { message: 'Database insertion failed. The record was not created.', success: false };
@@ -174,9 +203,18 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
     if (!parsed.success) {
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
+
+    const dataToInsert = parsed.data;
+
     try {
+        if (dataToInsert.image?.startsWith('data:image/')) {
+            dataToInsert.image = await uploadImage(dataToInsert.image);
+        } else if (dataToInsert.image === '') {
+            dataToInsert.image = undefined;
+        }
+
         const achievementsCollection = await getCollection('achievements');
-        const result = await achievementsCollection.insertOne(parsed.data);
+        const result = await achievementsCollection.insertOne(dataToInsert);
         if (!result.insertedId) {
             return { message: 'Database insertion failed. The record was not created.', success: false };
         }
@@ -195,9 +233,16 @@ export async function addCertification(prevState: AdminFormState, formData: Form
     if (!parsed.success) {
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
+    const dataToInsert = parsed.data;
     try {
+        if (dataToInsert.image?.startsWith('data:image/')) {
+            dataToInsert.image = await uploadImage(dataToInsert.image);
+        } else if (dataToInsert.image === '') {
+            dataToInsert.image = undefined;
+        }
+
         const certificationsCollection = await getCollection('certifications');
-        const result = await certificationsCollection.insertOne(parsed.data);
+        const result = await certificationsCollection.insertOne(dataToInsert);
         if (!result.insertedId) {
             return { message: 'Database insertion failed. The record was not created.', success: false };
         }

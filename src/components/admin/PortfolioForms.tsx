@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { stringToIconMap } from '@/lib/icon-map';
 import type { About } from '@/models/About';
+import { Trash2 } from 'lucide-react';
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
 
@@ -44,6 +45,10 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
             reader.readAsDataURL(file);
         }
     };
+    
+    const handleRemoveImage = () => {
+        setPreview(null);
+    };
 
     const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
         const file = e.clipboardData.items?.[0]?.getAsFile();
@@ -68,6 +73,15 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
                 {preview && (
                     <div className="relative aspect-video w-full max-w-sm mx-auto overflow-hidden rounded-md border">
                         <Image src={preview} alt="Preview" fill className="object-cover" />
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2 h-7 w-7 opacity-80 hover:opacity-100"
+                            onClick={handleRemoveImage}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
                     </div>
                 )}
             </div>
