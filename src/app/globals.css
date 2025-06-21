@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'react-image-crop/dist/ReactCrop.css';
+
 @layer base {
   :root {
     --background: 0 0% 94.1%; /* Light Gray: #F0F0F0 */

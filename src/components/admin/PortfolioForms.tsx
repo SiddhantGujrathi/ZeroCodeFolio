@@ -29,8 +29,140 @@ import type { Education } from '@/models/Education';
 import type { WorkExperience } from '@/models/WorkExperience';
 import type { ProfileLink } from '@/models/ProfileLink';
 import { Trash2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import ReactCrop, {
+  centerCrop,
+  makeAspectCrop,
+  type Crop,
+  type PixelCrop,
+} from 'react-image-crop';
+
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
+
+// New function to generate cropped image data URL
+function getCroppedImg(
+  image: HTMLImageElement,
+  crop: PixelCrop
+): Promise<string> {
+  const canvas = document.createElement('canvas');
+  const scaleX = image.naturalWidth / image.width;
+  const scaleY = image.naturalHeight / image.height;
+  canvas.width = crop.width;
+  canvas.height = crop.height;
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    return Promise.reject(new Error('Failed to get canvas context'));
+  }
+
+  const pixelRatio = window.devicePixelRatio || 1;
+  canvas.width = crop.width * pixelRatio;
+  canvas.height = crop.height * pixelRatio;
+  ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  ctx.imageSmoothingQuality = 'high';
+
+  ctx.drawImage(
+    image,
+    crop.x * scaleX,
+    crop.y * scaleY,
+    crop.width * scaleX,
+    crop.height * scaleY,
+    0,
+    0,
+    crop.width,
+    crop.height
+  );
+
+  return new Promise((resolve) => {
+    resolve(canvas.toDataURL('image/png'));
+  });
+}
+
+// New component for the cropping dialog
+function ImageCropDialog({
+  imgSrc,
+  aspect = 1,
+  onCropComplete,
+  onClose,
+}: {
+  imgSrc: string;
+  aspect?: number;
+  onCropComplete: (croppedImgDataUrl: string) => void;
+  onClose: () => void;
+}) {
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    const { width, height } = e.currentTarget;
+    const newCrop = centerCrop(
+      makeAspectCrop(
+        {
+          unit: '%',
+          width: 90,
+        },
+        aspect,
+        width,
+        height
+      ),
+      width,
+      height
+    );
+    setCrop(newCrop);
+  }
+
+  async function handleCrop() {
+    if (completedCrop?.width && completedCrop?.height && imgRef.current) {
+      const croppedImgDataUrl = await getCroppedImg(
+        imgRef.current,
+        completedCrop
+      );
+      onCropComplete(croppedImgDataUrl);
+    }
+  }
+
+  return (
+    <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Crop Image</DialogTitle>
+        </DialogHeader>
+        <div className="flex justify-center p-4">
+          <ReactCrop
+            crop={crop}
+            onChange={(_, percentCrop) => setCrop(percentCrop)}
+            onComplete={(c) => setCompletedCrop(c)}
+            aspect={aspect}
+            className="max-w-full"
+          >
+            <img
+              ref={imgRef}
+              alt="Crop me"
+              src={imgSrc}
+              onLoad={onImageLoad}
+              className="max-h-[60vh] object-contain"
+            />
+          </ReactCrop>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleCrop}>Crop Image</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 function SubmitButton({ children, isUpdate }: { children: React.ReactNode, isUpdate?: boolean }) {
   const { pending } = useFormStatus();
@@ -41,10 +173,11 @@ function SubmitButton({ children, isUpdate }: { children: React.ReactNode, isUpd
   );
 }
 
-function ImageUpload({ fieldName, label, description, currentImage, error, ...props }: { 
-    fieldName: string, label: string, description: string, currentImage?: string | null, error?: string[] 
+function ImageUpload({ fieldName, label, description, currentImage, error, aspect, ...props }: { 
+    fieldName: string, label: string, description: string, currentImage?: string | null, error?: string[], aspect?: number 
 } & ComponentProps<'input'>) {
     const [preview, setPreview] = useState<string | null>(currentImage || null);
+    const [imgSrcForCrop, setImgSrcForCrop] = useState<string>('');
     const fileInputRef = useRef<HTMLInputElement>(null);
     const hiddenInputRef = useRef<HTMLInputElement>(null);
     
@@ -52,19 +185,35 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
         setPreview(currentImage || null);
     }, [currentImage]);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const result = reader.result as string;
+    const handleFileChange = (file: File) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const result = reader.result as string;
+            if (aspect) { // If an aspect ratio is provided, open the cropper
+                setImgSrcForCrop(result);
+            } else { // Otherwise, use the image directly
                 setPreview(result);
                 if (hiddenInputRef.current) {
                     hiddenInputRef.current.value = result;
                 }
-            };
-            reader.readAsDataURL(file);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            handleFileChange(file);
         }
+    };
+
+    const handleCropComplete = (croppedImgDataUrl: string) => {
+        setPreview(croppedImgDataUrl);
+        if (hiddenInputRef.current) {
+          hiddenInputRef.current.value = croppedImgDataUrl;
+        }
+        setImgSrcForCrop('');
     };
     
     const handleRemoveImage = () => {
@@ -83,15 +232,7 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
             if (items[i].type.indexOf('image') !== -1) {
                 const file = items[i].getAsFile();
                 if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        const result = reader.result as string;
-                        setPreview(result);
-                        if (hiddenInputRef.current) {
-                            hiddenInputRef.current.value = result;
-                        }
-                    };
-                    reader.readAsDataURL(file);
+                    handleFileChange(file);
                     e.preventDefault();
                     break;
                 }
@@ -101,6 +242,14 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
 
     return (
         <div className="space-y-2">
+             {imgSrcForCrop && (
+                <ImageCropDialog
+                imgSrc={imgSrcForCrop}
+                aspect={aspect}
+                onCropComplete={handleCropComplete}
+                onClose={() => setImgSrcForCrop('')}
+                />
+            )}
             {label && <Label>{label}</Label>}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <div className="space-y-2 p-4 border-2 border-dashed rounded-lg text-center hover:border-primary" onPaste={handlePaste}>
@@ -110,8 +259,8 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
                     {error && <p className="text-sm text-destructive">{error}</p>}
                 </div>
                 {preview && (
-                    <div className="relative aspect-video w-full max-w-sm mx-auto overflow-hidden rounded-md border">
-                        <Image src={preview} alt="Preview" fill className="object-cover" />
+                    <div className="relative w-full max-w-sm mx-auto overflow-hidden rounded-md border bg-muted/50">
+                        <Image src={preview} alt="Preview" width={400} height={400} className="h-auto w-full object-contain" />
                         <Button
                             type="button"
                             variant="destructive"
@@ -241,6 +390,7 @@ export function AboutForm({ about }: { about: Client<About> | null }) {
                             label="" 
                             description="Upload or paste a new profile image to update it." 
                             currentImage={about?.profileImage}
+                            aspect={1 / 1}
                         />
                     </AboutFieldForm>
                 </div>
@@ -269,7 +419,7 @@ export function SkillForm({ skill, onSuccess }: { skill?: Client<Skill>, onSucce
             <Input name="title" placeholder="e.g., React" defaultValue={skill?.title ?? ''} />
             {state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}
           </div>
-          <ImageUpload fieldName="image" label="Skill Icon / Image" description="Upload/paste an image for the skill." currentImage={skill?.image} error={state?.errors?.image} />
+          <ImageUpload fieldName="image" label="Skill Icon / Image" description="Upload/paste an image for the skill." currentImage={skill?.image} error={state?.errors?.image} aspect={1 / 1} />
           <div className="space-y-2">
              <Label>Image AI Hint</Label>
              <Input name="imageAiHint" placeholder="e.g., 'java icon' or 'python logo'" defaultValue={skill?.imageAiHint ?? ''} />
@@ -300,7 +450,7 @@ export function ProjectForm({ project, onSuccess }: { project?: Client<Project>,
                     <div className="space-y-2"><Label>Project Title</Label><Input name="title" defaultValue={project?.title ?? ''} />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}</div>
                     <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={project?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description[0]}</p>}</div>
                     <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input name="tags" defaultValue={project?.tags?.join(', ') ?? ''} />{state?.errors?.tags && <p className="text-sm text-destructive">{state.errors.tags[0]}</p>}</div>
-                    <ImageUpload fieldName="projectImage" label="Project Image" description="Upload/paste a project image." currentImage={project?.projectImage} error={state?.errors?.projectImage} />
+                    <ImageUpload fieldName="projectImage" label="Project Image" description="Upload/paste a project image." currentImage={project?.projectImage} error={state?.errors?.projectImage} aspect={16 / 9} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" defaultValue={project?.imageAiHint ?? ''} />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint[0]}</p>}</div>
                     <div className="space-y-2"><Label>Website URL</Label><Input name="websiteUrl" type="url" defaultValue={project?.websiteUrl ?? ''} />{state?.errors?.websiteUrl && <p className="text-sm text-destructive">{state.errors.websiteUrl[0]}</p>}</div>
                     <div className="space-y-2"><Label>GitHub URL</Label><Input name="githubUrl" type="url" defaultValue={project?.githubUrl ?? ''} />{state?.errors?.githubUrl && <p className="text-sm text-destructive">{state.errors.githubUrl[0]}</p>}</div>
@@ -327,7 +477,7 @@ export function AchievementForm({ achievement, onSuccess }: { achievement?: Clie
                     {achievement && <input type="hidden" name="id" value={achievement._id} />}
                     <div className="space-y-2"><Label>Title</Label><Input name="title" defaultValue={achievement?.title ?? ''} />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
                     <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={achievement?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
-                    <ImageUpload fieldName="image" label="Achievement Image" description="Upload/paste an image." currentImage={achievement?.image} error={state?.errors?.image} />
+                    <ImageUpload fieldName="image" label="Achievement Image" description="Upload/paste an image." currentImage={achievement?.image} error={state?.errors?.image} aspect={16 / 9} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" defaultValue={achievement?.imageAiHint ?? ''} />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
                     <SubmitButton isUpdate={!!achievement}>{achievement ? 'Update Achievement' : 'Add Achievement'}</SubmitButton>
                 </form>
@@ -354,7 +504,7 @@ export function CertificationForm({ certification, onSuccess }: { certification?
                     <div className="space-y-2"><Label>Issued By</Label><Input name="issuedBy" defaultValue={certification?.issuedBy ?? ''} />{state?.errors?.issuedBy && <p className="text-sm text-destructive">{state.errors.issuedBy}</p>}</div>
                     <div className="space-y-2"><Label>Date</Label><Input name="date" type="date" defaultValue={certification?.date ?? ''} />{state?.errors?.date && <p className="text-sm text-destructive">{state.errors.date}</p>}</div>
                     <div className="space-y-2"><Label>Certificate URL</Label><Input name="certificateUrl" type="url" defaultValue={certification?.certificateUrl ?? ''} />{state?.errors?.certificateUrl && <p className="text-sm text-destructive">{state.errors.certificateUrl}</p>}</div>
-                    <ImageUpload fieldName="image" label="Certificate Image" description="Upload/paste an image." currentImage={certification?.image} error={state?.errors?.image} />
+                    <ImageUpload fieldName="image" label="Certificate Image" description="Upload/paste an image." currentImage={certification?.image} error={state?.errors?.image} aspect={16 / 9} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" defaultValue={certification?.imageAiHint ?? ''} />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
                     <SubmitButton isUpdate={!!certification}>{certification ? 'Update Certification' : 'Add Certification'}</SubmitButton>
                 </form>
@@ -382,7 +532,7 @@ export function EducationForm({ education, onSuccess }: { education?: Client<Edu
                     <div className="space-y-2"><Label>Degree Name</Label><Input name="degreeName" defaultValue={education?.degreeName ?? ''} />{state?.errors?.degreeName && <p className="text-sm text-destructive">{state.errors.degreeName}</p>}</div>
                     <div className="space-y-2"><Label>Period</Label><Input name="period" placeholder="e.g., 2020-2024" defaultValue={education?.period ?? ''} />{state?.errors?.period && <p className="text-sm text-destructive">{state.errors.period}</p>}</div>
                     <div className="space-y-2"><Label>CGPA</Label><Input name="cgpa" defaultValue={education?.cgpa ?? ''} />{state?.errors?.cgpa && <p className="text-sm text-destructive">{state.errors.cgpa}</p>}</div>
-                    <ImageUpload fieldName="icon" label="Education Icon / Image" description="Upload/paste an image for the school/college." currentImage={education?.icon} error={state?.errors?.icon} />
+                    <ImageUpload fieldName="icon" label="Education Icon / Image" description="Upload/paste an image for the school/college." currentImage={education?.icon} error={state?.errors?.icon} aspect={1 / 1} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'university logo' or 'graduation cap'" defaultValue={education?.iconHint ?? ''} />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
                     <SubmitButton isUpdate={!!education}>{education ? 'Update Education' : 'Add Education'}</SubmitButton>
                 </form>
@@ -409,7 +559,7 @@ export function WorkExperienceForm({ experience, onSuccess }: { experience?: Cli
                     <div className="space-y-2"><Label>Role</Label><Input name="role" defaultValue={experience?.role ?? ''} />{state?.errors?.role && <p className="text-sm text-destructive">{state.errors.role}</p>}</div>
                     <div className="space-y-2"><Label>Company Name</Label><Input name="companyName" defaultValue={experience?.companyName ?? ''} />{state?.errors?.companyName && <p className="text-sm text-destructive">{state.errors.companyName}</p>}</div>
                     <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={experience?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
-                    <ImageUpload fieldName="icon" label="Company Icon / Logo" description="Upload/paste a company logo." currentImage={experience?.icon} error={state?.errors?.icon} />
+                    <ImageUpload fieldName="icon" label="Company Icon / Logo" description="Upload/paste a company logo." currentImage={experience?.icon} error={state?.errors?.icon} aspect={1 / 1} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'company logo' or 'briefcase'" defaultValue={experience?.iconHint ?? ''} />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
                     <SubmitButton isUpdate={!!experience}>{experience ? 'Update Experience' : 'Add Experience'}</SubmitButton>
                 </form>
@@ -434,7 +584,7 @@ export function ProfileLinkForm({ link, onSuccess }: { link?: Client<ProfileLink
                     {link && <input type="hidden" name="id" value={link._id} />}
                     <div className="space-y-2"><Label>Platform</Label><Input name="platform" placeholder="e.g., GitHub" defaultValue={link?.platform ?? ''} />{state?.errors?.platform && <p className="text-sm text-destructive">{state.errors.platform}</p>}</div>
                     <div className="space-y-2"><Label>URL</Label><Input name="url" type="url" defaultValue={link?.url ?? ''} />{state?.errors?.url && <p className="text-sm text-destructive">{state.errors.url}</p>}</div>
-                    <ImageUpload fieldName="icon" label="Platform Icon / Logo" description="Upload/paste an icon for the platform." currentImage={link?.icon} error={state?.errors?.icon} />
+                    <ImageUpload fieldName="icon" label="Platform Icon / Logo" description="Upload/paste an icon for the platform." currentImage={link?.icon} error={state?.errors?.icon} aspect={1 / 1} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'github logo'" defaultValue={link?.iconHint ?? ''} />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
                     <SubmitButton isUpdate={!!link}>{link ? 'Update Link' : 'Add Link'}</SubmitButton>
                 </form>

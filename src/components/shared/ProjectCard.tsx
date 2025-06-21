@@ -57,7 +57,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           {websiteUrl && (
             <Button asChild>
               <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" />
+                <ExternalLink />
                 Website
               </a>
             </Button>
@@ -65,7 +65,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           {githubUrl && (
             <Button asChild variant="outline">
               <a href={githubUrl} target="_blank" rel="noopener noreferrer">
-                <Github className="mr-2 h-4 w-4" />
+                <Github />
                 GitHub
               </a>
             </Button>
