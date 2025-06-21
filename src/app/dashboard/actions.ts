@@ -14,7 +14,7 @@ const skillSchema = z.object({
 const projectSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  image: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  image: z.string().optional().or(z.literal('')),
   imageAiHint: z.string().optional(),
   tags: z.string().min(1, "Tags are required"),
   githubUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
