@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Code, Menu, User } from "lucide-react";
 
@@ -31,6 +32,45 @@ interface HeaderProps {
 
 export function Header({ navLinks = DEFAULT_NAV_LINKS }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
+
+  useEffect(() => {
+    const handleScroll = () => {
+        const offset = 100;
+        const scrollY = window.scrollY;
+
+        const allSections = navLinks
+            .map(link => document.getElementById(link.href.substring(1)))
+            .filter(Boolean) as HTMLElement[];
+        
+        const sortedSections = allSections.sort((a, b) => a.offsetTop - b.offsetTop);
+
+        let currentActive = '';
+        for (const section of sortedSections) {
+            if (section.offsetTop <= scrollY + offset) {
+                currentActive = `#${section.id}`;
+            } else {
+                break;
+            }
+        }
+        
+        if (window.innerHeight + scrollY >= document.body.scrollHeight - 50) {
+           const lastSection = sortedSections[sortedSections.length - 1];
+           if (lastSection) {
+               currentActive = `#${lastSection.id}`;
+           }
+        }
+        
+        setActiveSection(currentActive);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+        window.removeEventListener('scroll', handleScroll);
+    };
+  }, [navLinks]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -47,7 +87,12 @@ export function Header({ navLinks = DEFAULT_NAV_LINKS }: HeaderProps) {
               <Link
                 key={link.name}
                 href={link.href}
-                className="transition-colors hover:text-primary"
+                className={cn(
+                  "transition-colors hover:text-primary",
+                  activeSection === link.href
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
               >
                 {link.name}
               </Link>
@@ -81,7 +126,12 @@ export function Header({ navLinks = DEFAULT_NAV_LINKS }: HeaderProps) {
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-muted-foreground transition-colors hover:text-primary"
+                    className={cn(
+                      "transition-colors hover:text-primary",
+                      activeSection === link.href
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                    )}
                   >
                     {link.name}
                   </Link>
