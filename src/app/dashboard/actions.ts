@@ -132,7 +132,7 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to update. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -153,7 +153,7 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
         const result = await skillsCollection.insertOne(dataToInsert);
 
         if (!result.insertedId) {
-            return { message: 'Database insertion failed. The record was not created.', success: false };
+            return { message: 'Database Error: The skill was not saved. The operation was not acknowledged by the database.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -164,7 +164,7 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to add skill. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -191,7 +191,7 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
         const projectsCollection = await getCollection('projects');
         const result = await projectsCollection.insertOne(dataToInsert);
         if (!result.insertedId) {
-            return { message: 'Database insertion failed. The record was not created.', success: false };
+            return { message: 'Database Error: The project was not saved. The operation was not acknowledged by the database.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -202,7 +202,7 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to add project. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -224,7 +224,7 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
         const achievementsCollection = await getCollection('achievements');
         const result = await achievementsCollection.insertOne(dataToInsert);
         if (!result.insertedId) {
-            return { message: 'Database insertion failed. The record was not created.', success: false };
+            return { message: 'Database Error: The achievement was not saved. The operation was not acknowledged by the database.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -235,7 +235,7 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to add achievement. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -255,7 +255,7 @@ export async function addCertification(prevState: AdminFormState, formData: Form
         const certificationsCollection = await getCollection('certifications');
         const result = await certificationsCollection.insertOne(dataToInsert);
         if (!result.insertedId) {
-            return { message: 'Database insertion failed. The record was not created.', success: false };
+            return { message: 'Database Error: The certification was not saved. The operation was not acknowledged by the database.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -266,7 +266,7 @@ export async function addCertification(prevState: AdminFormState, formData: Form
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to add certification. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -279,7 +279,7 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
         const educationCollection = await getCollection('education');
         const result = await educationCollection.insertOne(parsed.data);
         if (!result.insertedId) {
-            return { message: 'Database insertion failed. The record was not created.', success: false };
+            return { message: 'Database Error: The education record was not saved. The operation was not acknowledged by the database.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -290,7 +290,7 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to add education record. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -303,7 +303,7 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
         const workExperienceCollection = await getCollection('workExperience');
         const result = await workExperienceCollection.insertOne(parsed.data);
         if (!result.insertedId) {
-            return { message: 'Database insertion failed. The record was not created.', success: false };
+            return { message: 'Database Error: The work experience was not saved. The operation was not acknowledged by the database.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -314,7 +314,7 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to add work experience. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -327,7 +327,7 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
         const profileLinksCollection = await getCollection('profileLinks');
         const result = await profileLinksCollection.insertOne(parsed.data);
         if (!result.insertedId) {
-            return { message: 'Database insertion failed. The record was not created.', success: false };
+            return { message: 'Database Error: The profile link was not saved. The operation was not acknowledged by the database.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -338,7 +338,7 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to add profile link. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
@@ -351,7 +351,7 @@ async function deleteItem(collectionName: string, id: string): Promise<AdminForm
         const collection = await getCollection(collectionName);
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
         if (result.deletedCount === 0) {
-            return { message: 'Could not find the item to delete.', success: false };
+            return { message: 'Database Error: Could not find the item to delete. It may have already been removed.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -362,7 +362,7 @@ async function deleteItem(collectionName: string, id: string): Promise<AdminForm
             return { message: DB_ERROR_MESSAGE, success: false };
         }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `An unexpected error occurred: ${errorMessage}`, success: false };
+        return { message: `Failed to delete item. An unexpected error occurred: ${errorMessage}`, success: false };
     }
 }
 
