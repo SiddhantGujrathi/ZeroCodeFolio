@@ -31,8 +31,6 @@ const partialAboutSchema = aboutSchema.partial();
 
 const skillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
-  image: z.string().optional(),
-  imageAiHint: z.string().optional(),
 });
 
 const projectSchema = z.object({
@@ -143,35 +141,46 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
 
 export async function addSkill(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = skillSchema.safeParse(Object.fromEntries(formData.entries()));
-    if (!parsed.success) {
-        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
-    }
-    const dataToInsert = parsed.data;
-    try {
-        if (dataToInsert.image?.startsWith('data:image/')) {
-            dataToInsert.image = await uploadImage(dataToInsert.image);
-        } else if (dataToInsert.image === '') {
-            dataToInsert.image = undefined;
-        }
 
-        const skillsCollection = await getCollection('skills');
-        const result = await skillsCollection.insertOne(dataToInsert);
+    if (!parsed.success) {
+        return {
+            message: 'Invalid form data. Please ensure the title is provided.',
+            errors: parsed.error.flatten().fieldErrors,
+            success: false,
+        };
+    }
+
+    const { title } = parsed.data;
+
+    try {
+        const client = await clientPromise;
+        const db = client.db('portfolio');
+        const skillsCollection = db.collection('skills');
+
+        const result = await skillsCollection.insertOne({ title });
 
         if (!result.insertedId) {
-            return { message: 'Database Error: The skill was not saved. The operation was not acknowledged by the database.', success: false };
+            return {
+                message: 'Database Error: Failed to insert the skill. The operation was not acknowledged.',
+                success: false,
+            };
         }
+
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Skill added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add skill:", e);
-        if (e instanceof Error && e.name === 'MongoNetworkError') {
-            return { message: DB_ERROR_MESSAGE, success: false };
-        }
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { message: `Failed to add skill. An unexpected error occurred: ${errorMessage}`, success: false };
+        
+        if (errorMessage.includes('querySrv ENOTFOUND') || errorMessage.includes('connect ETIMEDOUT')) {
+            return { message: `Database Connection Error: Could not connect. Check your MONGODB_URI and network access. Error: ${errorMessage}`, success: false };
+        }
+        
+        return { message: `Failed to add skill. Please check your Atlas IP Whitelist and user permissions. Error: ${errorMessage}`, success: false };
     }
 }
+
 
 export async function addProject(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = projectSchema.safeParse(Object.fromEntries(formData.entries()));
