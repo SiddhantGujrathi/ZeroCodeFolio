@@ -415,25 +415,30 @@ export async function deleteProfileLink(prevState: AdminFormState, formData: For
 
 export async function setupDatabase(prevState: SetupResult | null, formData: FormData): Promise<SetupResult> {
     const collectionsToCreate = [
-        'about',
-        'skills',
-        'projects',
-        'achievements',
-        'certifications',
-        'education',
-        'workExperience',
-        'profileLinks',
-        'User'
+        'about', 'skills', 'projects', 'achievements',
+        'certifications', 'education', 'workExperience', 'profileLinks', 'User'
     ];
 
     const results: { collection: string; status: 'success' | 'error'; message: string }[] = [];
-    let allSucceeded = true;
-
+    
     try {
         const client = await clientPromise;
         const db = client.db('portfolio');
-        const existingCollections = await db.listCollections().toArray();
-        const existingCollectionNames = existingCollections.map(c => c.name);
+        
+        let existingCollectionNames: string[] = [];
+        try {
+            const existingCollections = await db.listCollections().toArray();
+            existingCollectionNames = existingCollections.map(c => c.name);
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            return {
+                overall: {
+                    success: false,
+                    message: `Failed to list collections. This is likely a permissions issue. The connected user needs the 'listCollections' privilege on the 'portfolio' database. Full error: ${errorMessage}`
+                },
+                details: []
+            };
+        }
 
         for (const collectionName of collectionsToCreate) {
             if (existingCollectionNames.includes(collectionName)) {
@@ -453,7 +458,6 @@ export async function setupDatabase(prevState: SetupResult | null, formData: For
                     message: 'Successfully created collection.',
                 });
             } catch (e) {
-                allSucceeded = false;
                 const errorMessage = e instanceof Error ? e.message : String(e);
                 results.push({
                     collection: collectionName,
@@ -462,26 +466,27 @@ export async function setupDatabase(prevState: SetupResult | null, formData: For
                 });
             }
         }
-    } catch(e) {
+        
+        const hasErrors = results.some(r => r.status === 'error');
+
+        return {
+            overall: {
+                success: !hasErrors,
+                message: !hasErrors
+                    ? 'All required collections are present and accessible.'
+                    : 'One or more collections could not be created. This is likely a permissions issue. The connected user may need the `dbAdmin` role on the \'portfolio\' database.'
+            },
+            details: results
+        };
+
+    } catch (e) {
         const errorMessage = e instanceof Error ? e.message : String(e);
-         return {
+        return {
             overall: {
                 success: false,
-                message: `Could not connect to database or list collections. Please ensure your Connection String (MONGODB_URI) is correct and your server's IP is whitelisted in MongoDB Atlas. Error: ${errorMessage}`
+                message: `Could not connect to the database. Please ensure your Connection String (MONGODB_URI) is correct and your server's IP is whitelisted in MongoDB Atlas. Full error: ${errorMessage}`
             },
             details: []
         };
     }
-
-    const overallMessage = allSucceeded
-        ? 'All required collections are present and accessible.'
-        : 'One or more collections could not be created. This is likely a permissions issue in MongoDB Atlas.';
-    
-    return {
-        overall: {
-            success: allSucceeded,
-            message: overallMessage
-        },
-        details: results
-    };
 }
