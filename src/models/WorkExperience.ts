@@ -7,7 +7,7 @@ export interface WorkExperience extends Document {
   companyName: string;
   description: string;
   icon: string;
-  iconHint: string;
+  iconHint?: string;
 }
 
 export async function getWorkExperienceCollection(): Promise<Collection<WorkExperience>> {

@@ -8,7 +8,7 @@ export interface Education extends Document {
   period: string;
   cgpa: string;
   icon: string;
-  iconHint: string;
+  iconHint?: string;
 }
 
 export async function getEducationCollection(): Promise<Collection<Education>> {

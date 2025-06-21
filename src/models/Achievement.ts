@@ -6,7 +6,7 @@ export interface Achievement extends Document {
   title: string;
   description: string;
   image: string;
-  imageAiHint: string;
+  imageAiHint?: string;
 }
 
 export async function getAchievementsCollection(): Promise<Collection<Achievement>> {

@@ -5,7 +5,7 @@ export interface Skill extends Document {
   _id: ObjectId;
   title: string;
   image: string;
-  imageAiHint: string;
+  imageAiHint?: string;
 }
 
 export async function getSkillsCollection(): Promise<Collection<Skill>> {

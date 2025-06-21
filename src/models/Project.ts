@@ -6,7 +6,7 @@ export interface Project extends Document {
     title: string;
     description: string;
     projectImage: string;
-    imageAiHint: string;
+    imageAiHint?: string;
     tags: string[];
     websiteUrl?: string;
     githubUrl?: string;

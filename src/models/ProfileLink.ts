@@ -6,7 +6,7 @@ export interface ProfileLink extends Document {
   platform: string;
   url: string;
   icon: string;
-  iconHint: string;
+  iconHint?: string;
 }
 
 export async function getProfileLinksCollection(): Promise<Collection<ProfileLink>> {
