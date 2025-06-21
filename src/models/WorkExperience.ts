@@ -12,6 +12,6 @@ export interface WorkExperience extends Document {
 
 export async function getWorkExperienceCollection(): Promise<Collection<WorkExperience>> {
   const client = await clientPromise;
-  const db = client.db();
+  const db = client.db('portfolio');
   return db.collection<WorkExperience>('workExperience');
 }

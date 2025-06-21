@@ -11,6 +11,6 @@ export interface ProfileLink extends Document {
 
 export async function getProfileLinksCollection(): Promise<Collection<ProfileLink>> {
   const client = await clientPromise;
-  const db = client.db();
+  const db = client.db('portfolio');
   return db.collection<ProfileLink>('profileLinks');
 }

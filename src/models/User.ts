@@ -11,6 +11,6 @@ export interface User extends Document {
 // Helper function to get the users collection
 export async function getUsersCollection(): Promise<Collection<User>> {
   const client = await clientPromise;
-  const db = client.db();
+  const db = client.db('portfolio');
   return db.collection<User>('User');
 }

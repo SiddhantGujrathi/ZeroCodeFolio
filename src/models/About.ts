@@ -14,6 +14,6 @@ export interface About extends Document {
 
 export async function getAboutCollection(): Promise<Collection<About>> {
   const client = await clientPromise;
-  const db = client.db();
+  const db = client.db('portfolio');
   return db.collection<About>('about');
 }

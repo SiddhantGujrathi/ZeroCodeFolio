@@ -13,6 +13,6 @@ export interface Education extends Document {
 
 export async function getEducationCollection(): Promise<Collection<Education>> {
   const client = await clientPromise;
-  const db = client.db();
+  const db = client.db('portfolio');
   return db.collection<Education>('education');
 }

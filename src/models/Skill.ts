@@ -10,6 +10,6 @@ export interface Skill extends Document {
 
 export async function getSkillsCollection(): Promise<Collection<Skill>> {
   const client = await clientPromise;
-  const db = client.db();
+  const db = client.db('portfolio');
   return db.collection<Skill>('skills');
 }
