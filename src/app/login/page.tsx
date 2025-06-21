@@ -43,7 +43,7 @@ function LoginForm() {
         <form action={dispatch} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email-login">Email</Label>
-            <Input id="email-login" name="email" type="email" placeholder="admin@example.com" required />
+            <Input id="email-login" name="email" type="email" placeholder="swami@example.com" required />
             {state.errors?.email && <p className="text-sm text-destructive">{state.errors.email}</p>}
           </div>
           <div className="space-y-2">

@@ -55,7 +55,7 @@ export async function login(prevState: FormState, formData: FormData): Promise<F
     const adminCount = await usersCollection.countDocuments({ role: 'admin' });
 
     // If no admin exists, create the first one with the specified credentials.
-    if (adminCount === 0 && email === 'gujrathisiddhant@gmail.com' && password === 'Renuka@12') {
+    if (adminCount === 0 && email === 'swami@example.com' && password === 'swami123') {
         const password_hash = await bcrypt.hash(password, 10);
         const newUser = {
             email,
@@ -63,6 +63,9 @@ export async function login(prevState: FormState, formData: FormData): Promise<F
             role: 'admin' as const,
         };
         const result = await usersCollection.insertOne(newUser);
+        if (!result.acknowledged) {
+            return { message: 'Database did not acknowledge the insert operation.' };
+        }
         await createSession(result.insertedId, email, 'admin');
         redirect('/dashboard');
     }
@@ -84,6 +87,9 @@ export async function login(prevState: FormState, formData: FormData): Promise<F
 
   } catch (error) {
     console.error(error);
+    if (error instanceof Error && error.name === 'MongoNetworkError') {
+        return { message: 'Failed to connect to the database. Please check your network connection and credentials.' };
+    }
     return { message: 'An unexpected error occurred. Please try again.' };
   }
   
