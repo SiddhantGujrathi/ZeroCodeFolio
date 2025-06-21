@@ -14,11 +14,6 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-const registerSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(6, "Password must be at least 6 characters long."),
-});
-
 if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET environment variable is not set');
 }
@@ -57,65 +52,23 @@ export async function login(prevState: FormState, formData: FormData): Promise<F
     const usersCollection = await getUsersCollection();
     const user = await usersCollection.findOne({ email });
 
-    if (!user) {
-      return { message: 'Invalid email or password.' };
+    if (!user || user.role !== 'admin') {
+      return { message: 'Invalid credentials or insufficient permissions.' };
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
-      return { message: 'Invalid email or password.' };
+      return { message: 'Invalid credentials or insufficient permissions.' };
     }
 
-    // Backwards compatibility for users created before roles
-    let userRole = user.role;
-    if (!userRole) {
-      userRole = email === process.env.ADMIN_EMAIL ? 'admin' : 'user';
-      await usersCollection.updateOne({ _id: user._id }, { $set: { role: userRole } });
-    }
-
-    await createSession(user._id, user.email, userRole);
+    await createSession(user._id, user.email, user.role);
 
   } catch (error) {
     console.error(error);
     return { message: 'An unexpected error occurred. Please try again.' };
   }
   
-  redirect('/dashboard');
-}
-
-export async function register(prevState: FormState, formData: FormData): Promise<FormState> {
-  const values = Object.fromEntries(formData.entries());
-  const parsed = registerSchema.safeParse(values);
-
-  if (!parsed.success) {
-      return {
-          message: 'Invalid form data.',
-          errors: parsed.error.flatten().fieldErrors,
-      };
-  }
-
-  const { email, password } = parsed.data;
-
-  try {
-      const usersCollection = await getUsersCollection();
-      const existingUser = await usersCollection.findOne({ email });
-
-      if (existingUser) {
-          return { message: 'User with this email already exists.' };
-      }
-
-      const role = email === process.env.ADMIN_EMAIL ? 'admin' : 'user';
-      const password_hash = await bcrypt.hash(password, 10);
-      const result = await usersCollection.insertOne({ email, password_hash, role });
-
-      await createSession(result.insertedId, email, role);
-
-  } catch (error) {
-      console.error(error);
-      return { message: 'An unexpected error occurred during registration.' };
-  }
-
   redirect('/dashboard');
 }
 
