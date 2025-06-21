@@ -88,11 +88,6 @@ export function Header() {
 
 
         <div className="flex flex-1 items-center justify-end space-x-2">
-          <div className="hidden sm:flex">
-            <Button asChild variant="outline">
-              <Link href="/login">Admin</Link>
-            </Button>
-          </div>
           <ThemeToggle />
         </div>
       </div>

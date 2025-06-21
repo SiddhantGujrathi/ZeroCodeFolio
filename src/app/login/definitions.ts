@@ -1,7 +1,1 @@
-export interface FormState {
-  message: string | null;
-  errors?: {
-    email?: string[];
-    password?: string[];
-  };
-}
+// This file is intentionally left blank as login functionality has been removed.

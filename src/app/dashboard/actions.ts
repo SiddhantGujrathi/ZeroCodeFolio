@@ -437,7 +437,7 @@ export async function deleteProfileLink(prevState: AdminFormState, formData: For
 export async function setupDatabase(prevState: SetupResult | null, formData: FormData): Promise<SetupResult> {
     const collectionsToCreate = [
         'about', 'skills', 'projects', 'achievements',
-        'certifications', 'education', 'workExperience', 'profileLinks', 'User'
+        'certifications', 'education', 'workExperience', 'profileLinks'
     ];
 
     const results: { collection: string; status: 'success' | 'error'; message: string }[] = [];

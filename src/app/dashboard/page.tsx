@@ -1,19 +1,15 @@
-import { getSession, logout } from "@/app/login/actions";
-import { Button } from "@/components/ui/button";
-import { redirect } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { DatabaseSetup } from "@/components/admin/DatabaseSetup";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 import { getAboutCollection } from "@/models/About";
-import { getSkillsCollection } from "@/models/Skill";
-import { getProjectsCollection } from "@/models/Project";
 import { getAchievementsCollection } from "@/models/Achievement";
 import { getCertificationsCollection } from "@/models/Certification";
 import { getEducationCollection } from "@/models/Education";
-import { getWorkExperienceCollection } from "@/models/WorkExperience";
 import { getProfileLinksCollection } from "@/models/ProfileLink";
+import { getProjectsCollection } from "@/models/Project";
+import { getSkillsCollection } from "@/models/Skill";
+import { getWorkExperienceCollection } from "@/models/WorkExperience";
 
 function serialize(doc: any) {
     if (doc._id) {
@@ -23,11 +19,6 @@ function serialize(doc: any) {
 }
 
 export default async function DashboardPage() {
-    const session = await getSession();
-    if (!session || session.role !== 'admin') {
-        redirect('/login');
-    }
-
     const [
         aboutData,
         skillsData,
@@ -67,21 +58,10 @@ export default async function DashboardPage() {
                         <div className="flex justify-between items-start">
                             <div className="space-y-1.5">
                                 <CardTitle>Admin Dashboard</CardTitle>
-                                <CardDescription>Welcome back, {session.email}!</CardDescription>
+                                <CardDescription>Manage your portfolio content from here.</CardDescription>
                             </div>
-                            <form action={logout}>
-                                <Button type="submit" variant="outline">
-                                    Log Out
-                                </Button>
-                            </form>
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-2">
-                           <p className="font-semibold">{session.email}</p>
-                           {session.role === 'admin' && <Badge>Admin</Badge>}
-                        </div>
-                    </CardContent>
                 </Card>
                 <DatabaseSetup />
                 <AdminDashboard {...props} />
