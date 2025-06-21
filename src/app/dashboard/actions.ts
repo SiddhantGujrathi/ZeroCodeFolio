@@ -90,6 +90,13 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
     const aboutCollection = await getAboutCollection();
     const dataFromForm = Object.fromEntries(formData.entries());
 
+    // Special handling for the image form. If the user doesn't select an image,
+    // the hidden input sends an empty string. We'll treat this as "no action"
+    // instead of a validation error.
+    if (dataFromForm.profileImage === '') {
+        return { message: "No image provided to update.", success: false, errors: {} };
+    }
+
     const parsed = partialAboutSchema.safeParse(dataFromForm);
 
     if (!parsed.success) {
@@ -100,13 +107,7 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
         };
     }
 
-    const updatePayload: Partial<About> = {};
-    for (const key in parsed.data) {
-        const value = parsed.data[key as keyof typeof parsed.data];
-        if (value) { // Ensure value is not null, undefined, or an empty string
-            (updatePayload as any)[key] = value;
-        }
-    }
+    const updatePayload = parsed.data;
 
     if (Object.keys(updatePayload).length === 0) {
         return { message: "No new information provided.", success: false, errors: {} };
