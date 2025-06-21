@@ -28,7 +28,15 @@ function PreviewWrapper({ title, children }: { title: string; children: React.Re
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Live Preview</CardTitle>
+                <div className="flex items-center gap-3">
+                    <CardTitle>Live Preview</CardTitle>
+                    <div className="flex items-center">
+                        <span className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                        </span>
+                    </div>
+                </div>
                 <CardDescription>
                     This is a preview of how the &quot;{title}&quot; section will appear to visitors on your site.
                 </CardDescription>
@@ -315,3 +323,4 @@ export function ProfileLinksPreview({ profileLinks, about }: { profileLinks: Cli
         </PreviewWrapper>
     );
 }
+
