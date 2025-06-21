@@ -8,7 +8,10 @@ export async function Contact() {
 
   return (
     <div className="container">
-      <h2 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl">
+      <h2 className="font-headline flex items-center justify-center gap-4 text-3xl font-bold tracking-tight sm:text-4xl">
+        <span className="rounded-lg bg-primary/10 p-3 text-primary">
+          <Mail className="h-6 w-6" />
+        </span>
         Get In Touch
       </h2>
       <p className="mt-4 max-w-xl mx-auto text-lg text-muted-foreground">

@@ -21,7 +21,10 @@ export async function Achievements() {
   return (
     <div className="container">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2 className="font-headline flex items-center justify-center gap-4 text-3xl font-bold tracking-tight sm:text-4xl">
+          <span className="rounded-lg bg-primary/10 p-3 text-primary">
+            <Award className="h-6 w-6" />
+          </span>
           Achievements & Certifications
         </h2>
         <p className="mt-4 text-lg text-muted-foreground">

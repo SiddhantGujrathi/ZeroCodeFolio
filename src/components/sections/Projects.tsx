@@ -1,6 +1,7 @@
 import { ProjectCard } from "@/components/shared/ProjectCard";
 import { getProjectsCollection } from "@/models/Project";
 import type { Project } from "@/models/Project";
+import { FolderGit2 } from "lucide-react";
 
 export async function Projects() {
   const projectsCollection = await getProjectsCollection();
@@ -19,7 +20,10 @@ export async function Projects() {
   return (
     <div className="container">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2 className="font-headline flex items-center justify-center gap-4 text-3xl font-bold tracking-tight sm:text-4xl">
+          <span className="rounded-lg bg-primary/10 p-3 text-primary">
+            <FolderGit2 className="h-6 w-6" />
+          </span>
           Featured Projects
         </h2>
         <p className="mt-4 text-lg text-muted-foreground">
