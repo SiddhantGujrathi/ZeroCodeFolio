@@ -47,10 +47,10 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
     const skillsCollection = await getSkillsCollection();
     await skillsCollection.insertOne(parsed.data);
     revalidatePath('/');
-    return { message: 'Skill added successfully!', success: true };
+    return { message: 'Skill added successfully!', success: true, errors: {} };
   } catch (e) {
     console.error(e);
-    return { message: 'Failed to add skill.', success: false };
+    return { message: 'Failed to add skill.', success: false, errors: {} };
   }
 }
 
@@ -86,10 +86,10 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
       imageAiHint: imageAiHint || 'project placeholder',
     });
     revalidatePath('/');
-    return { message: 'Project added successfully!', success: true };
+    return { message: 'Project added successfully!', success: true, errors: {} };
   } catch (e) {
     console.error(e);
-    return { message: 'Failed to add project.', success: false };
+    return { message: 'Failed to add project.', success: false, errors: {} };
   }
 }
 
@@ -108,9 +108,9 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
     const achievementsCollection = await getAchievementsCollection();
     await achievementsCollection.insertOne(parsed.data);
     revalidatePath('/');
-    return { message: 'Achievement added successfully!', success: true };
+    return { message: 'Achievement added successfully!', success: true, errors: {} };
   } catch (e) {
     console.error(e);
-    return { message: 'Failed to add achievement.', success: false };
+    return { message: 'Failed to add achievement.', success: false, errors: {} };
   }
 }
