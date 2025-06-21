@@ -1,7 +1,24 @@
-import { SKILLS } from "@/lib/data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ComponentProps } from "react";
+import { Card } from "@/components/ui/card";
+import { getSkillsCollection } from "@/models/Skill";
+import { stringToIconMap } from "@/lib/icon-map";
 
-export function Skills() {
+function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
+  const Icon = stringToIconMap[name];
+  if (!Icon) {
+    return null;
+  }
+  return <Icon {...props} />;
+}
+
+export async function Skills() {
+  const skillsCollection = await getSkillsCollection();
+  const skills = await skillsCollection.find({}).toArray();
+
+  if (skills.length === 0) {
+    return null;
+  }
+  
   return (
     <section id="skills" className="bg-muted/50 py-20 md:py-32">
       <div className="container">
@@ -14,9 +31,9 @@ export function Skills() {
           </p>
         </div>
         <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {SKILLS.map((skill) => (
-            <Card key={skill.name} className="flex flex-col items-center justify-center p-4 text-center transition-transform hover:scale-105 hover:shadow-lg">
-              <skill.icon className="h-12 w-12 text-primary" />
+          {skills.map((skill) => (
+            <Card key={skill._id.toString()} className="flex flex-col items-center justify-center p-4 text-center transition-transform hover:scale-105 hover:shadow-lg">
+              <DynamicIcon name={skill.icon} className="h-12 w-12 text-primary" />
               <p className="mt-4 font-semibold">{skill.name}</p>
             </Card>
           ))}
