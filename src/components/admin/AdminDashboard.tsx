@@ -4,7 +4,7 @@ import {
     AboutForm, SkillForm, ProjectForm, AchievementForm, CertificationForm, EducationForm, WorkExperienceForm, ProfileLinkForm 
 } from "./PortfolioForms";
 import { 
-    AboutDisplay, SkillsDisplay, ProjectsDisplay, AchievementsDisplay, CertificationsDisplay, EducationDisplay, WorkExperienceDisplay, ProfileLinksDisplay 
+    SkillsDisplay, ProjectsDisplay, AchievementsDisplay, CertificationsDisplay, EducationDisplay, WorkExperienceDisplay, ProfileLinksDisplay 
 } from "./PortfolioDisplay";
 import { Separator } from "@/components/ui/separator";
 
@@ -57,45 +57,45 @@ export function AdminDashboard(props: AdminDashboardProps) {
                     </TabsContent>
                     
                     <TabsContent value="skills" className="mt-4 space-y-6">
-                        <SkillForm />
-                        <Separator />
                         <SkillsDisplay skills={skills} />
+                        <Separator />
+                        <SkillForm />
                     </TabsContent>
 
                     <TabsContent value="projects" className="mt-4 space-y-6">
-                        <ProjectForm />
-                        <Separator />
                         <ProjectsDisplay projects={projects} />
+                        <Separator />
+                        <ProjectForm />
                     </TabsContent>
 
                     <TabsContent value="achievements" className="mt-4 space-y-6">
-                        <AchievementForm />
-                        <Separator />
                         <AchievementsDisplay achievements={achievements} />
+                        <Separator />
+                        <AchievementForm />
                     </TabsContent>
 
                     <TabsContent value="certifications" className="mt-4 space-y-6">
-                        <CertificationForm />
-                        <Separator />
                         <CertificationsDisplay certifications={certifications} />
+                        <Separator />
+                        <CertificationForm />
                     </TabsContent>
 
                     <TabsContent value="education" className="mt-4 space-y-6">
-                        <EducationForm />
-                        <Separator />
                         <EducationDisplay education={education} />
+                        <Separator />
+                        <EducationForm />
                     </TabsContent>
 
                     <TabsContent value="experience" className="mt-4 space-y-6">
-                        <WorkExperienceForm />
-                        <Separator />
                         <WorkExperienceDisplay workExperience={workExperience} />
+                        <Separator />
+                        <WorkExperienceForm />
                     </TabsContent>
                     
                     <TabsContent value="links" className="mt-4 space-y-6">
-                        <ProfileLinkForm />
-                        <Separator />
                         <ProfileLinksDisplay profileLinks={profileLinks} />
+                        <Separator />
+                        <ProfileLinkForm />
                     </TabsContent>
 
                 </Tabs>
