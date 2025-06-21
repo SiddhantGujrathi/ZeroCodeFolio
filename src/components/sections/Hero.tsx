@@ -23,7 +23,7 @@ export async function Hero() {
 
   return (
     <>
-        <Avatar className="h-28 w-28 border-2 border-primary">
+        <Avatar className="h-40 w-40 border-4 border-primary">
           {about.profileImage && <AvatarImage src={about.profileImage} alt={about.name} />}
           <AvatarFallback>{about.name.charAt(0)}</AvatarFallback>
         </Avatar>
