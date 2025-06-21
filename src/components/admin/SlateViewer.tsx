@@ -1,6 +1,6 @@
 'use client';
 import React, { Fragment } from 'react';
-import type { Text } from 'slate';
+import { Text } from 'slate';
 
 const serialize = (nodes: any[]): React.ReactNode => {
     if (!nodes || !Array.isArray(nodes)) {
