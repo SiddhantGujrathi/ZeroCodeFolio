@@ -1,4 +1,4 @@
-import { Award, CheckCircle, ExternalLink } from "lucide-react";
+import { Award, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getAchievementsCollection } from "@/models/Achievement";
 import { getCertificationsCollection } from "@/models/Certification";
@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { SlateViewer } from "../admin/SlateViewer";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 
 export async function Achievements() {
@@ -38,62 +39,94 @@ export async function Achievements() {
               <TabsTrigger value="certifications" disabled={certifications.length === 0}>Certifications</TabsTrigger>
           </TabsList>
           <TabsContent value="achievements">
-              <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {achievements.map((achievement) => (
-                  <Card key={achievement._id.toString()} className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                     <CardHeader>
-                          <div className="aspect-video relative border rounded-md overflow-hidden">
-                              <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
-                          </div>
-                     </CardHeader>
-                     <CardContent>
-                         <CardTitle className="text-lg">{achievement.title}</CardTitle>
-                         <div className="mt-1 text-sm text-card-foreground/80">
-                           <SlateViewer value={achievement.description}/>
-                         </div>
-                     </CardContent>
-                  </Card>
-              ))}
-              </div>
+             {achievements.length > 0 && (
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: achievements.length > 1,
+                }}
+                className="w-full max-w-xs sm:max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto"
+              >
+                <CarouselContent className="-ml-1">
+                  {achievements.map((achievement) => (
+                    <CarouselItem key={achievement._id.toString()} className="pl-1 md:basis-1/2 lg:basis-1/3">
+                      <div className="p-1 h-full">
+                        <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
+                          <CardHeader>
+                              <div className="aspect-video relative border rounded-md overflow-hidden">
+                                  <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
+                              </div>
+                          </CardHeader>
+                          <CardContent className="flex-grow">
+                              <CardTitle className="text-lg">{achievement.title}</CardTitle>
+                              <div className="mt-1 text-sm text-card-foreground/80">
+                                <SlateViewer value={achievement.description}/>
+                              </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:inline-flex" />
+                <CarouselNext className="hidden sm:inline-flex" />
+              </Carousel>
+             )}
           </TabsContent>
           <TabsContent value="certifications">
-               <div className="mt-8 max-w-4xl mx-auto space-y-6">
-               {certifications.map((cert) => {
-                  const issueDate = new Date(cert.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                  });
+               {certifications.length > 0 && (
+                <Carousel
+                  opts={{
+                    align: "start",
+                    loop: certifications.length > 1,
+                  }}
+                  className="w-full max-w-xs sm:max-w-xl md:max-w-4xl mx-auto"
+                >
+                  <CarouselContent className="-ml-4">
+                    {certifications.map((cert) => {
+                      const issueDate = new Date(cert.date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                      });
 
-                  return (
-                    <Card key={cert._id.toString()} className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                        <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-6">
-                            <div className="flex-1 space-y-3 text-center sm:text-left">
-                                <CardTitle className="text-xl">{cert.title}</CardTitle>
-                                <CardDescription>Issued by: {cert.issuedBy}</CardDescription>
-                                <p className="text-sm text-muted-foreground">Date of Issue: {issueDate}</p>
-                                {cert.certificateUrl && (
-                                    <Button asChild variant="outline" size="sm" className="mt-2">
-                                        <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer">
-                                            View Certification
-                                            <ExternalLink />
-                                        </a>
-                                    </Button>
-                                )}
-                            </div>
-                            <div className="relative h-24 w-24 flex-shrink-0">
-                                <Image
-                                    src={cert.image || 'https://placehold.co/150x150.png'}
-                                    alt={cert.title}
-                                    fill
-                                    className="object-contain rounded-md"
-                                    data-ai-hint={cert.imageAiHint || 'certificate logo'}
-                                />
-                            </div>
-                        </div>
-                    </Card>
-                  );
-                })}
-              </div>
+                      return (
+                        <CarouselItem key={cert._id.toString()} className="pl-4 lg:basis-1/2">
+                           <div className="p-1 h-full">
+                            <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
+                                <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-6 flex-grow">
+                                    <div className="flex-1 space-y-3 text-center sm:text-left">
+                                        <CardTitle className="text-xl">{cert.title}</CardTitle>
+                                        <CardDescription>Issued by: {cert.issuedBy}</CardDescription>
+                                        <p className="text-sm text-muted-foreground">Date of Issue: {issueDate}</p>
+                                        {cert.certificateUrl && (
+                                            <Button asChild variant="outline" size="sm" className="mt-2">
+                                                <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer">
+                                                    View Certification
+                                                    <ExternalLink className="ml-2 h-4 w-4" />
+                                                </a>
+                                            </Button>
+                                        )}
+                                    </div>
+                                    <div className="relative h-24 w-24 flex-shrink-0">
+                                        <Image
+                                            src={cert.image || 'https://placehold.co/150x150.png'}
+                                            alt={cert.title}
+                                            fill
+                                            className="object-contain rounded-md"
+                                            data-ai-hint={cert.imageAiHint || 'certificate logo'}
+                                        />
+                                    </div>
+                                </div>
+                            </Card>
+                           </div>
+                        </CarouselItem>
+                      );
+                    })}
+                  </CarouselContent>
+                  <CarouselPrevious className="hidden sm:inline-flex" />
+                  <CarouselNext className="hidden sm:inline-flex" />
+                </Carousel>
+              )}
           </TabsContent>
       </Tabs>
     </div>
