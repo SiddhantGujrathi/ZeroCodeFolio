@@ -100,7 +100,7 @@ export function Header({ navLinks = DEFAULT_NAV_LINKS }: HeaderProps) {
         <div className="flex flex-1 items-center justify-end space-x-2">
           <ThemeToggle />
           <Button asChild variant="ghost" size="icon">
-              <Link href="/c2lkZGhhbnQ=">
+              <Link href="/login">
                 <User />
                 <span className="sr-only">Admin Login</span>
               </Link>
