@@ -52,7 +52,7 @@ export function AboutDisplay({ about }: { about: Client<About> | null }) {
                     <CardHeader>
                         <div className="flex items-center gap-4">
                             <div className="relative h-20 w-20 rounded-full overflow-hidden border">
-                                <Image src={about.profileImage} alt={about.name} fill className="object-cover" />
+                                {about.profileImage && <Image src={about.profileImage} alt={about.name || 'Profile Image'} fill className="object-cover" />}
                             </div>
                             <div>
                                 <CardTitle>{about.name}</CardTitle>
@@ -62,7 +62,7 @@ export function AboutDisplay({ about }: { about: Client<About> | null }) {
                     </CardHeader>
                     <CardContent>
                         <p>{about.bio}</p>
-                        <a href={about.resumeUrl} className="text-sm text-primary hover:underline mt-2 inline-block">View Resume</a>
+                        {about.resumeUrl && <a href={about.resumeUrl} className="text-sm text-primary hover:underline mt-2 inline-block">View Resume</a>}
                     </CardContent>
                 </Card>
             )}
