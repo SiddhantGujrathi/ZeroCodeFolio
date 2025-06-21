@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { SlateViewer } from "../admin/SlateViewer";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 
 export async function Achievements() {
@@ -40,61 +39,45 @@ export async function Achievements() {
           </TabsList>
           <TabsContent value="achievements">
              {achievements.length > 0 && (
-              <Carousel
-                autoplay
-                opts={{
-                  align: "start",
-                  loop: achievements.length > 1,
-                }}
-                className="w-full max-w-xs sm:max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto"
-              >
-                <CarouselContent className="-ml-1">
-                  {achievements.map((achievement) => (
-                    <CarouselItem key={achievement._id.toString()} className="pl-1 md:basis-1/2 lg:basis-1/3">
-                      <div className="p-1 h-full">
-                        <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
-                          <CardHeader>
-                              <div className="aspect-video relative border rounded-md overflow-hidden">
-                                  <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
-                              </div>
-                          </CardHeader>
-                          <CardContent className="flex-grow">
-                              <CardTitle className="text-lg">{achievement.title}</CardTitle>
-                              <div className="mt-1 text-sm text-card-foreground/80">
+                <div className="scroller mt-8" data-speed="slow" data-animated="true">
+                    <div className="scroller__inner">
+                    {[...achievements, ...achievements].map((achievement, index) => (
+                        <div key={`${achievement._id.toString()}-${index}`} className="w-[350px] sm:w-[400px]">
+                        <div className="p-1 h-full">
+                            <Card className="transition-all duration-300 hover:shadow-lg h-full flex flex-col">
+                            <CardHeader>
+                                <div className="aspect-video relative border rounded-md overflow-hidden">
+                                    <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="flex-grow">
+                                <CardTitle className="text-lg">{achievement.title}</CardTitle>
+                                <div className="mt-1 text-sm text-card-foreground/80">
                                 <SlateViewer value={achievement.description}/>
-                              </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="hidden sm:inline-flex" />
-                <CarouselNext className="hidden sm:inline-flex" />
-              </Carousel>
+                                </div>
+                            </CardContent>
+                            </Card>
+                        </div>
+                        </div>
+                    ))}
+                    </div>
+                </div>
              )}
           </TabsContent>
           <TabsContent value="certifications">
                {certifications.length > 0 && (
-                <Carousel
-                  autoplay
-                  opts={{
-                    align: "start",
-                    loop: certifications.length > 1,
-                  }}
-                  className="w-full max-w-xs sm:max-w-xl md:max-w-4xl mx-auto"
-                >
-                  <CarouselContent className="-ml-4">
-                    {certifications.map((cert) => {
+                <div className="scroller mt-8" data-speed="slow" data-animated="true">
+                    <div className="scroller__inner">
+                    {[...certifications, ...certifications].map((cert, index) => {
                       const issueDate = new Date(cert.date).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
                       });
 
                       return (
-                        <CarouselItem key={cert._id.toString()} className="pl-4 lg:basis-1/2">
+                        <div key={`${cert._id.toString()}-${index}`} className="w-[450px] sm:w-[500px]">
                            <div className="p-1 h-full">
-                            <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
+                            <Card className="transition-all duration-300 hover:shadow-lg h-full flex flex-col">
                                 <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-6 flex-grow">
                                     <div className="flex-1 space-y-3 text-center sm:text-left">
                                         <CardTitle className="text-xl">{cert.title}</CardTitle>
@@ -121,13 +104,11 @@ export async function Achievements() {
                                 </div>
                             </Card>
                            </div>
-                        </CarouselItem>
+                        </div>
                       );
                     })}
-                  </CarouselContent>
-                  <CarouselPrevious className="hidden sm:inline-flex" />
-                  <CarouselNext className="hidden sm:inline-flex" />
-                </Carousel>
+                    </div>
+                </div>
               )}
           </TabsContent>
       </Tabs>
