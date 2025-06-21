@@ -3,13 +3,14 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { getAboutCollection, type About } from '@/models/About';
-import { getSkillsCollection } from '@/models/Skill';
-import { getProjectsCollection } from '@/models/Project';
+import { getSkillsCollection, type Skill } from '@/models/Skill';
+import { getProjectsCollection, type Project } from '@/models/Project';
 import { getAchievementsCollection } from '@/models/Achievement';
 import { getCertificationsCollection } from '@/models/Certification';
 import { getEducationCollection } from '@/models/Education';
 import { getWorkExperienceCollection } from '@/models/WorkExperience';
 import { getProfileLinksCollection } from '@/models/ProfileLink';
+import { ObjectId } from 'mongodb';
 
 
 export type AdminFormState = {
@@ -19,20 +20,20 @@ export type AdminFormState = {
 }
 
 const aboutSchema = z.object({
-    name: z.string(),
-    bio: z.string(),
-    location: z.string(),
-    email: z.string().email("Invalid email address").or(z.literal('')),
-    phone: z.string(),
-    resumeUrl: z.string().url("Must be a valid URL").or(z.literal('')),
-    profileImage: z.string(),
+    name: z.string().optional(),
+    bio: z.string().optional(),
+    location: z.string().optional(),
+    email: z.string().email("Invalid email address").or(z.literal('')).optional(),
+    phone: z.string().optional(),
+    resumeUrl: z.string().url("Must be a valid URL").or(z.literal('')).optional(),
+    profileImage: z.string().optional(),
 });
 
 const partialAboutSchema = aboutSchema.partial();
 
 const skillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
-  image: z.string(),
+  image: z.string().optional(),
   imageAiHint: z.string().optional(),
 });
 
@@ -40,16 +41,16 @@ const projectSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   tags: z.string().min(1, "Tags are required"),
-  projectImage: z.string(),
+  projectImage: z.string().optional(),
   imageAiHint: z.string().optional(),
-  websiteUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
-  githubUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  websiteUrl: z.string().url("Must be a valid URL").or(z.literal('')).optional(),
+  githubUrl: z.string().url("Must be a valid URL").or(z.literal('')).optional(),
 });
 
 const achievementSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  image: z.string(),
+  image: z.string().optional(),
   imageAiHint: z.string().optional(),
 });
 
@@ -58,7 +59,7 @@ const certificationSchema = z.object({
   issuedBy: z.string().min(1, "Issuer is required"),
   date: z.string().min(1, "Date is required"),
   certificateUrl: z.string().url("Must be a valid URL"),
-  image: z.string(),
+  image: z.string().optional(),
   imageAiHint: z.string().optional(),
 });
 
@@ -269,5 +270,108 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
     } catch (e) {
         const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
         return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
+}
+
+
+const deleteSchema = z.object({
+  id: z.string().min(1, "ID is required"),
+});
+
+export async function deleteSkill(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    const parsed = deleteSchema.safeParse({ id: formData.get('id') });
+    if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
+    try {
+        const collection = await getSkillsCollection();
+        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Skill deleted.', success: true };
+    } catch (e) {
+        return { message: 'Deletion failed.', success: false };
+    }
+}
+
+export async function deleteProject(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    const parsed = deleteSchema.safeParse({ id: formData.get('id') });
+    if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
+    try {
+        const collection = await getProjectsCollection();
+        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Project deleted.', success: true };
+    } catch (e) {
+        return { message: 'Deletion failed.', success: false };
+    }
+}
+
+export async function deleteAchievement(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    const parsed = deleteSchema.safeParse({ id: formData.get('id') });
+    if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
+    try {
+        const collection = await getAchievementsCollection();
+        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Achievement deleted.', success: true };
+    } catch (e) {
+        return { message: 'Deletion failed.', success: false };
+    }
+}
+
+export async function deleteCertification(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    const parsed = deleteSchema.safeParse({ id: formData.get('id') });
+    if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
+    try {
+        const collection = await getCertificationsCollection();
+        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Certification deleted.', success: true };
+    } catch (e) {
+        return { message: 'Deletion failed.', success: false };
+    }
+}
+
+export async function deleteEducation(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    const parsed = deleteSchema.safeParse({ id: formData.get('id') });
+    if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
+    try {
+        const collection = await getEducationCollection();
+        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Education entry deleted.', success: true };
+    } catch (e) {
+        return { message: 'Deletion failed.', success: false };
+    }
+}
+
+export async function deleteWorkExperience(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    const parsed = deleteSchema.safeParse({ id: formData.get('id') });
+    if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
+    try {
+        const collection = await getWorkExperienceCollection();
+        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Work experience deleted.', success: true };
+    } catch (e) {
+        return { message: 'Deletion failed.', success: false };
+    }
+}
+
+export async function deleteProfileLink(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    const parsed = deleteSchema.safeParse({ id: formData.get('id') });
+    if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
+    try {
+        const collection = await getProfileLinksCollection();
+        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Profile link deleted.', success: true };
+    } catch (e) {
+        return { message: 'Deletion failed.', success: false };
     }
 }

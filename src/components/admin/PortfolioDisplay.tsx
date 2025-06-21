@@ -2,11 +2,14 @@
 
 import type { ComponentProps } from "react";
 import Image from "next/image";
+import { useActionState, useEffect } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { stringToIconMap } from "@/lib/icon-map";
-import { Globe } from "lucide-react";
-
+import { Globe, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -15,7 +18,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import type { AdminFormState } from "@/app/dashboard/actions";
+import { 
+    deleteSkill, deleteProject, deleteAchievement, deleteCertification, 
+    deleteEducation, deleteWorkExperience, deleteProfileLink
+} from "@/app/dashboard/actions";
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -33,6 +40,46 @@ function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg"
   const Icon = stringToIconMap[name] || Globe;
   return <Icon {...props} />;
 }
+
+function DeleteButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" disabled={pending}>
+            {pending ? <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-current"></div> : <Trash2 className="h-4 w-4" />}
+        </Button>
+    );
+}
+
+function DeleteItemForm({ action, itemId }: { action: (prevState: AdminFormState, formData: FormData) => Promise<AdminFormState>, itemId: string }) {
+  const [state, dispatch] = useActionState(action, { message: null, success: false });
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (state?.message) {
+      if (state.success === false && state.message !== "Invalid ID.") {
+         toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: state.message,
+         });
+      }
+      if (state.success === true) {
+        toast({
+            title: 'Success',
+            description: state.message,
+        });
+      }
+    }
+  }, [state, toast]);
+
+  return (
+    <form action={dispatch}>
+      <input type="hidden" name="id" value={itemId} />
+      <DeleteButton />
+    </form>
+  );
+}
+
 
 export function AboutDisplay({ about }: { about: Client<About> | null }) {
     return (
@@ -88,6 +135,7 @@ export function SkillsDisplay({ skills }: { skills: Client<Skill>[] }) {
                             <TableRow>
                                 <TableHead className="w-[80px]">Image</TableHead>
                                 <TableHead>Title</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -99,6 +147,9 @@ export function SkillsDisplay({ skills }: { skills: Client<Skill>[] }) {
                                         </div>
                                     </TableCell>
                                     <TableCell className="font-medium">{skill.title}</TableCell>
+                                    <TableCell className="text-right">
+                                        <DeleteItemForm action={deleteSkill} itemId={skill._id!} />
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -128,11 +179,16 @@ export function ProjectsDisplay({ projects }: { projects: Client<Project>[] }) {
                                         {project.projectImage && <Image src={project.projectImage} alt={project.title} width={400} height={250} className="w-full h-full object-cover" />}
                                     </div>
                                 </div>
-                                <div className="sm:w-2/3">
+                                <div className="sm:w-2/3 flex flex-col">
                                     <CardHeader>
-                                        <CardTitle className="text-lg">{project.title}</CardTitle>
+                                        <div className="flex justify-between items-start">
+                                            <CardTitle className="text-lg">{project.title}</CardTitle>
+                                             <div className="flex-shrink-0">
+                                                <DeleteItemForm action={deleteProject} itemId={project._id!} />
+                                             </div>
+                                        </div>
                                     </CardHeader>
-                                    <CardContent>
+                                    <CardContent className="flex-grow">
                                         <CardDescription className="text-sm mt-1">{project.description}</CardDescription>
                                     </CardContent>
                                     <CardFooter>
@@ -171,11 +227,16 @@ export function AchievementsDisplay({ achievements }: { achievements: Client<Ach
                                         {achievement.image && <Image src={achievement.image} alt={achievement.title} width={400} height={250} className="w-full h-full object-cover" />}
                                     </div>
                                 </div>
-                                <div className="sm:w-2/3">
+                                <div className="sm:w-2/3 flex flex-col">
                                     <CardHeader>
-                                        <CardTitle className="text-lg">{achievement.title}</CardTitle>
+                                        <div className="flex justify-between items-start">
+                                            <CardTitle className="text-lg">{achievement.title}</CardTitle>
+                                            <div className="flex-shrink-0">
+                                                <DeleteItemForm action={deleteAchievement} itemId={achievement._id!} />
+                                            </div>
+                                        </div>
                                     </CardHeader>
-                                    <CardContent>
+                                    <CardContent className="flex-grow">
                                         <CardDescription className="text-sm mt-1">{achievement.description}</CardDescription>
                                     </CardContent>
                                 </div>
@@ -208,12 +269,19 @@ export function CertificationsDisplay({ certifications }: { certifications: Clie
                                         {cert.image && <Image src={cert.image} alt={cert.title} width={400} height={250} className="w-full h-full object-cover" />}
                                     </div>
                                 </div>
-                               <div className="sm:w-2/3">
+                               <div className="sm:w-2/3 flex flex-col">
                                     <CardHeader>
-                                        <CardTitle className="text-lg">{cert.title}</CardTitle>
-                                        <CardDescription className="text-sm mt-1">{cert.issuedBy} - {cert.date}</CardDescription>
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <CardTitle className="text-lg">{cert.title}</CardTitle>
+                                                <CardDescription className="text-sm mt-1">{cert.issuedBy} - {cert.date}</CardDescription>
+                                            </div>
+                                            <div className="flex-shrink-0">
+                                                <DeleteItemForm action={deleteCertification} itemId={cert._id!} />
+                                            </div>
+                                        </div>
                                     </CardHeader>
-                                    <CardContent>
+                                    <CardContent className="flex-grow">
                                         <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-sm mt-2 inline-block hover:underline">View Certificate</a>
                                     </CardContent>
                                 </div>
@@ -244,6 +312,7 @@ export function EducationDisplay({ education }: { education: Client<Education>[]
                                 <TableHead>Degree</TableHead>
                                 <TableHead>Period</TableHead>
                                 <TableHead>CGPA</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -258,6 +327,9 @@ export function EducationDisplay({ education }: { education: Client<Education>[]
                                     </TableCell>
                                     <TableCell>{edu.period}</TableCell>
                                     <TableCell>{edu.cgpa}</TableCell>
+                                    <TableCell className="text-right">
+                                        <DeleteItemForm action={deleteEducation} itemId={edu._id!} />
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -285,6 +357,7 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
                                 <TableHead className="w-[50px]">Icon</TableHead>
                                 <TableHead>Role</TableHead>
                                 <TableHead>Description</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -298,6 +371,9 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
                                         <p className="text-muted-foreground text-sm">{exp.companyName}</p>
                                     </TableCell>
                                     <TableCell>{exp.description}</TableCell>
+                                    <TableCell className="text-right">
+                                        <DeleteItemForm action={deleteWorkExperience} itemId={exp._id!} />
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -326,6 +402,7 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
                                 <TableHead className="w-[50px]">Icon</TableHead>
                                 <TableHead>Platform</TableHead>
                                 <TableHead>URL</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -336,6 +413,9 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
                                     </TableCell>
                                     <TableCell className="font-medium">{link.platform}</TableCell>
                                     <TableCell><a href={link.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary truncate">{link.url}</a></TableCell>
+                                    <TableCell className="text-right">
+                                        <DeleteItemForm action={deleteProfileLink} itemId={link._id!} />
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
