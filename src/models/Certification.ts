@@ -9,6 +9,7 @@ export interface Certification extends Document {
   certificateUrl: string;
   image?: string;
   imageAiHint?: string;
+  order?: number;
 }
 
 export async function getCertificationsCollection(): Promise<Collection<Certification>> {

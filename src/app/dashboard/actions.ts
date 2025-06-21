@@ -112,6 +112,14 @@ const skillsOrderSchema = z.object({
     }),
 });
 
+const certificationsOrderSchema = z.object({
+    certificationsOrder: z.string().transform((str, ctx) => {
+        try { return JSON.parse(str); }
+        catch (e) { ctx.addIssue({ code: 'custom', message: 'Invalid JSON for certificationsOrder' }); return z.NEVER; }
+    }),
+});
+
+
 async function getCollection(collectionName: string) {
     const client = await clientPromise;
     const db = client.db('portfolio');
@@ -263,16 +271,21 @@ export async function addCertification(prevState: AdminFormState, formData: Form
         if (!parsed.success) {
             return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
-        const dataToInsert: any = { ...parsed.data };
+        
+        const certificationsCollection = await getCollection('certifications');
+        const lastCert = await certificationsCollection.findOne({}, { sort: { order: -1 } });
+        const newOrder = (lastCert?.order || 0) + 1;
+        
+        const dataToInsert: any = { ...parsed.data, order: newOrder };
         
         if (!dataToInsert.image) {
             delete dataToInsert.image;
         }
 
-        const certificationsCollection = await getCollection('certifications');
         await certificationsCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
+        revalidatePath('/dashboard');
         return { message: 'Certification added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add certification:", e);
@@ -475,6 +488,38 @@ export async function updateCertification(prevState: AdminFormState, formData: F
         return handleDbError(e);
     }
 }
+
+export async function updateCertificationsOrder(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = certificationsOrderSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+        
+        const certIds = parsed.data.certificationsOrder as string[];
+        const collection = await getCollection('certifications');
+
+        const bulkOps = certIds.map((id, index) => ({
+            updateOne: {
+                filter: { _id: new ObjectId(id) },
+                update: { $set: { order: index } }
+            }
+        }));
+
+        if (bulkOps.length > 0) {
+            await collection.bulkWrite(bulkOps);
+        }
+
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Certification order updated successfully!', success: true };
+
+    } catch (e) {
+        console.error("Failed to update certification order:", e);
+        return handleDbError(e);
+    }
+}
+
 
 export async function updateEducation(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     try {

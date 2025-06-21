@@ -26,7 +26,8 @@ import type { AdminFormState } from "@/app/dashboard/actions";
 import { 
     deleteSkill, deleteProject, deleteAchievement, deleteCertification, 
     deleteEducation, deleteWorkExperience, deleteProfileLink,
-    updateSkillsOrder
+    updateSkillsOrder,
+    updateCertificationsOrder
 } from "@/app/dashboard/actions";
 import { 
     SkillForm, ProjectForm, AchievementForm, CertificationForm, EducationForm, WorkExperienceForm, ProfileLinkForm 
@@ -449,47 +450,88 @@ export function AchievementsDisplay({ achievements }: { achievements: Client<Ach
     );
 }
 
+function CertsReorderSubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" className="w-full mt-4" disabled={pending}>
+            {pending ? 'Saving Order...' : 'Save Certification Order'}
+        </Button>
+    );
+}
+
 export function CertificationsDisplay({ certifications }: { certifications: Client<Certification>[] }) {
+    const [orderedCerts, setOrderedCerts] = useState(certifications);
+    const [state, dispatch] = useActionState(updateCertificationsOrder, { message: null, success: false });
+    const formRef = useRef<HTMLFormElement>(null);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        setOrderedCerts(certifications);
+    }, [certifications]);
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({
+                variant: state.success ? 'default' : 'destructive',
+                title: state.success ? 'Success!' : 'Error',
+                description: state.message,
+            });
+        }
+    }, [state, toast]);
+
+    const moveCert = (index: number, direction: 'up' | 'down') => {
+        const newList = [...orderedCerts];
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= newList.length) return;
+        [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
+        setOrderedCerts(newList);
+    };
+
+    const certIdsInOrder = useMemo(() => JSON.stringify(orderedCerts.map(c => c._id)), [orderedCerts]);
+
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Current Certifications</CardTitle>
-                <CardDescription>Your certifications and credentials.</CardDescription>
+                <CardDescription>Your certifications and credentials. Click arrows to reorder, then save.</CardDescription>
             </CardHeader>
             <CardContent>
-                {certifications.length > 0 ? (
-                     <div className="space-y-4">
-                        {certifications.map(cert => (
-                             <Card key={cert._id} className="overflow-hidden flex flex-col sm:flex-row">
-                                 <div className="sm:w-1/3">
-                                    <div className="aspect-video overflow-hidden border-b sm:border-b-0 sm:border-r">
-                                        {cert.image && <Image src={cert.image} alt={cert.title} width={400} height={250} className="w-full h-full object-cover" />}
-                                    </div>
-                                </div>
-                               <div className="sm:w-2/3 flex flex-col">
-                                    <CardHeader>
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <CardTitle className="text-lg">{cert.title}</CardTitle>
-                                                <CardDescription className="text-sm mt-1">{cert.issuedBy} - {cert.date}</CardDescription>
-                                            </div>
-                                            <div className="flex-shrink-0 flex items-center">
-                                                <EditCertificationDialog certification={cert} />
-                                                <DeleteItemDialog action={deleteCertification} itemId={cert._id!} itemName={cert.title}>
-                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </DeleteItemDialog>
-                                            </div>
+                {orderedCerts.length > 0 ? (
+                    <form ref={formRef} action={dispatch}>
+                        <input type="hidden" name="certificationsOrder" value={certIdsInOrder} />
+                        <div className="space-y-4">
+                            {orderedCerts.map((cert, index) => (
+                                <Card key={cert._id} className="overflow-hidden flex flex-col sm:flex-row items-center p-2 gap-2">
+                                    <div className="w-full sm:w-1/3">
+                                        <div className="aspect-video relative overflow-hidden border rounded-md">
+                                            {cert.image ? 
+                                                <Image src={cert.image} alt={cert.title} width={400} height={250} className="w-full h-full object-cover" />
+                                                : <div className="w-full h-full bg-muted" />
+                                            }
                                         </div>
-                                    </CardHeader>
-                                    <CardContent className="flex-grow">
+                                    </div>
+                                    <div className="flex-grow p-2">
+                                        <CardTitle className="text-lg">{cert.title}</CardTitle>
+                                        <CardDescription className="text-sm mt-1">{cert.issuedBy} - {new Date(cert.date).toLocaleDateString()}</CardDescription>
                                         <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-sm mt-2 inline-block hover:underline">View Certificate</a>
-                                    </CardContent>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
+                                    </div>
+                                    <div className="flex-shrink-0 flex sm:flex-col items-center gap-1 p-2 bg-muted/50 rounded-md">
+                                        <Button type="button" size="icon" variant="ghost" disabled={index === 0} onClick={() => moveCert(index, 'up')}><ArrowUp className="h-4 w-4" /></Button>
+                                        <Button type="button" size="icon" variant="ghost" disabled={index === orderedCerts.length - 1} onClick={() => moveCert(index, 'down')}><ArrowDown className="h-4 w-4" /></Button>
+                                    </div>
+                                    <div className="flex-shrink-0 flex sm:flex-col items-center gap-1">
+                                        <EditCertificationDialog certification={cert} />
+                                        <DeleteItemDialog action={deleteCertification} itemId={cert._id!} itemName={cert.title}>
+                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </DeleteItemDialog>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                        <CertsReorderSubmitButton />
+                    </form>
                 ) : (
                     <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
                 )}

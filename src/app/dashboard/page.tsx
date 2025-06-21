@@ -44,7 +44,7 @@ export default async function DashboardPage() {
             getSkillsCollection().then(c => c.find({}).sort({ order: 1, _id: 1 }).toArray()),
             getProjectsCollection().then(c => c.find({}).sort({ createdAt: -1 }).toArray()),
             getAchievementsCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
-            getCertificationsCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
+            getCertificationsCollection().then(c => c.find({}).sort({ order: 1, _id: -1 }).toArray()),
             getEducationCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
             getWorkExperienceCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
             getProfileLinksCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),

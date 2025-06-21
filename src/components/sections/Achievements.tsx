@@ -13,7 +13,7 @@ export async function Achievements() {
   const achievements = await achievementsCollection.find({}).sort({ _id: -1 }).toArray();
 
   const certificationsCollection = await getCertificationsCollection();
-  const certifications = await certificationsCollection.find({}).sort({ _id: -1 }).toArray();
+  const certifications = await certificationsCollection.find({}).sort({ order: 1, _id: -1 }).toArray();
 
   if (achievements.length === 0 && certifications.length === 0) {
     return null;
