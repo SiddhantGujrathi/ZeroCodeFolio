@@ -2,7 +2,7 @@
 'use client';
 
 import Image from "next/image";
-import React, { useActionState, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useActionState, useEffect, useState, useCallback, useMemo, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,61 +54,47 @@ function DeleteItemDialog({ action, itemId, itemName, children }: {
     children: React.ReactNode
 }) {
   const [open, setOpen] = useState(false);
-  const [formKey, setFormKey] = useState(0); 
-  const [state, dispatch] = useActionState(action, { message: null, success: false });
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (!state?.message) return; // Exit if no message
-
-    if (state.success) {
-        toast({ title: 'Success', description: state.message });
-        setOpen(false); // Close dialog on success
-    } else {
-        // For any error, show a destructive toast
-        toast({ variant: 'destructive', title: 'Error', description: state.message });
-    }
-  }, [state, toast]);
-
-  const handleOpenChange = (isOpen: boolean) => {
-      if(isOpen) {
-          setFormKey(k => k + 1); // Reset form state on open
-      }
-      setOpen(isOpen);
-  }
-  
-  function DeleteConfirmationButton() {
-      const { pending } = useFormStatus();
-      return (
-          <AlertDialogAction
-              type="submit"
-              className={buttonVariants({ variant: "destructive" })}
-              disabled={pending}
-          >
-              {pending ? "Deleting..." : "Yes, delete"}
-          </AlertDialogAction>
-      );
+  const handleDelete = () => {
+    startTransition(async () => {
+        const formData = new FormData();
+        formData.append('id', itemId);
+        const initialState: AdminFormState = { message: null, success: false };
+        const result = await action(initialState, formData);
+        
+        if (result.success) {
+            toast({ title: 'Success', description: result.message ?? "Item deleted." });
+            setOpen(false);
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.message ?? "An unknown error occurred." });
+        }
+    });
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={handleOpenChange}>
+    <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
             {children}
         </AlertDialogTrigger>
         <AlertDialogContent>
-            <form action={dispatch} key={formKey}>
-                <input type="hidden" name="id" value={itemId} />
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete "{itemName}".
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <DeleteConfirmationButton />
-                </AlertDialogFooter>
-            </form>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete "{itemName}".
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={isPending}
+                    className={buttonVariants({ variant: "destructive" })}
+                >
+                    {isPending ? "Deleting..." : "Yes, delete"}
+                </AlertDialogAction>
+            </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
   );
@@ -652,3 +638,6 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
 
     
 
+
+
+    
