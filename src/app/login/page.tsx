@@ -1,13 +1,13 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { login, register } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useEffect } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { FormState } from './definitions';
 
@@ -32,7 +32,7 @@ export default function LoginPage() {
 
 function LoginForm() {
   const initialState: FormState = { message: null, errors: {} };
-  const [state, dispatch] = useFormState(login, initialState);
+  const [state, dispatch] = useActionState(login, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -72,7 +72,7 @@ function LoginForm() {
 
 function RegisterForm() {
   const initialState: FormState = { message: null, errors: {} };
-  const [state, dispatch] = useFormState(register, initialState);
+  const [state, dispatch] = useActionState(register, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
