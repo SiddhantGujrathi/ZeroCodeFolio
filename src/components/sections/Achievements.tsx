@@ -41,6 +41,7 @@ export async function Achievements() {
           <TabsContent value="achievements">
              {achievements.length > 0 && (
               <Carousel
+                autoplay
                 opts={{
                   align: "start",
                   loop: achievements.length > 1,
@@ -76,6 +77,7 @@ export async function Achievements() {
           <TabsContent value="certifications">
                {certifications.length > 0 && (
                 <Carousel
+                  autoplay
                   opts={{
                     align: "start",
                     loop: certifications.length > 1,

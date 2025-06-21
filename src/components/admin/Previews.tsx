@@ -158,6 +158,7 @@ export function AchievementsPreview({ achievements, certifications }: { achievem
                 <TabsContent value="achievements">
                     {achievements.length > 0 ? (
                         <Carousel
+                          autoplay
                           opts={{ align: "start", loop: achievements.length > 1 }}
                           className="w-full max-w-xs sm:max-w-xl md:max-w-2xl mx-auto"
                         >
@@ -190,6 +191,7 @@ export function AchievementsPreview({ achievements, certifications }: { achievem
                 <TabsContent value="certifications">
                     {certifications.length > 0 ? (
                          <Carousel
+                            autoplay
                             opts={{ align: "start", loop: certifications.length > 1 }}
                             className="w-full max-w-md mx-auto"
                           >
@@ -357,6 +359,7 @@ export function ProfileLinksPreview({ profileLinks, about }: { profileLinks: Cli
     
 
     
+
 
 
 

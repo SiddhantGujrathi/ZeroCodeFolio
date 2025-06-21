@@ -4,6 +4,7 @@ import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
+import Autoplay from "embla-carousel-autoplay"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -19,6 +20,7 @@ type CarouselProps = {
   plugins?: CarouselPlugin
   orientation?: "horizontal" | "vertical"
   setApi?: (api: CarouselApi) => void
+  autoplay?: boolean
 }
 
 type CarouselContextProps = {
@@ -54,16 +56,25 @@ const Carousel = React.forwardRef<
       plugins,
       className,
       children,
+      autoplay = false,
       ...props
     },
     ref
   ) => {
+    const autoplayPlugin = React.useRef(
+      Autoplay({ delay: 2000, stopOnInteraction: true })
+    )
+
+    const allPlugins = autoplay
+      ? [autoplayPlugin.current, ...(plugins || [])]
+      : plugins
+
     const [carouselRef, api] = useEmblaCarousel(
       {
         ...opts,
         axis: orientation === "horizontal" ? "x" : "y",
       },
-      plugins
+      allPlugins
     )
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)
     const [canScrollNext, setCanScrollNext] = React.useState(false)
@@ -131,6 +142,7 @@ const Carousel = React.forwardRef<
           scrollNext,
           canScrollPrev,
           canScrollNext,
+          autoplay,
         }}
       >
         <div
@@ -139,6 +151,8 @@ const Carousel = React.forwardRef<
           className={cn("relative", className)}
           role="region"
           aria-roledescription="carousel"
+          onMouseEnter={autoplay ? autoplayPlugin.current.stop : undefined}
+          onMouseLeave={autoplay ? autoplayPlugin.current.reset : undefined}
           {...props}
         >
           {children}
