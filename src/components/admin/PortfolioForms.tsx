@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useActionState, useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useActionState, useEffect, useRef, useState, type ComponentProps, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
@@ -180,13 +180,6 @@ function AboutFieldForm({ fieldName, label, defaultValue, children }: {
 }
 
 export function AboutForm({ about }: { about: Client<About> | null }) {
-    const [imagePreview, setImagePreview] = useState(about?.profileImage || null);
-    
-    const handleImageReset = () => {
-        const removeButton = document.querySelector('#about-image-form button[variant="destructive"]') as HTMLButtonElement;
-        if (removeButton) removeButton.click();
-    };
-
     return (
         <Card>
             <CardHeader>
@@ -236,10 +229,10 @@ export function SkillForm() {
   const [state, dispatch] = useActionState(addSkill, { message: null, errors: {}, success: false });
   const formRef = useRef<HTMLFormElement>(null);
   
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
     if (removeButton) removeButton.click();
-  };
+  }, []);
   
   useFormFeedback(state, formRef, handleReset);
   
@@ -272,10 +265,10 @@ export function SkillForm() {
 export function ProjectForm() {
     const [state, dispatch] = useActionState(addProject, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = () => {
+    const handleReset = useCallback(() => {
         const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
         if (removeButton) removeButton.click();
-    };
+    }, []);
     useFormFeedback(state, formRef, handleReset);
 
     return (
@@ -303,10 +296,10 @@ export function ProjectForm() {
 export function AchievementForm() {
     const [state, dispatch] = useActionState(addAchievement, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = () => {
+    const handleReset = useCallback(() => {
         const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
         if (removeButton) removeButton.click();
-    };
+    }, []);
     useFormFeedback(state, formRef, handleReset);
     return (
         <Card>
@@ -330,10 +323,10 @@ export function AchievementForm() {
 export function CertificationForm() {
     const [state, dispatch] = useActionState(addCertification, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    const handleReset = () => {
+    const handleReset = useCallback(() => {
         const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
         if (removeButton) removeButton.click();
-    };
+    }, []);
     useFormFeedback(state, formRef, handleReset);
     return (
         <Card>
