@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProjectCard } from "@/components/shared/ProjectCard";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Download, ExternalLink } from "lucide-react";
+import { Briefcase, Download, ExternalLink, Mail } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import type { About } from "@/models/About";
@@ -75,6 +75,12 @@ export function AboutPreview({ about }: { about: Client<About> | null }) {
                           <Download />
                           Download Resume
                         </a>
+                      </Button>
+                      <Button asChild size="lg" variant="outline">
+                        <Link href="#contact">
+                            <Mail />
+                            Contact Me
+                        </Link>
                       </Button>
                     </div>
                 </div>

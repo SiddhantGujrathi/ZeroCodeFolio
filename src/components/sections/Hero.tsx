@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Download } from "lucide-react";
+import { Download, Mail } from "lucide-react";
 
 import { getAboutCollection } from "@/models/About";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,12 @@ export async function Hero() {
               <Download />
               Download Resume
             </a>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="#contact">
+              <Mail />
+              Contact Me
+            </Link>
           </Button>
         </div>
     </>
