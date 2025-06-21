@@ -73,14 +73,14 @@ const workExperienceSchema = z.object({
   role: z.string().min(1, "Role is required"),
   companyName: z.string().min(1, "Company name is required"),
   description: z.string().min(1, "Description is required"),
-  icon: z.string().min(1, "Icon name is required"),
+  icon: z.string().optional(),
   iconHint: z.string().optional(),
 });
 
 const profileLinkSchema = z.object({
   platform: z.string().min(1, "Platform is required"),
   url: z.string().url("Must be a valid URL"),
-  icon: z.string().min(1, "Icon name is required"),
+  icon: z.string().optional(),
   iconHint: z.string().optional(),
 });
 
@@ -280,8 +280,13 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
         if (!parsed.success) {
             return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.icon) {
+            delete dataToInsert.icon;
+        }
+
         const workExperienceCollection = await getCollection('workExperience');
-        await workExperienceCollection.insertOne(parsed.data);
+        await workExperienceCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
         revalidatePath('/dashboard');
@@ -298,8 +303,13 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
         if (!parsed.success) {
             return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.icon) {
+            delete dataToInsert.icon;
+        }
+
         const profileLinksCollection = await getCollection('profileLinks');
-        await profileLinksCollection.insertOne(parsed.data);
+        await profileLinksCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
         revalidatePath('/dashboard');

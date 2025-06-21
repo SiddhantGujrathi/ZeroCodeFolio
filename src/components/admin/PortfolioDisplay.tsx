@@ -1,6 +1,5 @@
 'use client';
 
-import type { ComponentProps } from "react";
 import Image from "next/image";
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -8,8 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { stringToIconMap } from "@/lib/icon-map";
-import { Globe, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -35,11 +33,6 @@ import type { ProfileLink } from "@/models/ProfileLink";
 
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
-
-function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
-  const Icon = stringToIconMap[name] || Globe;
-  return <Icon {...props} />;
-}
 
 function DeleteButton() {
     const { pending } = useFormStatus();
@@ -356,7 +349,7 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
                     <Table>
                         <TableHeader>
                              <TableRow>
-                                <TableHead className="w-[50px]">Icon</TableHead>
+                                <TableHead className="w-[80px]">Icon</TableHead>
                                 <TableHead>Role</TableHead>
                                 <TableHead>Description</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
@@ -366,7 +359,9 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
                             {workExperience.map(exp => (
                                 <TableRow key={exp._id}>
                                      <TableCell>
-                                        <DynamicIcon name={exp.icon} className="h-6 w-6 text-primary" />
+                                        <div className="relative h-10 w-10">
+                                            {exp.icon && <Image src={exp.icon} alt={exp.companyName} fill className="object-contain rounded-md" />}
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <p className="font-medium">{exp.role}</p>
@@ -401,7 +396,7 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[50px]">Icon</TableHead>
+                                <TableHead className="w-[80px]">Icon</TableHead>
                                 <TableHead>Platform</TableHead>
                                 <TableHead>URL</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
@@ -411,7 +406,9 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
                             {profileLinks.map(link => (
                                 <TableRow key={link._id}>
                                     <TableCell>
-                                        <DynamicIcon name={link.icon} className="h-6 w-6 text-primary" />
+                                        <div className="relative h-10 w-10">
+                                            {link.icon && <Image src={link.icon} alt={link.platform} fill className="object-contain rounded-md" />}
+                                        </div>
                                     </TableCell>
                                     <TableCell className="font-medium">{link.platform}</TableCell>
                                     <TableCell><a href={link.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary truncate">{link.url}</a></TableCell>

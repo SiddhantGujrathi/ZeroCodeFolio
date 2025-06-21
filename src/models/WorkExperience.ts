@@ -6,7 +6,7 @@ export interface WorkExperience extends Document {
   role: string;
   companyName: string;
   description: string;
-  icon: string;
+  icon?: string;
   iconHint?: string;
 }
 

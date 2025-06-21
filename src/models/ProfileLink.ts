@@ -5,7 +5,7 @@ export interface ProfileLink extends Document {
   _id: ObjectId;
   platform: string;
   url: string;
-  icon: string;
+  icon?: string;
   iconHint?: string;
 }
 

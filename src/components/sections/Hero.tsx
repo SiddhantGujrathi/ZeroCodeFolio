@@ -6,14 +6,7 @@ import { getAboutCollection } from "@/models/About";
 import { getProfileLinksCollection } from "@/models/ProfileLink";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { stringToIconMap } from "@/lib/icon-map";
-import type { ComponentProps } from "react";
-import { Globe } from "lucide-react";
 
-function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
-  const Icon = stringToIconMap[name] || Globe;
-  return <Icon {...props} />;
-}
 
 export async function Hero() {
   const aboutCollection = await getAboutCollection();
@@ -55,11 +48,13 @@ export async function Hero() {
         </div>
         <div className="mt-8 flex items-center space-x-4">
           {socialLinks.map((link) => (
-             <Button key={link.platform} variant="ghost" size="icon" asChild>
-             <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
-               <DynamicIcon name={link.icon} className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
-             </a>
-           </Button>
+            <Button key={link._id.toString()} variant="ghost" size="icon" asChild>
+                <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
+                    <div className="relative h-6 w-6">
+                        <Image src={link.icon || 'https://placehold.co/100x100.png'} alt={link.platform} fill className="object-contain" data-ai-hint={link.iconHint || 'logo'} />
+                    </div>
+                </a>
+            </Button>
           ))}
         </div>
     </section>

@@ -1,13 +1,8 @@
-import type { ComponentProps } from "react";
+import Image from "next/image";
 import { Briefcase } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getWorkExperienceCollection } from "@/models/WorkExperience";
-import { stringToIconMap } from "@/lib/icon-map";
 
-function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
-  const Icon = stringToIconMap[name] || Briefcase;
-  return <Icon {...props} />;
-}
 
 export async function WorkExperience() {
   const workExperienceCollection = await getWorkExperienceCollection();
@@ -34,8 +29,12 @@ export async function WorkExperience() {
             {experiences.map((exp, index) => (
                 <div key={exp._id.toString()} className="relative flex items-start">
                     <div className="absolute left-1/2 top-6 -translate-x-1/2">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                           <DynamicIcon name={exp.icon} className="h-5 w-5" />
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground relative overflow-hidden">
+                           {exp.icon ? (
+                               <Image src={exp.icon} alt={exp.companyName} fill className="object-contain p-1" data-ai-hint={exp.iconHint || 'company logo'} />
+                           ) : (
+                               <Briefcase className="h-5 w-5" />
+                           )}
                         </span>
                     </div>
                     <Card className={`w-[calc(50%-2rem)] ${index % 2 === 0 ? 'mr-auto' : 'ml-auto'}`}>

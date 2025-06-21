@@ -1,15 +1,8 @@
 import { getProfileLinksCollection } from "@/models/ProfileLink";
 import { getAboutCollection } from "@/models/About";
 import { Button } from "@/components/ui/button";
-import { stringToIconMap } from "@/lib/icon-map";
-import { ComponentProps } from "react";
-import { Globe } from "lucide-react";
+import Image from "next/image";
 
-
-function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
-  const Icon = stringToIconMap[name] || Globe;
-  return <Icon {...props} />;
-}
 
 export async function Footer() {
     const profileLinksCollection = await getProfileLinksCollection();
@@ -26,10 +19,12 @@ export async function Footer() {
         </p>
         <div className="flex items-center space-x-2">
           {links.map((link) => (
-             <Button key={link.platform} variant="ghost" size="icon" asChild>
-             <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
-               <DynamicIcon name={link.icon} className="h-5 w-5" />
-             </a>
+             <Button key={link._id.toString()} variant="ghost" size="icon" asChild>
+                <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
+                    <div className="relative h-5 w-5">
+                        <Image src={link.icon || 'https://placehold.co/100x100.png'} alt={link.platform} fill className="object-contain" data-ai-hint={link.iconHint || 'logo'} />
+                    </div>
+                </a>
            </Button>
           ))}
         </div>

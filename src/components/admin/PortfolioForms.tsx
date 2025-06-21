@@ -13,7 +13,6 @@ import { useActionState, useEffect, useRef, useState, type ComponentProps, useCa
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
-import { stringToIconMap } from '@/lib/icon-map';
 import type { About } from '@/models/About';
 import { Trash2 } from 'lucide-react';
 
@@ -132,8 +131,6 @@ function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<
     }
   }, [state, toast, formRef, onReset]);
 }
-
-const availableIcons = Object.keys(stringToIconMap);
 
 function AboutSubmitButton({ label, hasDefaultValue }: { label: string; hasDefaultValue: boolean }) {
     const { pending } = useFormStatus();
@@ -382,7 +379,12 @@ export function EducationForm() {
 export function WorkExperienceForm() {
     const [state, dispatch] = useActionState(addWorkExperience, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef);
+    const handleReset = useCallback(() => {
+        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
+        if (removeButton) removeButton.click();
+    }, []);
+    useFormFeedback(state, formRef, handleReset);
+
     return (
         <Card>
             <CardHeader>
@@ -394,8 +396,8 @@ export function WorkExperienceForm() {
                     <div className="space-y-2"><Label>Role</Label><Input name="role" />{state?.errors?.role && <p className="text-sm text-destructive">{state.errors.role}</p>}</div>
                     <div className="space-y-2"><Label>Company Name</Label><Input name="companyName" />{state?.errors?.companyName && <p className="text-sm text-destructive">{state.errors.companyName}</p>}</div>
                     <div className="space-y-2"><Label>Description</Label><Textarea name="description" />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
-                    <div className="space-y-2"><Label>Icon</Label><Input name="icon" placeholder="e.g., Briefcase" /><p className="text-xs text-muted-foreground pt-1">Available: {availableIcons.join(', ')}</p>{state?.errors?.icon && <p className="text-sm text-destructive">{state.errors.icon}</p>}</div>
-                    <div className="space-y-2"><Label>Icon Hint</Label><Input name="iconHint" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
+                    <ImageUpload fieldName="icon" label="Company Icon / Logo" description="Upload/paste a company logo." error={state?.errors?.icon} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'company logo' or 'briefcase'" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
                     <SubmitButton>Add Work Experience</SubmitButton>
                 </form>
             </CardContent>
@@ -406,7 +408,11 @@ export function WorkExperienceForm() {
 export function ProfileLinkForm() {
     const [state, dispatch] = useActionState(addProfileLink, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
-    useFormFeedback(state, formRef);
+    const handleReset = useCallback(() => {
+        const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
+        if (removeButton) removeButton.click();
+    }, []);
+    useFormFeedback(state, formRef, handleReset);
     return (
         <Card>
             <CardHeader>
@@ -417,8 +423,8 @@ export function ProfileLinkForm() {
                 <form ref={formRef} action={dispatch} className="space-y-4">
                     <div className="space-y-2"><Label>Platform</Label><Input name="platform" placeholder="e.g., GitHub" />{state?.errors?.platform && <p className="text-sm text-destructive">{state.errors.platform}</p>}</div>
                     <div className="space-y-2"><Label>URL</Label><Input name="url" type="url" />{state?.errors?.url && <p className="text-sm text-destructive">{state.errors.url}</p>}</div>
-                    <div className="space-y-2"><Label>Icon</Label><Input name="icon" placeholder="e.g., Github" /><p className="text-xs text-muted-foreground pt-1">Available: {availableIcons.join(', ')}</p>{state?.errors?.icon && <p className="text-sm text-destructive">{state.errors.icon}</p>}</div>
-                    <div className="space-y-2"><Label>Icon Hint</Label><Input name="iconHint" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
+                    <ImageUpload fieldName="icon" label="Platform Icon / Logo" description="Upload/paste an icon for the platform." error={state?.errors?.icon} />
+                    <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'github logo'" />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
                     <SubmitButton>Add Profile Link</SubmitButton>
                 </form>
             </CardContent>
