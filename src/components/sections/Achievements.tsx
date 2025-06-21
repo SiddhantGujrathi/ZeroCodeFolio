@@ -5,6 +5,7 @@ import { getCertificationsCollection } from "@/models/Certification";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import { SlateViewer } from "../admin/SlateViewer";
 
 
 export async function Achievements() {
@@ -47,7 +48,9 @@ export async function Achievements() {
                      </CardHeader>
                      <CardContent>
                          <CardTitle className="text-lg">{achievement.title}</CardTitle>
-                         <CardDescription className="mt-1 text-sm">{achievement.description}</CardDescription>
+                         <div className="mt-1 text-sm text-card-foreground/80">
+                           <SlateViewer value={achievement.description}/>
+                         </div>
                      </CardContent>
                   </Card>
               ))}

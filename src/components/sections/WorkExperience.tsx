@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Briefcase } from "lucide-react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { getWorkExperienceCollection } from "@/models/WorkExperience";
+import { SlateViewer } from "../admin/SlateViewer";
 
 
 export async function WorkExperience() {
@@ -46,7 +47,9 @@ export async function WorkExperience() {
             <div className="flex-1">
               <CardTitle className="text-xl">{exp.role}</CardTitle>
               <CardDescription className="mt-1">{exp.companyName}</CardDescription>
-              <p className="mt-4 text-sm text-muted-foreground whitespace-pre-wrap">{exp.description}</p>
+              <div className="mt-4 text-sm text-muted-foreground">
+                <SlateViewer value={exp.description} />
+              </div>
             </div>
           </Card>
         ))}

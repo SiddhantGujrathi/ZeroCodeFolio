@@ -18,6 +18,7 @@ import {
 import { 
     SkillForm, ProjectForm, AchievementForm, CertificationForm, EducationForm, WorkExperienceForm, ProfileLinkForm 
 } from './PortfolioForms';
+import { SlateViewer } from './SlateViewer';
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -195,7 +196,7 @@ export function AboutDisplay({ about }: { about: Client<About> | null }) {
                     </div>
                     <div className="space-y-2">
                         <h4 className="font-semibold">Bio</h4>
-                        <p className="text-muted-foreground">{about.bio}</p>
+                        <SlateViewer value={about.bio} />
                     </div>
                     {about.resumeUrl && (
                          <div className="space-y-2">
@@ -279,8 +280,8 @@ export function ProjectsDisplay({ projects }: { projects: Client<Project>[] }) {
                                              </div>
                                         </div>
                                     </CardHeader>
-                                    <CardContent className="flex-grow">
-                                        <CardDescription className="text-sm mt-1 whitespace-pre-wrap break-words">{project.description}</CardDescription>
+                                    <CardContent className="flex-grow text-sm mt-1">
+                                        <SlateViewer value={project.description} />
                                     </CardContent>
                                     <CardFooter>
                                         <div className="flex flex-wrap gap-1">
@@ -328,8 +329,8 @@ export function AchievementsDisplay({ achievements }: { achievements: Client<Ach
                                             </div>
                                         </div>
                                     </CardHeader>
-                                    <CardContent className="flex-grow">
-                                        <CardDescription className="text-sm mt-1 whitespace-pre-wrap break-words">{achievement.description}</CardDescription>
+                                    <CardContent className="flex-grow text-sm mt-1">
+                                        <SlateViewer value={achievement.description} />
                                     </CardContent>
                                 </div>
                             </Card>
@@ -444,7 +445,9 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
                                     <div className="flex-grow min-w-0">
                                         <p className="font-medium">{exp.role}</p>
                                         <p className="text-sm text-muted-foreground">{exp.companyName}</p>
-                                        <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{exp.description}</p>
+                                        <div className="text-sm text-muted-foreground mt-1">
+                                            <SlateViewer value={exp.description} />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex-shrink-0 flex items-center">

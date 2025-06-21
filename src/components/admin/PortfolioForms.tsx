@@ -489,6 +489,7 @@ export function ProjectForm({ project, onSuccess }: { project?: Client<Project>,
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
     useFormFeedback(state, formRef, onSuccess);
+    const [description, setDescription] = useState(project?.description ?? '');
 
     return (
         <Card>
@@ -500,7 +501,12 @@ export function ProjectForm({ project, onSuccess }: { project?: Client<Project>,
                 <form ref={formRef} action={dispatch} className="space-y-4">
                     {project && <input type="hidden" name="id" value={project._id} />}
                     <div className="space-y-2"><Label>Project Title</Label><Input name="title" defaultValue={project?.title ?? ''} />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}</div>
-                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={project?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description[0]}</p>}</div>
+                    <div className="space-y-2">
+                        <Label>Description</Label>
+                        <RichTextEditor value={description} onChange={setDescription} />
+                        <input type="hidden" name="description" value={description} />
+                        {state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description[0]}</p>}
+                    </div>
                     <div className="space-y-2"><Label>Tags (comma-separated)</Label><Input name="tags" defaultValue={project?.tags?.join(', ') ?? ''} />{state?.errors?.tags && <p className="text-sm text-destructive">{state.errors.tags[0]}</p>}</div>
                     <ImageUpload fieldName="projectImage" label="Project Image" description="Upload/paste a project image." currentImage={project?.projectImage} error={state?.errors?.projectImage} aspect={16 / 9} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" defaultValue={project?.imageAiHint ?? ''} />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint[0]}</p>}</div>
@@ -518,6 +524,8 @@ export function AchievementForm({ achievement, onSuccess }: { achievement?: Clie
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
     useFormFeedback(state, formRef, onSuccess);
+    const [description, setDescription] = useState(achievement?.description ?? '');
+
     return (
         <Card>
             <CardHeader>
@@ -528,7 +536,12 @@ export function AchievementForm({ achievement, onSuccess }: { achievement?: Clie
                 <form ref={formRef} action={dispatch} className="space-y-4">
                     {achievement && <input type="hidden" name="id" value={achievement._id} />}
                     <div className="space-y-2"><Label>Title</Label><Input name="title" defaultValue={achievement?.title ?? ''} />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
-                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={achievement?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
+                    <div className="space-y-2">
+                        <Label>Description</Label>
+                        <RichTextEditor value={description} onChange={setDescription} />
+                        <input type="hidden" name="description" value={description} />
+                        {state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}
+                    </div>
                     <ImageUpload fieldName="image" label="Achievement Image" description="Upload/paste an image." currentImage={achievement?.image} error={state?.errors?.image} aspect={16 / 9} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" defaultValue={achievement?.imageAiHint ?? ''} />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
                     <SubmitButton isUpdate={!!achievement}>{achievement ? 'Update Achievement' : 'Add Achievement'}</SubmitButton>
@@ -598,6 +611,7 @@ export function WorkExperienceForm({ experience, onSuccess }: { experience?: Cli
     const [state, dispatch] = useActionState(action, { message: null, errors: {}, success: false });
     const formRef = useRef<HTMLFormElement>(null);
     useFormFeedback(state, formRef, onSuccess);
+    const [description, setDescription] = useState(experience?.description ?? '');
 
     return (
         <Card>
@@ -610,7 +624,12 @@ export function WorkExperienceForm({ experience, onSuccess }: { experience?: Cli
                     {experience && <input type="hidden" name="id" value={experience._id} />}
                     <div className="space-y-2"><Label>Role</Label><Input name="role" defaultValue={experience?.role ?? ''} />{state?.errors?.role && <p className="text-sm text-destructive">{state.errors.role}</p>}</div>
                     <div className="space-y-2"><Label>Company Name</Label><Input name="companyName" defaultValue={experience?.companyName ?? ''} />{state?.errors?.companyName && <p className="text-sm text-destructive">{state.errors.companyName}</p>}</div>
-                    <div className="space-y-2"><Label>Description</Label><Textarea name="description" defaultValue={experience?.description ?? ''} />{state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}</div>
+                    <div className="space-y-2">
+                        <Label>Description</Label>
+                        <RichTextEditor value={description} onChange={setDescription} />
+                        <input type="hidden" name="description" value={description} />
+                        {state?.errors?.description && <p className="text-sm text-destructive">{state.errors.description}</p>}
+                    </div>
                     <ImageUpload fieldName="icon" label="Company Icon / Logo" description="Upload/paste a company logo." currentImage={experience?.icon} error={state?.errors?.icon} aspect={1 / 1} />
                     <div className="space-y-2"><Label>Image AI Hint</Label><Input name="iconHint" placeholder="e.g., 'company logo' or 'briefcase'" defaultValue={experience?.iconHint ?? ''} />{state?.errors?.iconHint && <p className="text-sm text-destructive">{state.errors.iconHint}</p>}</div>
                     <SubmitButton isUpdate={!!experience}>{experience ? 'Update Experience' : 'Add Experience'}</SubmitButton>

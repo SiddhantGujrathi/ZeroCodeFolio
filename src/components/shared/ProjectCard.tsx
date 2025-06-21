@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SlateViewer } from "@/components/admin/SlateViewer";
 
 type ProjectCardProps = {
   project: Project & { _id: string };
@@ -43,7 +44,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
       </CardHeader>
       <CardContent className="flex-1">
         <CardTitle className="font-headline text-xl">{title}</CardTitle>
-        <CardDescription className="mt-2 text-balance">{description}</CardDescription>
+        <div className="mt-2 text-balance">
+            <SlateViewer value={description} />
+        </div>
       </CardContent>
       <CardFooter className="flex-col items-start gap-4">
         <div className="flex flex-wrap gap-2">
