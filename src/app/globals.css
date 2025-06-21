@@ -74,3 +74,22 @@
     @apply scroll-smooth;
   }
 }
+
+@keyframes ripple-effect {
+  to {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple {
+  position: fixed;
+  border-radius: 50%;
+  background-color: hsla(var(--primary) / 0.4);
+  width: 50px;
+  height: 50px;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple-effect 0.6s ease-out;
+  z-index: 9999;
+  pointer-events: none;
+}
