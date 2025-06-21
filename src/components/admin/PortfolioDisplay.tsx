@@ -76,7 +76,12 @@ function EditSkillDialog({ skill }: { skill: Client<Skill> }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]"><SkillForm skill={skill} onSuccess={() => setOpen(false)} /></DialogContent>
+            <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                    <DialogTitle>Edit Skill</DialogTitle>
+                </DialogHeader>
+                <SkillForm skill={skill} onSuccess={() => setOpen(false)} />
+            </DialogContent>
         </Dialog>
     );
 }
@@ -85,7 +90,12 @@ function EditProjectDialog({ project }: { project: Client<Project> }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><ProjectForm project={project} onSuccess={() => setOpen(false)} /></DialogContent>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Edit Project</DialogTitle>
+                </DialogHeader>
+                <ProjectForm project={project} onSuccess={() => setOpen(false)} />
+            </DialogContent>
         </Dialog>
     );
 }
@@ -94,7 +104,12 @@ function EditAchievementDialog({ achievement }: { achievement: Client<Achievemen
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><AchievementForm achievement={achievement} onSuccess={() => setOpen(false)} /></DialogContent>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Edit Achievement</DialogTitle>
+                </DialogHeader>
+                <AchievementForm achievement={achievement} onSuccess={() => setOpen(false)} />
+            </DialogContent>
         </Dialog>
     );
 }
@@ -103,7 +118,12 @@ function EditCertificationDialog({ certification }: { certification: Client<Cert
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><CertificationForm certification={certification} onSuccess={() => setOpen(false)} /></DialogContent>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Edit Certification</DialogTitle>
+                </DialogHeader>
+                <CertificationForm certification={certification} onSuccess={() => setOpen(false)} />
+            </DialogContent>
         </Dialog>
     );
 }
@@ -112,7 +132,12 @@ function EditEducationDialog({ educationItem }: { educationItem: Client<Educatio
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><EducationForm education={educationItem} onSuccess={() => setOpen(false)} /></DialogContent>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Edit Education</DialogTitle>
+                </DialogHeader>
+                <EducationForm education={educationItem} onSuccess={() => setOpen(false)} />
+            </DialogContent>
         </Dialog>
     );
 }
@@ -121,7 +146,12 @@ function EditWorkExperienceDialog({ experience }: { experience: Client<WorkExper
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><WorkExperienceForm experience={experience} onSuccess={() => setOpen(false)} /></DialogContent>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Edit Work Experience</DialogTitle>
+                </DialogHeader>
+                <WorkExperienceForm experience={experience} onSuccess={() => setOpen(false)} />
+            </DialogContent>
         </Dialog>
     );
 }
@@ -130,7 +160,12 @@ function EditProfileLinkDialog({ link }: { link: Client<ProfileLink> }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"><ProfileLinkForm link={link} onSuccess={() => setOpen(false)} /></DialogContent>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Edit Profile Link</DialogTitle>
+                </DialogHeader>
+                <ProfileLinkForm link={link} onSuccess={() => setOpen(false)} />
+            </DialogContent>
         </Dialog>
     );
 }
