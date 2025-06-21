@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { DatabaseSetup } from "@/components/admin/DatabaseSetup";
 
 import { getAboutCollection } from "@/models/About";
 import { getSkillsCollection } from "@/models/Skill";
@@ -82,6 +83,7 @@ export default async function DashboardPage() {
                         </div>
                     </CardContent>
                 </Card>
+                <DatabaseSetup />
                 <AdminDashboard {...props} />
             </div>
         </main>

@@ -12,6 +12,11 @@ export type AdminFormState = {
   success?: boolean;
 }
 
+export type SetupResult = {
+    overall: { success: boolean; message: string };
+    details: { collection: string; status: 'success' | 'error'; message: string }[];
+}
+
 const aboutSchema = z.object({
     name: z.string().optional(),
     bio: z.string().optional(),
@@ -406,4 +411,77 @@ export async function deleteProfileLink(prevState: AdminFormState, formData: For
     const parsed = deleteSchema.safeParse({ id: formData.get('id') });
     if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
     return deleteItem('profileLinks', parsed.data.id);
+}
+
+export async function setupDatabase(prevState: SetupResult | null, formData: FormData): Promise<SetupResult> {
+    const collectionsToCreate = [
+        'about',
+        'skills',
+        'projects',
+        'achievements',
+        'certifications',
+        'education',
+        'workExperience',
+        'profileLinks',
+        'User'
+    ];
+
+    const results: { collection: string; status: 'success' | 'error'; message: string }[] = [];
+    let allSucceeded = true;
+
+    try {
+        const client = await clientPromise;
+        const db = client.db('portfolio');
+        const existingCollections = await db.listCollections().toArray();
+        const existingCollectionNames = existingCollections.map(c => c.name);
+
+        for (const collectionName of collectionsToCreate) {
+            if (existingCollectionNames.includes(collectionName)) {
+                results.push({
+                    collection: collectionName,
+                    status: 'success',
+                    message: 'Collection already exists.',
+                });
+                continue;
+            }
+
+            try {
+                await db.createCollection(collectionName);
+                results.push({
+                    collection: collectionName,
+                    status: 'success',
+                    message: 'Successfully created collection.',
+                });
+            } catch (e) {
+                allSucceeded = false;
+                const errorMessage = e instanceof Error ? e.message : String(e);
+                results.push({
+                    collection: collectionName,
+                    status: 'error',
+                    message: `Failed to create: ${errorMessage}`,
+                });
+            }
+        }
+    } catch(e) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+         return {
+            overall: {
+                success: false,
+                message: `Could not connect to database or list collections. Please ensure your Connection String (MONGODB_URI) is correct and your server's IP is whitelisted in MongoDB Atlas. Error: ${errorMessage}`
+            },
+            details: []
+        };
+    }
+
+    const overallMessage = allSucceeded
+        ? 'All required collections are present and accessible.'
+        : 'One or more collections could not be created. This is likely a permissions issue in MongoDB Atlas.';
+    
+    return {
+        overall: {
+            success: allSucceeded,
+            message: overallMessage
+        },
+        details: results
+    };
 }
