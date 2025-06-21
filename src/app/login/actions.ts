@@ -50,6 +50,24 @@ export async function login(prevState: FormState, formData: FormData): Promise<F
 
   try {
     const usersCollection = await getUsersCollection();
+
+    // Check if an admin user exists.
+    const adminCount = await usersCollection.countDocuments({ role: 'admin' });
+
+    // If no admin exists, create the first one with the specified credentials.
+    if (adminCount === 0 && email === 'gujrathisiddhant@gmail.com' && password === 'Renuka@12') {
+        const password_hash = await bcrypt.hash(password, 10);
+        const newUser = {
+            email,
+            password_hash,
+            role: 'admin' as const,
+        };
+        const result = await usersCollection.insertOne(newUser);
+        await createSession(result.insertedId, email, 'admin');
+        redirect('/dashboard');
+    }
+    
+    // Normal login flow
     const user = await usersCollection.findOne({ email });
 
     if (!user || user.role !== 'admin') {
