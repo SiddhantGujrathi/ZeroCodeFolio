@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-import { uploadImage } from '@/lib/cloudinary';
 
 export type AdminFormState = {
   message: string | null;
@@ -117,8 +116,7 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
         let operation: any;
 
         if (updateData.profileImage?.startsWith('data:image/')) {
-            const imageUrl = await uploadImage(updateData.profileImage);
-            operation = { $set: { profileImage: imageUrl } };
+            operation = { $set: { profileImage: updateData.profileImage } };
         } else if (updateData.profileImage === '') {
             operation = { $unset: { profileImage: "" } };
         } else {
@@ -155,9 +153,7 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
     const dataToInsert = parsed.data;
 
     try {
-        if (dataToInsert.image?.startsWith('data:image/')) {
-            dataToInsert.image = await uploadImage(dataToInsert.image);
-        } else if (dataToInsert.image === '') {
+        if (dataToInsert.image === '') {
             dataToInsert.image = undefined;
         }
 
@@ -208,9 +204,7 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
     };
 
     try {
-        if (dataToInsert.projectImage?.startsWith('data:image/')) {
-            dataToInsert.projectImage = await uploadImage(dataToInsert.projectImage);
-        } else if (dataToInsert.projectImage === '') {
+        if (dataToInsert.projectImage === '') {
             dataToInsert.projectImage = undefined;
         }
 
@@ -241,9 +235,7 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
     const dataToInsert: any = parsed.data;
 
     try {
-        if (dataToInsert.image?.startsWith('data:image/')) {
-            dataToInsert.image = await uploadImage(dataToInsert.image);
-        } else if (dataToInsert.image === '') {
+        if (dataToInsert.image === '') {
             dataToInsert.image = undefined;
         }
 
@@ -272,9 +264,7 @@ export async function addCertification(prevState: AdminFormState, formData: Form
     }
     const dataToInsert: any = parsed.data;
     try {
-        if (dataToInsert.image?.startsWith('data:image/')) {
-            dataToInsert.image = await uploadImage(dataToInsert.image);
-        } else if (dataToInsert.image === '') {
+        if (dataToInsert.image === '') {
             dataToInsert.image = undefined;
         }
 
