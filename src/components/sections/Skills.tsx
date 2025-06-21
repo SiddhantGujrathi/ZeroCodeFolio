@@ -25,7 +25,7 @@ export async function Skills() {
           {skills.map((skill) => (
             <Card key={skill._id.toString()} className="flex flex-col items-center justify-center p-4 text-center transition-transform hover:scale-105 hover:shadow-lg">
               <div className="relative h-16 w-16">
-                 <Image src={skill.image} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint} />
+                 {skill.image && <Image src={skill.image} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint} />}
               </div>
               <p className="mt-4 font-semibold">{skill.title}</p>
             </Card>

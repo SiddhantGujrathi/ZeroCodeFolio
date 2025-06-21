@@ -26,8 +26,6 @@ const partialAboutSchema = aboutSchema.partial();
 
 const skillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
-  image: z.string().optional(),
-  imageAiHint: z.string().optional(),
 });
 
 const projectSchema = z.object({
@@ -141,12 +139,6 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
     }
     const dataToInsert = parsed.data;
     try {
-        if (dataToInsert.image?.startsWith('data:image/')) {
-            dataToInsert.image = await uploadImage(dataToInsert.image);
-        } else if (dataToInsert.image === '') {
-            dataToInsert.image = undefined;
-        }
-
         const skillsCollection = await getCollection('skills');
         const result = await skillsCollection.insertOne(dataToInsert);
 

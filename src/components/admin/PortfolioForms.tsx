@@ -192,8 +192,7 @@ export function AboutForm({ about }: { about: Client<About> | null }) {
 export function SkillForm() {
   const [state, dispatch] = useActionState(addSkill, { message: null, errors: {}, success: false });
   const formRef = useRef<HTMLFormElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  useFormFeedback(state, formRef, () => setPreview(null));
+  useFormFeedback(state, formRef);
   
   return (
     <Card>
@@ -203,9 +202,11 @@ export function SkillForm() {
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={dispatch} className="space-y-4">
-          <div className="space-y-2"><Label>Skill Title</Label><Input name="title" placeholder="e.g., React" />{state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}</div>
-          <ImageUpload fieldName="image" label="Skill Image/Icon" description="Upload or paste an image for the skill." error={state?.errors?.image} />
-          <div className="space-y-2"><Label>Image AI Hint</Label><Input name="imageAiHint" placeholder="e.g., 'react logo'" />{state?.errors?.imageAiHint && <p className="text-sm text-destructive">{state.errors.imageAiHint}</p>}</div>
+          <div className="space-y-2">
+            <Label>Skill Title</Label>
+            <Input name="title" placeholder="e.g., React" />
+            {state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title}</p>}
+          </div>
           <SubmitButton>Add Skill</SubmitButton>
         </form>
       </CardContent>
