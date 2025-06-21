@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Code, Menu } from "lucide-react";
+import { Code, Menu, User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,12 @@ export function Header() {
 
         <div className="flex flex-1 items-center justify-end space-x-2">
           <ThemeToggle />
+          <Button asChild variant="ghost" size="icon">
+              <Link href="/login">
+                <User />
+                <span className="sr-only">Admin Login</span>
+              </Link>
+          </Button>
         </div>
       </div>
     </header>
