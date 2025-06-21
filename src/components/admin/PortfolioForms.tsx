@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useActionState, useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useActionState, useEffect, useRef, useState, type ComponentProps, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
@@ -129,26 +129,34 @@ function ImageUpload({ fieldName, label, description, currentImage, error, ...pr
 }
 
 function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<HTMLFormElement>, onSuccess?: () => void) {
-  const { toast } = useToast();
-  useEffect(() => {
-    if (!state) return;
-    if (state.message) {
-      toast({
-        variant: state.success ? 'default' : 'destructive',
-        title: state.success ? 'Success!' : 'Error',
-        description: state.message,
-      });
-      if (state.success) {
+    const { toast } = useToast();
+    const stableOnSuccess = useCallback(() => {
         if (onSuccess) {
             onSuccess();
         } else {
             formRef.current?.reset();
-            const removeButton = formRef.current?.querySelector('button[type="button"][variant="destructive"]') as HTMLButtonElement;
-            if (removeButton) removeButton.click();
+            // This is a bit of a hack to reset the image preview
+            const imageUploadDiv = formRef.current?.querySelector('div[class*="border-dashed"]');
+            if(imageUploadDiv) {
+                const removeButton = imageUploadDiv.nextElementSibling?.querySelector('button[variant="destructive"]') as HTMLButtonElement;
+                if(removeButton) removeButton.click();
+            }
         }
-      }
-    }
-  }, [state, toast, formRef, onSuccess]);
+    }, [onSuccess, formRef]);
+    
+    useEffect(() => {
+        if (!state) return;
+        if (state.message) {
+            toast({
+                variant: state.success ? 'default' : 'destructive',
+                title: state.success ? 'Success!' : 'Error',
+                description: state.message,
+            });
+            if (state.success) {
+                stableOnSuccess();
+            }
+        }
+    }, [state, toast, stableOnSuccess]);
 }
 
 function AboutSubmitButton({ label, hasDefaultValue }: { label: string; hasDefaultValue: boolean }) {
