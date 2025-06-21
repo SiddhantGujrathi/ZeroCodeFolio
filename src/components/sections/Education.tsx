@@ -23,7 +23,7 @@ export async function Education() {
         </div>
         <div className="mt-12 space-y-8">
           {educations.map((edu) => (
-            <Card key={edu._id.toString()} className="flex flex-col sm:flex-row items-center p-6 gap-6 transition-shadow hover:shadow-lg">
+            <Card key={edu._id.toString()} className="flex flex-col sm:flex-row items-center p-6 gap-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               <div className="relative h-20 w-20 flex-shrink-0">
                   <Image src={edu.icon || 'https://placehold.co/400x400.png'} alt={edu.collegeName} fill className="object-contain rounded-full" data-ai-hint={edu.iconHint || 'university logo'} />
               </div>

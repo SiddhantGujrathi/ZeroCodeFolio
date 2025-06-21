@@ -37,7 +37,7 @@ export async function Achievements() {
             <TabsContent value="achievements">
                 <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {achievements.map((achievement) => (
-                    <Card key={achievement._id.toString()}>
+                    <Card key={achievement._id.toString()} className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                        <CardHeader>
                             <div className="aspect-video relative border rounded-md overflow-hidden">
                                 <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
@@ -54,7 +54,7 @@ export async function Achievements() {
             <TabsContent value="certifications">
                  <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                  {certifications.map((cert) => (
-                    <Card key={cert._id.toString()} className="flex flex-col">
+                    <Card key={cert._id.toString()} className="flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                        <CardHeader className="flex-1">
                             <div className="aspect-video relative border rounded-md overflow-hidden">
                                 <Image src={cert.image || 'https://placehold.co/600x400.png'} alt={cert.title} fill className="object-cover" data-ai-hint={cert.imageAiHint || 'certificate'} />

@@ -25,7 +25,7 @@ export async function WorkExperience() {
         </div>
         <div className="mt-12 max-w-4xl mx-auto space-y-8">
           {experiences.map((exp) => (
-            <Card key={exp._id.toString()} className="flex flex-col sm:flex-row items-start gap-6 p-6 transition-shadow hover:shadow-lg">
+            <Card key={exp._id.toString()} className="flex flex-col sm:flex-row items-start gap-6 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               <div className="relative h-16 w-16 flex-shrink-0 self-center sm:self-start">
                 {exp.icon ? (
                   <Image 

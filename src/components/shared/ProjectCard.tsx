@@ -28,7 +28,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   } = project;
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-xl">
+    <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <CardHeader>
         <div className="aspect-video overflow-hidden rounded-md border">
           <Image
@@ -36,7 +36,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             alt={title}
             width={600}
             height={400}
-            className="h-full w-full object-cover transition-transform hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
             data-ai-hint={imageAiHint || 'project image'}
           />
         </div>
