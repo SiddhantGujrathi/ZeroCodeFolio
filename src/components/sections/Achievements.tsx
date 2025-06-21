@@ -1,4 +1,4 @@
-import { Award, CheckCircle } from "lucide-react";
+import { Award, CheckCircle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getAchievementsCollection } from "@/models/Achievement";
 import { getCertificationsCollection } from "@/models/Certification";
@@ -51,27 +51,42 @@ export async function Achievements() {
               </div>
           </TabsContent>
           <TabsContent value="certifications">
-               <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-               {certifications.map((cert) => (
-                  <Card key={cert._id.toString()} className="flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                     <CardHeader className="flex-1">
-                          <div className="aspect-video relative border rounded-md overflow-hidden">
-                              <Image src={cert.image || 'https://placehold.co/600x400.png'} alt={cert.title} fill className="object-cover" data-ai-hint={cert.imageAiHint || 'certificate'} />
-                          </div>
-                     </CardHeader>
-                     <CardContent className="flex-1">
-                         <CardTitle className="text-lg">{cert.title}</CardTitle>
-                         <CardDescription className="mt-1 text-sm">{cert.issuedBy} - {new Date(cert.date).toLocaleDateString()}</CardDescription>
-                     </CardContent>
-                     {cert.certificateUrl && (
-                      <div className="p-6 pt-0">
-                         <Button asChild className="w-full">
-                             <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer">View Certificate</a>
-                         </Button>
-                      </div>
-                     )}
-                  </Card>
-              ))}
+               <div className="mt-8 max-w-4xl mx-auto space-y-6">
+               {certifications.map((cert) => {
+                  const issueDate = new Date(cert.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                  });
+
+                  return (
+                    <Card key={cert._id.toString()} className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-6">
+                            <div className="flex-1 space-y-3 text-center sm:text-left">
+                                <CardTitle className="text-xl">{cert.title}</CardTitle>
+                                <CardDescription>Issued by: {cert.issuedBy}</CardDescription>
+                                <p className="text-sm text-muted-foreground">Date of Issue: {issueDate}</p>
+                                {cert.certificateUrl && (
+                                    <Button asChild variant="outline" size="sm" className="mt-2">
+                                        <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer">
+                                            View Certification
+                                            <ExternalLink />
+                                        </a>
+                                    </Button>
+                                )}
+                            </div>
+                            <div className="relative h-24 w-24 flex-shrink-0">
+                                <Image
+                                    src={cert.image || 'https://placehold.co/150x150.png'}
+                                    alt={cert.title}
+                                    fill
+                                    className="object-contain rounded-md"
+                                    data-ai-hint={cert.imageAiHint || 'certificate logo'}
+                                />
+                            </div>
+                        </div>
+                    </Card>
+                  );
+                })}
               </div>
           </TabsContent>
       </Tabs>
