@@ -56,7 +56,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </Badge>
           ))}
         </div>
-        <div className="flex w-full items-center justify-start gap-2">
+        <div className="flex w-full flex-wrap items-center justify-start gap-2">
           {websiteUrl && (
             <Button asChild>
               <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
