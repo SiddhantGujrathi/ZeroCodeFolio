@@ -6,6 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { SlateViewer } from "../admin/SlateViewer";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 
 export async function Achievements() {
@@ -39,43 +46,53 @@ export async function Achievements() {
           </TabsList>
           <TabsContent value="achievements">
              {achievements.length > 0 && (
-                <div className="scroller mt-8" data-speed="slow" data-animated="true">
-                    <div className="scroller__inner">
-                    {[...achievements, ...achievements].map((achievement, index) => (
-                        <div key={`${achievement._id.toString()}-${index}`} className="w-[350px] sm:w-[400px]">
+                <Carousel
+                  opts={{ align: "start", loop: true }}
+                  autoplay
+                  className="w-full max-w-xs sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto mt-8"
+                >
+                  <CarouselContent>
+                    {achievements.map((achievement) => (
+                      <CarouselItem key={achievement._id.toString()} className="md:basis-1/2 lg:basis-1/3">
                         <div className="p-1 h-full">
-                            <Card className="transition-all duration-300 hover:shadow-lg h-full flex flex-col">
+                          <Card className="transition-all duration-300 hover:shadow-lg h-full flex flex-col">
                             <CardHeader>
-                                <div className="aspect-video relative border rounded-md overflow-hidden">
-                                    <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
-                                </div>
+                              <div className="aspect-video relative border rounded-md overflow-hidden">
+                                <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
+                              </div>
                             </CardHeader>
                             <CardContent className="flex-grow">
-                                <CardTitle className="text-lg">{achievement.title}</CardTitle>
-                                <div className="mt-1 text-sm text-card-foreground/80">
+                              <CardTitle className="text-lg">{achievement.title}</CardTitle>
+                              <div className="mt-1 text-sm text-card-foreground/80">
                                 <SlateViewer value={achievement.description}/>
-                                </div>
+                              </div>
                             </CardContent>
-                            </Card>
+                          </Card>
                         </div>
-                        </div>
+                      </CarouselItem>
                     ))}
-                    </div>
-                </div>
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
              )}
           </TabsContent>
           <TabsContent value="certifications">
                {certifications.length > 0 && (
-                <div className="scroller mt-8" data-speed="slow" data-animated="true">
-                    <div className="scroller__inner">
-                    {[...certifications, ...certifications].map((cert, index) => {
+                <Carousel
+                  opts={{ align: "start", loop: true }}
+                  autoplay
+                  className="w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto mt-8"
+                >
+                  <CarouselContent>
+                    {certifications.map((cert) => {
                       const issueDate = new Date(cert.date).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
                       });
 
                       return (
-                        <div key={`${cert._id.toString()}-${index}`} className="w-[450px] sm:w-[500px]">
+                        <CarouselItem key={cert._id.toString()}>
                            <div className="p-1 h-full">
                             <Card className="transition-all duration-300 hover:shadow-lg h-full flex flex-col">
                                 <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-6 flex-grow">
@@ -104,11 +121,13 @@ export async function Achievements() {
                                 </div>
                             </Card>
                            </div>
-                        </div>
+                        </CarouselItem>
                       );
                     })}
-                    </div>
-                </div>
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               )}
           </TabsContent>
       </Tabs>
