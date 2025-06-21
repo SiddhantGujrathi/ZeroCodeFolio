@@ -48,7 +48,7 @@ export async function Education() {
                   <h3 className="text-lg font-bold">{edu.collegeName}</h3>
                   <p className="font-medium">{edu.degreeName}</p>
                   <p className="mt-1 text-muted-foreground">{edu.cgpa}</p>
-                  <p className="mt-2 text-sm font-semibold text-yellow-500">{edu.period}</p>
+                  <p className="mt-2 text-sm font-semibold text-primary">{edu.period}</p>
                 </div>
               </div>
             </div>
