@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useFormStatus } from 'react-dom';
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useActionState, useEffect, useRef, useState, type ComponentProps, useMemo } from 'react';
+import { useActionState, useEffect, useRef, useState, type ComponentProps } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import type { About } from '@/models/About';
@@ -335,31 +336,25 @@ function BioEditorForm({ bio }: { bio?: string | null }) {
     const [state, dispatch] = useActionState(updateAbout, { message: null, success: false });
     const { toast } = useToast();
 
+    // The editor's value is controlled by this state.
     const [editorValue, setEditorValue] = useState(bio || '');
-    const [savedValue, setSavedValue] = useState(bio || '');
-
-    const isDirty = useMemo(() => editorValue !== savedValue, [editorValue, savedValue]);
 
     useEffect(() => {
+        // This effect now only runs when the server action's state changes.
         if (state?.message) {
             toast({
                 variant: state.success ? 'default' : 'destructive',
                 title: state.success ? 'Success!' : 'Error',
                 description: state.message,
             });
-            if (state.success) {
-                setSavedValue(editorValue);
-            }
         }
-    }, [state, toast, editorValue]);
+    }, [state, toast]);
 
     return (
         <div className="space-y-3">
             <form action={dispatch} className="space-y-3">
                 <div className="space-y-2">
-                    <div className="flex justify-end items-center mb-1 h-4">
-                        {isDirty && <span className="text-xs font-semibold text-yellow-500 animate-pulse">Unsaved changes</span>}
-                    </div>
+                    <div className="h-4 mb-1"></div>
                     <RichTextEditor
                         value={editorValue}
                         onChange={setEditorValue}
@@ -779,3 +774,6 @@ export function ProfileLinkForm({ link, onSuccess }: { link?: Client<ProfileLink
         </Card>
     );
 }
+
+
+    
