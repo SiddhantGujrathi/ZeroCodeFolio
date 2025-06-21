@@ -18,7 +18,6 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "Siddhant Gujrathi | Software Engineer",
   description: "Personal portfolio of Siddhant Gujrathi, a passionate Full Stack Software Developer.",
-  icons: false,
 };
 
 export default function RootLayout({

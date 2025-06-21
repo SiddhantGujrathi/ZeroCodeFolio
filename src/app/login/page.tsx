@@ -8,8 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Code } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { PortfolioIcon } from '@/components/icons';
 
 export default function LoginPage() {
   const [state, formAction] = useActionState(login, undefined);
@@ -19,7 +20,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
              <div className="text-center mb-6">
                 <Link href="/" className="inline-flex items-center space-x-2">
-                    <Code className="h-8 w-8 text-primary" />
+                    <PortfolioIcon className="h-8 w-8 text-primary" />
                     <span className="text-2xl font-bold">Siddhant Gujrathi</span>
                 </Link>
              </div>

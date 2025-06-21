@@ -1,6 +1,25 @@
 // Built with ❤️ by Siddhant Gujrathi — ZeroCodeFolio (licensed)
 import type { SVGProps } from "react";
 
+export const PortfolioIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M16 18c-4-3-4-9 0-12" />
+    <path d="M8 6c4 3 4 9 0 12" />
+  </svg>
+);
+
+
 export const JavascriptIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 9l-2 8.5h10L15 9z" />

@@ -3,12 +3,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Code, Menu, User } from "lucide-react";
+import { Menu, User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { PortfolioIcon } from "../icons";
 
 interface NavLink {
     name: string;
@@ -77,7 +78,7 @@ export function Header({ navLinks = DEFAULT_NAV_LINKS }: HeaderProps) {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Code className="h-6 w-6 text-primary" />
+            <PortfolioIcon className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block">
               Siddhant Gujrathi
             </span>
@@ -116,7 +117,7 @@ export function Header({ navLinks = DEFAULT_NAV_LINKS }: HeaderProps) {
               className="flex items-center space-x-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Code className="h-6 w-6 text-primary" />
+              <PortfolioIcon className="h-6 w-6 text-primary" />
               <span className="font-bold">Siddhant Gujrathi</span>
             </Link>
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
@@ -142,7 +143,7 @@ export function Header({ navLinks = DEFAULT_NAV_LINKS }: HeaderProps) {
         </Sheet>
         
         <Link href="/" className="flex items-center space-x-2 md:hidden">
-            <Code className="h-6 w-6 text-primary" />
+            <PortfolioIcon className="h-6 w-6 text-primary" />
             <span className="font-bold">S. Gujrathi</span>
         </Link>
 
