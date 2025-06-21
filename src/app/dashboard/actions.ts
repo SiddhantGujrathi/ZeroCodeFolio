@@ -2,16 +2,8 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { getAboutCollection, type About } from '@/models/About';
-import { getSkillsCollection, type Skill } from '@/models/Skill';
-import { getProjectsCollection, type Project } from '@/models/Project';
-import { getAchievementsCollection } from '@/models/Achievement';
-import { getCertificationsCollection } from '@/models/Certification';
-import { getEducationCollection } from '@/models/Education';
-import { getWorkExperienceCollection } from '@/models/WorkExperience';
-import { getProfileLinksCollection } from '@/models/ProfileLink';
+import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-
 
 export type AdminFormState = {
   message: string | null;
@@ -87,40 +79,43 @@ const profileLinkSchema = z.object({
   iconHint: z.string().optional(),
 });
 
+const DB_NAME = 'portfolio';
+const GENERIC_ERROR_MESSAGE = `Database operation failed. This could be a connection issue (e.g., check your IP whitelist in Atlas), a permissions problem, or an incorrect database/collection name.`;
+
+async function getCollection(collectionName: string) {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+    return db.collection(collectionName);
+}
+
 export async function updateAbout(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const aboutCollection = await getAboutCollection();
     const dataFromForm = Object.fromEntries(formData.entries());
-
     const fieldName = Object.keys(dataFromForm)[0];
-
     if (!fieldName) {
-        return { message: "No data submitted.", success: false, errors: {} };
+        return { message: "No data submitted.", success: false };
     }
     
     const parsed = partialAboutSchema.safeParse(dataFromForm);
 
     if (!parsed.success) {
         return {
-            message: 'Invalid form data. Please ensure all fields are correctly filled.',
+            message: 'Invalid form data.',
             errors: parsed.error.flatten().fieldErrors,
             success: false,
         };
     }
 
     try {
+        const aboutCollection = await getCollection('about');
         await aboutCollection.updateOne({}, { $set: parsed.data }, { upsert: true });
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: `'${fieldName}' updated successfully!`, success: true, errors: {} };
+        return { message: `'${fieldName}' updated successfully!`, success: true };
 
     } catch (e) {
         console.error("Failed to update about section:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database operation failed. Please check your database connection and permissions. Error: ${errorMessage}`, 
-            success: false, 
-            errors: {} 
-        };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
     }
 }
 
@@ -130,23 +125,19 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
     try {
-        const skillsCollection = await getSkillsCollection();
+        const skillsCollection = await getCollection('skills');
         const result = await skillsCollection.insertOne(parsed.data);
 
-        if (!result.acknowledged) {
-            return { message: 'Database did not acknowledge the insert operation. Check DB permissions.', success: false };
+        if (!result.insertedId) {
+            return { message: 'Database insertion failed. The record was not created.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: 'Skill added successfully!', success: true, errors: {} };
+        return { message: 'Skill added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add skill:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database operation failed. Please check your database connection and permissions. Error: ${errorMessage}`, 
-            success: false, 
-            errors: {} 
-        };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
     }
 }
 
@@ -156,7 +147,7 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
     try {
-        const projectsCollection = await getProjectsCollection();
+        const projectsCollection = await getCollection('projects');
         const { tags, ...rest } = parsed.data;
         const dataToInsert = {
             ...rest,
@@ -165,20 +156,16 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
         };
 
         const result = await projectsCollection.insertOne(dataToInsert);
-        if (!result.acknowledged) {
-            return { message: 'Database did not acknowledge the insert operation. Check DB permissions.', success: false };
+        if (!result.insertedId) {
+            return { message: 'Database insertion failed. The record was not created.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: 'Project added successfully!', success: true, errors: {} };
+        return { message: 'Project added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add project:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database operation failed. Please check your database connection and permissions. Error: ${errorMessage}`, 
-            success: false, 
-            errors: {} 
-        };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
     }
 }
 
@@ -188,23 +175,18 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
     try {
-        const achievementsCollection = await getAchievementsCollection();
+        const achievementsCollection = await getCollection('achievements');
         const result = await achievementsCollection.insertOne(parsed.data);
-
-        if (!result.acknowledged) {
-            return { message: 'Database did not acknowledge the insert operation. Check DB permissions.', success: false };
+        if (!result.insertedId) {
+            return { message: 'Database insertion failed. The record was not created.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: 'Achievement added successfully!', success: true, errors: {} };
+        return { message: 'Achievement added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add achievement:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database operation failed. Please check your database connection and permissions. Error: ${errorMessage}`, 
-            success: false, 
-            errors: {} 
-        };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
     }
 }
 
@@ -214,23 +196,18 @@ export async function addCertification(prevState: AdminFormState, formData: Form
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
     try {
-        const certificationsCollection = await getCertificationsCollection();
+        const certificationsCollection = await getCollection('certifications');
         const result = await certificationsCollection.insertOne(parsed.data);
-
-        if (!result.acknowledged) {
-            return { message: 'Database did not acknowledge the insert operation. Check DB permissions.', success: false };
+        if (!result.insertedId) {
+            return { message: 'Database insertion failed. The record was not created.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: 'Certification added successfully!', success: true, errors: {} };
+        return { message: 'Certification added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add certification:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database operation failed. Please check your database connection and permissions. Error: ${errorMessage}`, 
-            success: false, 
-            errors: {} 
-        };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
     }
 }
 
@@ -240,23 +217,18 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
     try {
-        const educationCollection = await getEducationCollection();
+        const educationCollection = await getCollection('education');
         const result = await educationCollection.insertOne(parsed.data);
-
-        if (!result.acknowledged) {
-            return { message: 'Database did not acknowledge the insert operation. Check DB permissions.', success: false };
+        if (!result.insertedId) {
+            return { message: 'Database insertion failed. The record was not created.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: 'Education added successfully!', success: true, errors: {} };
+        return { message: 'Education added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add education:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database operation failed. Please check your database connection and permissions. Error: ${errorMessage}`, 
-            success: false, 
-            errors: {} 
-        };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
     }
 }
 
@@ -266,23 +238,18 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
     try {
-        const workExperienceCollection = await getWorkExperienceCollection();
+        const workExperienceCollection = await getCollection('workExperience');
         const result = await workExperienceCollection.insertOne(parsed.data);
-
-        if (!result.acknowledged) {
-            return { message: 'Database did not acknowledge the insert operation. Check DB permissions.', success: false };
+        if (!result.insertedId) {
+            return { message: 'Database insertion failed. The record was not created.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: 'Work experience added successfully!', success: true, errors: {} };
+        return { message: 'Work experience added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add work experience:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database operation failed. Please check your database connection and permissions. Error: ${errorMessage}`, 
-            success: false, 
-            errors: {} 
-        };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
     }
 }
 
@@ -292,160 +259,80 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
         return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
     }
     try {
-        const profileLinksCollection = await getProfileLinksCollection();
+        const profileLinksCollection = await getCollection('profileLinks');
         const result = await profileLinksCollection.insertOne(parsed.data);
-
-        if (!result.acknowledged) {
-            return { message: 'Database did not acknowledge the insert operation. Check DB permissions.', success: false };
+        if (!result.insertedId) {
+            return { message: 'Database insertion failed. The record was not created.', success: false };
         }
         revalidatePath('/');
         revalidatePath('/dashboard');
-        return { message: 'Profile link added successfully!', success: true, errors: {} };
+        return { message: 'Profile link added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add profile link:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database operation failed. Please check your database connection and permissions. Error: ${errorMessage}`, 
-            success: false, 
-            errors: {} 
-        };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
     }
 }
-
 
 const deleteSchema = z.object({
   id: z.string().min(1, "ID is required"),
 });
 
+async function deleteItem(collectionName: string, id: string): Promise<AdminFormState> {
+    try {
+        const collection = await getCollection(collectionName);
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 0) {
+            return { message: 'Could not find the item to delete.', success: false };
+        }
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Item deleted successfully.', success: true };
+    } catch (e) {
+        console.error(`Failed to delete item from ${collectionName}:`, e);
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { message: `${GENERIC_ERROR_MESSAGE} Error: ${errorMessage}`, success: false };
+    }
+}
+
 export async function deleteSkill(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = deleteSchema.safeParse({ id: formData.get('id') });
     if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
-    try {
-        const collection = await getSkillsCollection();
-        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: 'Skill deleted.', success: true };
-    } catch (e) {
-        console.error("Failed to delete skill:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database deletion failed. Error: ${errorMessage}`, 
-            success: false 
-        };
-    }
+    return deleteItem('skills', parsed.data.id);
 }
 
 export async function deleteProject(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = deleteSchema.safeParse({ id: formData.get('id') });
     if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
-    try {
-        const collection = await getProjectsCollection();
-        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: 'Project deleted.', success: true };
-    } catch (e) {
-        console.error("Failed to delete project:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database deletion failed. Error: ${errorMessage}`, 
-            success: false 
-        };
-    }
+    return deleteItem('projects', parsed.data.id);
 }
 
 export async function deleteAchievement(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = deleteSchema.safeParse({ id: formData.get('id') });
     if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
-    try {
-        const collection = await getAchievementsCollection();
-        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: 'Achievement deleted.', success: true };
-    } catch (e) {
-        console.error("Failed to delete achievement:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database deletion failed. Error: ${errorMessage}`, 
-            success: false 
-        };
-    }
+    return deleteItem('achievements', parsed.data.id);
 }
 
 export async function deleteCertification(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = deleteSchema.safeParse({ id: formData.get('id') });
     if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
-    try {
-        const collection = await getCertificationsCollection();
-        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: 'Certification deleted.', success: true };
-    } catch (e) {
-        console.error("Failed to delete certification:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database deletion failed. Error: ${errorMessage}`, 
-            success: false 
-        };
-    }
+    return deleteItem('certifications', parsed.data.id);
 }
 
 export async function deleteEducation(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = deleteSchema.safeParse({ id: formData.get('id') });
     if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
-    try {
-        const collection = await getEducationCollection();
-        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: 'Education entry deleted.', success: true };
-    } catch (e) {
-        console.error("Failed to delete education:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database deletion failed. Error: ${errorMessage}`, 
-            success: false 
-        };
-    }
+    return deleteItem('education', parsed.data.id);
 }
 
 export async function deleteWorkExperience(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = deleteSchema.safeParse({ id: formData.get('id') });
     if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
-    try {
-        const collection = await getWorkExperienceCollection();
-        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: 'Work experience deleted.', success: true };
-    } catch (e) {
-        console.error("Failed to delete work experience:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database deletion failed. Error: ${errorMessage}`, 
-            success: false 
-        };
-    }
+    return deleteItem('workExperience', parsed.data.id);
 }
 
 export async function deleteProfileLink(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const parsed = deleteSchema.safeParse({ id: formData.get('id') });
     if (!parsed.success) { return { message: 'Invalid ID.', success: false }; }
-    try {
-        const collection = await getProfileLinksCollection();
-        await collection.deleteOne({ _id: new ObjectId(parsed.data.id) });
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: 'Profile link deleted.', success: true };
-    } catch (e) {
-        console.error("Failed to delete profile link:", e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { 
-            message: `Database deletion failed. Error: ${errorMessage}`, 
-            success: false 
-        };
-    }
+    return deleteItem('profileLinks', parsed.data.id);
 }
