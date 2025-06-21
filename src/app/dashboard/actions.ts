@@ -131,7 +131,10 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
         if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
         if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
 
-        await skillsCollection.insertOne(dataToInsert);
+        const result = await skillsCollection.insertOne(dataToInsert);
+        if (!result.acknowledged) {
+            return { message: 'Database did not acknowledge the insert operation.', success: false };
+        }
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Skill added successfully!', success: true, errors: {} };
@@ -161,7 +164,10 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
         if (!dataToInsert.githubUrl) delete (dataToInsert as Partial<typeof dataToInsert>).githubUrl;
 
 
-        await projectsCollection.insertOne(dataToInsert);
+        const result = await projectsCollection.insertOne(dataToInsert);
+        if (!result.acknowledged) {
+            return { message: 'Database did not acknowledge the insert operation.', success: false };
+        }
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Project added successfully!', success: true, errors: {} };
@@ -182,7 +188,10 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
         if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
         if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
 
-        await achievementsCollection.insertOne(dataToInsert);
+        const result = await achievementsCollection.insertOne(dataToInsert);
+        if (!result.acknowledged) {
+            return { message: 'Database did not acknowledge the insert operation.', success: false };
+        }
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Achievement added successfully!', success: true, errors: {} };
@@ -203,7 +212,10 @@ export async function addCertification(prevState: AdminFormState, formData: Form
         if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
         if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
 
-        await certificationsCollection.insertOne(dataToInsert);
+        const result = await certificationsCollection.insertOne(dataToInsert);
+        if (!result.acknowledged) {
+            return { message: 'Database did not acknowledge the insert operation.', success: false };
+        }
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Certification added successfully!', success: true, errors: {} };
@@ -223,7 +235,10 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
         const dataToInsert = { ...parsed.data };
         if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
 
-        await educationCollection.insertOne(dataToInsert);
+        const result = await educationCollection.insertOne(dataToInsert);
+        if (!result.acknowledged) {
+            return { message: 'Database did not acknowledge the insert operation.', success: false };
+        }
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Education added successfully!', success: true, errors: {} };
@@ -243,7 +258,10 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
         const dataToInsert = { ...parsed.data };
         if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
 
-        await workExperienceCollection.insertOne(dataToInsert);
+        const result = await workExperienceCollection.insertOne(dataToInsert);
+        if (!result.acknowledged) {
+            return { message: 'Database did not acknowledge the insert operation.', success: false };
+        }
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Work experience added successfully!', success: true, errors: {} };
@@ -263,7 +281,10 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
         const dataToInsert = { ...parsed.data };
         if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
 
-        await profileLinksCollection.insertOne(dataToInsert);
+        const result = await profileLinksCollection.insertOne(dataToInsert);
+        if (!result.acknowledged) {
+            return { message: 'Database did not acknowledge the insert operation.', success: false };
+        }
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Profile link added successfully!', success: true, errors: {} };
