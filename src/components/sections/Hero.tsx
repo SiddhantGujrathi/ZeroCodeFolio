@@ -17,14 +17,12 @@ export async function Hero() {
 
   if (!about) {
     return (
-      <section id="about" className="container flex flex-col items-center justify-center py-20 text-center md:py-32">
-        <p>About section not configured yet.</p>
-      </section>
+      <p>About section not configured yet.</p>
     );
   }
 
   return (
-    <section id="about" className="container flex flex-col items-center justify-center py-20 text-center md:py-32">
+    <>
         <Avatar className="h-28 w-28 border-2 border-primary">
           {about.profileImage && <AvatarImage src={about.profileImage} alt={about.name} />}
           <AvatarFallback>{about.name.charAt(0)}</AvatarFallback>
@@ -57,6 +55,6 @@ export async function Hero() {
             </Button>
           ))}
         </div>
-    </section>
+    </>
   );
 }
