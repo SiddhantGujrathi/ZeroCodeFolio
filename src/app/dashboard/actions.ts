@@ -127,11 +127,8 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
     }
     try {
         const skillsCollection = await getSkillsCollection();
-        const dataToInsert = { ...parsed.data };
-        if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
-        if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
+        const result = await skillsCollection.insertOne(parsed.data);
 
-        const result = await skillsCollection.insertOne(dataToInsert);
         if (!result.acknowledged) {
             return { message: 'Database did not acknowledge the insert operation.', success: false };
         }
@@ -158,12 +155,6 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
             createdAt: new Date(),
         };
 
-        if (!dataToInsert.projectImage) delete (dataToInsert as Partial<typeof dataToInsert>).projectImage;
-        if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
-        if (!dataToInsert.websiteUrl) delete (dataToInsert as Partial<typeof dataToInsert>).websiteUrl;
-        if (!dataToInsert.githubUrl) delete (dataToInsert as Partial<typeof dataToInsert>).githubUrl;
-
-
         const result = await projectsCollection.insertOne(dataToInsert);
         if (!result.acknowledged) {
             return { message: 'Database did not acknowledge the insert operation.', success: false };
@@ -184,11 +175,8 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
     }
     try {
         const achievementsCollection = await getAchievementsCollection();
-        const dataToInsert = { ...parsed.data };
-        if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
-        if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
+        const result = await achievementsCollection.insertOne(parsed.data);
 
-        const result = await achievementsCollection.insertOne(dataToInsert);
         if (!result.acknowledged) {
             return { message: 'Database did not acknowledge the insert operation.', success: false };
         }
@@ -208,11 +196,8 @@ export async function addCertification(prevState: AdminFormState, formData: Form
     }
     try {
         const certificationsCollection = await getCertificationsCollection();
-        const dataToInsert = { ...parsed.data };
-        if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
-        if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
+        const result = await certificationsCollection.insertOne(parsed.data);
 
-        const result = await certificationsCollection.insertOne(dataToInsert);
         if (!result.acknowledged) {
             return { message: 'Database did not acknowledge the insert operation.', success: false };
         }
@@ -232,10 +217,8 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
     }
     try {
         const educationCollection = await getEducationCollection();
-        const dataToInsert = { ...parsed.data };
-        if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
+        const result = await educationCollection.insertOne(parsed.data);
 
-        const result = await educationCollection.insertOne(dataToInsert);
         if (!result.acknowledged) {
             return { message: 'Database did not acknowledge the insert operation.', success: false };
         }
@@ -255,10 +238,8 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
     }
     try {
         const workExperienceCollection = await getWorkExperienceCollection();
-        const dataToInsert = { ...parsed.data };
-        if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
+        const result = await workExperienceCollection.insertOne(parsed.data);
 
-        const result = await workExperienceCollection.insertOne(dataToInsert);
         if (!result.acknowledged) {
             return { message: 'Database did not acknowledge the insert operation.', success: false };
         }
@@ -278,10 +259,8 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
     }
     try {
         const profileLinksCollection = await getProfileLinksCollection();
-        const dataToInsert = { ...parsed.data };
-        if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
+        const result = await profileLinksCollection.insertOne(parsed.data);
 
-        const result = await profileLinksCollection.insertOne(dataToInsert);
         if (!result.acknowledged) {
             return { message: 'Database did not acknowledge the insert operation.', success: false };
         }
