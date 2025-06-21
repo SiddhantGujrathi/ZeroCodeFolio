@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { getEducationCollection } from "@/models/Education";
+import { BookOpenCheck } from "lucide-react";
 
 export async function Education() {
   const educationCollection = await getEducationCollection();
@@ -13,26 +13,47 @@ export async function Education() {
   return (
     <div className="container">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2 className="font-headline flex items-center justify-center gap-4 text-3xl font-bold tracking-tight sm:text-4xl">
+          <span className="rounded-lg bg-primary/10 p-3 text-primary">
+            <BookOpenCheck className="h-6 w-6" />
+          </span>
           Education
         </h2>
         <p className="mt-4 text-lg text-muted-foreground">
           My academic background and qualifications.
         </p>
       </div>
-      <div className="mt-12 space-y-8">
-        {educations.map((edu) => (
-          <Card key={edu._id.toString()} className="flex flex-col sm:flex-row items-center p-6 gap-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <div className="relative h-20 w-20 flex-shrink-0">
-                <Image src={edu.icon || 'https://placehold.co/400x400.png'} alt={edu.collegeName} fill className="object-contain rounded-full" data-ai-hint={edu.iconHint || 'university logo'} />
+
+      <div className="mt-12 max-w-3xl mx-auto">
+        <div className="relative space-y-12">
+          {/* Vertical Line */}
+          <div className="absolute left-9 top-0 h-full w-0.5 bg-border -translate-x-1/2" aria-hidden="true"></div>
+
+          {educations.map((edu) => (
+            <div key={edu._id.toString()} className="relative">
+              {/* Timeline Dot */}
+              <div className="absolute left-9 top-2 h-4 w-4 rounded-full bg-primary border-4 border-background -translate-x-1/2" aria-hidden="true"></div>
+
+              <div className="pl-20 flex items-start gap-6">
+                <div className="relative h-16 w-16 flex-shrink-0">
+                  <Image
+                    src={edu.icon || 'https://placehold.co/100x100.png'}
+                    alt={edu.collegeName}
+                    fill
+                    className="object-contain rounded-md"
+                    data-ai-hint={edu.iconHint || 'university logo'}
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold">{edu.collegeName}</h3>
+                  <p className="font-medium">{edu.degreeName}</p>
+                  <p className="mt-1 text-muted-foreground">{edu.cgpa}</p>
+                  <p className="mt-2 text-sm font-semibold text-yellow-500">{edu.period}</p>
+                </div>
+              </div>
             </div>
-            <div className="flex-1 text-center sm:text-left">
-                <CardTitle className="text-xl">{edu.degreeName}</CardTitle>
-                <CardDescription className="mt-1">{edu.collegeName}</CardDescription>
-                <p className="mt-2 text-sm text-muted-foreground">{edu.period} | CGPA: {edu.cgpa}</p>
-            </div>
-          </Card>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
