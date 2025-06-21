@@ -11,13 +11,13 @@ import { getLayout } from "@/models/Layout";
 import { MotionWrapper } from "@/components/shared/MotionWrapper";
 
 const sectionConfig: { [key: string]: { component: React.ComponentType<any>, className: string, id: string } } = {
-  About: { component: Hero, className: 'container flex flex-col items-center justify-center py-20 text-center md:py-32', id: 'about' },
-  Skills: { component: Skills, className: 'bg-muted/50 py-20 md:py-32', id: 'skills' },
-  WorkExperience: { component: WorkExperience, className: 'bg-muted/50 py-20 md:py-32', id: 'experience' },
-  Projects: { component: Projects, className: 'py-20 md:py-32', id: 'projects' },
-  Education: { component: Education, className: 'py-20 md:py-32', id: 'education' },
-  Achievements: { component: Achievements, className: 'bg-muted/50 py-20 md:py-32', id: 'achievements' },
-  Contact: { component: Contact, className: 'py-20 text-center md:py-32', id: 'contact' },
+  About: { component: Hero, className: 'container flex flex-col items-center justify-center py-12 text-center md:py-20', id: 'about' },
+  Skills: { component: Skills, className: 'bg-muted/50 py-12 md:py-20', id: 'skills' },
+  WorkExperience: { component: WorkExperience, className: 'bg-muted/50 py-12 md:py-20', id: 'experience' },
+  Projects: { component: Projects, className: 'py-12 md:py-20', id: 'projects' },
+  Education: { component: Education, className: 'py-12 md:py-20', id: 'education' },
+  Achievements: { component: Achievements, className: 'bg-muted/50 py-12 md:py-20', id: 'achievements' },
+  Contact: { component: Contact, className: 'py-12 text-center md:py-20', id: 'contact' },
 };
 
 
