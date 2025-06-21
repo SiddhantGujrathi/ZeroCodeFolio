@@ -65,7 +65,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
 
                     <TabsContent value="about" className="mt-6">
                         <div className="space-y-8">
-                            <AboutPreview about={about} profileLinks={profileLinks} />
+                            <AboutPreview about={about} />
                             <div className="grid gap-6 lg:grid-cols-2">
                                 <AboutDisplay about={about} />
                                 <AboutForm about={about} />

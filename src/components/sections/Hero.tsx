@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Download } from "lucide-react";
 
 import { getAboutCollection } from "@/models/About";
-import { getProfileLinksCollection } from "@/models/ProfileLink";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -11,9 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export async function Hero() {
   const aboutCollection = await getAboutCollection();
   const about = await aboutCollection.findOne({});
-
-  const profileLinksCollection = await getProfileLinksCollection();
-  const socialLinks = await profileLinksCollection.find({}).toArray();
 
   if (!about) {
     return (
@@ -40,17 +36,6 @@ export async function Hero() {
               Download Resume
             </a>
           </Button>
-        </div>
-        <div className="mt-8 flex items-center space-x-4">
-          {socialLinks.map((link) => (
-            <Button key={link._id.toString()} variant="ghost" size="icon" asChild>
-                <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
-                    <div className="relative h-6 w-6">
-                        <Image src={link.icon || 'https://placehold.co/100x100.png'} alt={link.platform} fill className="object-contain" data-ai-hint={link.iconHint || 'logo'} />
-                    </div>
-                </a>
-            </Button>
-          ))}
         </div>
     </>
   );

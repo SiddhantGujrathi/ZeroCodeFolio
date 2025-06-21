@@ -52,7 +52,7 @@ function PreviewPlaceholder({ sectionName }: { sectionName: string }) {
 }
 
 // Individual Previews
-export function AboutPreview({ about, profileLinks }: { about: Client<About> | null; profileLinks: Client<ProfileLink>[] }) {
+export function AboutPreview({ about }: { about: Client<About> | null }) {
     return (
         <PreviewWrapper title="About / Hero">
             {!about ? (
@@ -76,17 +76,6 @@ export function AboutPreview({ about, profileLinks }: { about: Client<About> | n
                           Download Resume
                         </a>
                       </Button>
-                    </div>
-                    <div className="mt-8 flex items-center space-x-4">
-                      {profileLinks.map((link) => (
-                        <Button key={link._id} variant="ghost" size="icon" asChild>
-                            <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
-                                <div className="relative h-6 w-6">
-                                    <Image src={link.icon || 'https://placehold.co/100x100.png'} alt={link.platform} fill className="object-contain" data-ai-hint={link.iconHint || 'logo'} />
-                                </div>
-                            </a>
-                        </Button>
-                      ))}
                     </div>
                 </div>
             )}
