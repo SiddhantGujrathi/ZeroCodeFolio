@@ -41,9 +41,11 @@ function PreviewWrapper({ title, children }: { title: string; children: React.Re
                     This is a preview of how the &quot;{title}&quot; section will appear to visitors on your site.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="bg-muted/30 border border-foreground/20 rounded-lg p-4 sm:p-6 overflow-x-auto">
-                <div className="max-w-full w-full">
-                    {children}
+            <CardContent>
+                <div className="bg-muted/30 border-2 border-foreground/40 rounded-lg p-4 sm:p-6 overflow-x-auto">
+                    <div className="max-w-full w-full">
+                        {children}
+                    </div>
                 </div>
             </CardContent>
         </Card>
