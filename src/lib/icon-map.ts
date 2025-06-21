@@ -1,6 +1,27 @@
 import type { LucideIcon } from "lucide-react";
-import { Github, ExternalLink, GitBranch, Linkedin, Twitter, Mail } from "lucide-react";
-import { CppIcon, GitIcon, JavaIcon, JavascriptIcon, NextjsIcon, NodejsIcon, PythonIcon, ReactIcon, TailwindcssIcon, TypescriptIcon } from "@/components/icons";
+import { Github, ExternalLink, GitBranch, Linkedin, Twitter, Mail, Database, RefreshCw, CloudCog, GitFork } from "lucide-react";
+import { 
+    CppIcon, 
+    GitIcon, 
+    JavaIcon, 
+    JavascriptIcon, 
+    NextjsIcon, 
+    NodejsIcon, 
+    PythonIcon, 
+    ReactIcon, 
+    TailwindcssIcon, 
+    TypescriptIcon,
+    Html5Icon,
+    Css3Icon,
+    BootstrapIcon,
+    AndroidIcon,
+    SpringIcon,
+    DockerIcon,
+    PostmanIcon,
+    MongoDbIcon,
+    PostgreSqlIcon,
+    MavenIcon
+} from "@/components/icons";
 
 export const stringToIconMap: Record<string, React.ElementType | LucideIcon> = {
   // Custom Icons
@@ -14,7 +35,26 @@ export const stringToIconMap: Record<string, React.ElementType | LucideIcon> = {
   NodejsIcon,
   TailwindcssIcon,
   GitIcon,
-  // Lucide Icons
+  Html5Icon,
+  Css3Icon,
+  BootstrapIcon,
+  AndroidIcon,
+  SpringIcon,
+  DockerIcon,
+  PostmanIcon,
+  MongoDbIcon,
+  PostgreSqlIcon,
+  MavenIcon,
+
+  // Lucide Icons mapped to custom names
+  DatabaseIcon: Database,
+  MySqlIcon: Database,
+  AgileIcon: RefreshCw,
+  RestApiIcon: CloudCog,
+  MultithreadingIcon: GitFork,
+  CiCdIcon: Github,
+
+  // Direct Lucide Icons
   GitBranch,
   Github,
   ExternalLink,
