@@ -5,6 +5,7 @@ import { Download, Mail } from "lucide-react";
 import { getAboutCollection } from "@/models/About";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SlateViewer } from "../admin/SlateViewer";
 
 
 export async function Hero() {
@@ -26,9 +27,9 @@ export async function Hero() {
         <h1 className="mt-4 font-headline text-4xl font-bold tracking-tight md:text-6xl">
           {about.name}
         </h1>
-        <p className="mt-6 max-w-2xl text-balance">
-         {about.bio}
-        </p>
+        <div className="mt-6 max-w-2xl text-balance">
+          <SlateViewer value={about.bio} />
+        </div>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Button asChild size="lg">
             <a href={about.resumeUrl || '#'} download>

@@ -10,6 +10,7 @@ import { ProjectCard } from "@/components/shared/ProjectCard";
 import { Badge } from "@/components/ui/badge";
 import { Briefcase, Download, ExternalLink, Mail } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SlateViewer } from "./SlateViewer";
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -66,9 +67,9 @@ export function AboutPreview({ about }: { about: Client<About> | null }) {
                     <h1 className="mt-4 font-headline text-4xl font-bold tracking-tight md:text-6xl">
                       {about.name}
                     </h1>
-                    <p className="mt-6 max-w-2xl text-balance">
-                     {about.bio}
-                    </p>
+                    <div className="mt-6 max-w-2xl text-balance">
+                      <SlateViewer value={about.bio} />
+                    </div>
                     <div className="mt-8 flex flex-wrap justify-center gap-4">
                       <Button asChild size="lg">
                         <a href={about.resumeUrl || '#'} download>

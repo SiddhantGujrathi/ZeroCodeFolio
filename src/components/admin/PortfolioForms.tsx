@@ -42,6 +42,7 @@ import ReactCrop, {
   type Crop,
   type PixelCrop,
 } from 'react-image-crop';
+import { RichTextEditor } from './RichTextEditor';
 
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
@@ -352,6 +353,50 @@ function AboutFieldForm({ fieldName, label, defaultValue, children }: {
     )
 }
 
+function BioSubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" className="w-full" disabled={pending}>
+            {pending ? 'Saving Bio...' : 'Update Bio'}
+        </Button>
+    );
+}
+
+
+function BioEditorForm({ bio }: { bio?: string | null }) {
+    const [state, dispatch] = useActionState(updateAbout, { message: null, success: false });
+    const { toast } = useToast();
+
+    const [editorValue, setEditorValue] = useState(bio || '');
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({
+                variant: state.success ? 'default' : 'destructive',
+                title: state.success ? 'Success!' : 'Error',
+                description: state.message,
+            });
+        }
+    }, [state, toast]);
+
+    return (
+        <div className="space-y-3">
+            <form action={dispatch} className="space-y-3">
+                <div className="space-y-2">
+                    <Label className="font-semibold">Bio</Label>
+                    <RichTextEditor
+                        value={editorValue}
+                        onChange={setEditorValue}
+                    />
+                    <input type="hidden" name="bio" value={editorValue} />
+                </div>
+                {state?.errors?.bio && <p className="text-sm text-destructive mt-1">{state.errors.bio[0]}</p>}
+                <BioSubmitButton />
+            </form>
+        </div>
+    );
+}
+
 export function AboutForm({ about }: { about: Client<About> | null }) {
     return (
         <Card>
@@ -375,9 +420,7 @@ export function AboutForm({ about }: { about: Client<About> | null }) {
                     </AboutFieldForm>
                 </div>
                 
-                <AboutFieldForm fieldName="bio" label="Bio" defaultValue={about?.bio}>
-                    <Textarea name="bio" defaultValue={about?.bio ?? ''} className="min-h-[120px]" />
-                </AboutFieldForm>
+                <BioEditorForm bio={about?.bio} />
 
                 <AboutFieldForm fieldName="resumeUrl" label="Resume URL" defaultValue={about?.resumeUrl}>
                     <Input name="resumeUrl" type="url" defaultValue={about?.resumeUrl ?? ''} />
