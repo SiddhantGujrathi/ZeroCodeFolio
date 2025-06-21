@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import { useActionState, useEffect, useState, useCallback } from 'react';
+import React, { useActionState, useEffect, useState, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import {
     SkillForm, ProjectForm, AchievementForm, CertificationForm, EducationForm, WorkExperienceForm, ProfileLinkForm 
 } from './PortfolioForms';
 import { SlateViewer } from './SlateViewer';
+import { stringToIconMap } from '@/lib/icon-map';
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -233,8 +234,17 @@ export function SkillsDisplay({ skills }: { skills: Client<Skill>[] }) {
                             {skills.map(skill => (
                                 <TableRow key={skill._id}>
                                     <TableCell>
-                                        <div className="relative h-10 w-10">
-                                            {skill.image && <Image src={skill.image} alt={skill.title} fill className="object-contain rounded-md" />}
+                                        <div className="relative h-10 w-10 flex items-center justify-center">
+                                            {(() => {
+                                                if (skill.image) {
+                                                    return <Image src={skill.image} alt={skill.title} fill className="object-contain rounded-md" />;
+                                                }
+                                                if (skill.icon && stringToIconMap[skill.icon]) {
+                                                    const IconComponent = stringToIconMap[skill.icon];
+                                                    return <IconComponent className="h-8 w-8 text-primary" />;
+                                                }
+                                                return <div className="h-10 w-10 bg-muted rounded-md" />;
+                                            })()}
                                         </div>
                                     </TableCell>
                                     <TableCell className="font-medium">{skill.title}</TableCell>

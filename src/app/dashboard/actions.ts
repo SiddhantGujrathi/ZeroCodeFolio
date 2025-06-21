@@ -33,6 +33,7 @@ const skillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
   image: z.string().optional(),
   imageAiHint: z.string().optional(),
+  icon: z.string().optional(),
 });
 const updateSkillSchema = skillSchema.extend({ id: z.string().min(1) });
 
@@ -175,6 +176,9 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
         const dataToInsert = { ...parsed.data };
         if (!dataToInsert.image) {
             delete dataToInsert.image;
+        }
+        if (!dataToInsert.icon) {
+            delete dataToInsert.icon;
         }
 
         const skillsCollection = await getCollection('skills');
@@ -343,6 +347,9 @@ export async function updateSkill(prevState: AdminFormState, formData: FormData)
         const { id, ...dataToUpdate } = parsed.data;
         if (!dataToUpdate.image) {
             delete (dataToUpdate as any).image;
+        }
+        if (!dataToUpdate.icon) {
+            delete (dataToUpdate as any).icon;
         }
 
         const collection = await getCollection('skills');

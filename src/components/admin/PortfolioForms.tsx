@@ -476,7 +476,18 @@ export function SkillForm({ skill, onSuccess }: { skill?: Client<Skill>, onSucce
             <Input name="title" placeholder="e.g., React" defaultValue={skill?.title ?? ''} />
             {state?.errors?.title && <p className="text-sm text-destructive">{state.errors.title[0]}</p>}
           </div>
-          <ImageUpload fieldName="image" label="Skill Icon / Image" description="Upload/paste an image for the skill." currentImage={skill?.image} error={state?.errors?.image} aspect={1 / 1} />
+
+          <div className="space-y-2">
+            <Label>Icon Name</Label>
+            <Input name="icon" placeholder="e.g., 'ReactIcon', 'Github'" defaultValue={skill?.icon ?? ''} />
+            <p className="text-xs text-muted-foreground">
+                Enter an icon name from the library (e.g., `PythonIcon`, `Github`). This is used if no custom image is uploaded.
+            </p>
+            {state?.errors?.icon && <p className="text-sm text-destructive">{state.errors.icon[0]}</p>}
+          </div>
+
+          <ImageUpload fieldName="image" label="OR Upload Custom Image" description="Upload a custom image. This will override the Icon Name." currentImage={skill?.image} error={state?.errors?.image} aspect={1 / 1} />
+          
           <div className="space-y-2">
              <Label>Image AI Hint</Label>
              <Input name="imageAiHint" placeholder="e.g., 'java icon' or 'python logo'" defaultValue={skill?.imageAiHint ?? ''} />

@@ -3,6 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Briefcase, Download, ExternalLink, Mail } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SlateViewer } from "./SlateViewer";
+import { stringToIconMap } from "@/lib/icon-map";
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -111,8 +113,17 @@ export function SkillsPreview({ skills }: { skills: Client<Skill>[] }) {
                 <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
                     {skills.map((skill) => (
                         <Card key={skill._id} className="flex flex-col items-center justify-center p-4 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                            <div className="relative h-16 w-16">
-                               <Image src={skill.image || 'https://placehold.co/100x100.png'} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint || 'skill icon'} />
+                            <div className="relative h-16 w-16 flex items-center justify-center">
+                               {(() => {
+                                   if (skill.image) {
+                                       return <Image src={skill.image} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint || 'skill icon'} />;
+                                   }
+                                   if (skill.icon && stringToIconMap[skill.icon]) {
+                                       const IconComponent = stringToIconMap[skill.icon];
+                                       return <IconComponent className="h-12 w-12 text-primary" />;
+                                   }
+                                   return <Image src={'https://placehold.co/100x100.png'} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint || 'skill icon'} />;
+                               })()}
                             </div>
                             <p className="mt-4 font-semibold">{skill.title}</p>
                         </Card>
@@ -336,4 +347,5 @@ export function ProfileLinksPreview({ profileLinks, about }: { profileLinks: Cli
     
 
     
+
 
