@@ -280,7 +280,7 @@ export function ProjectsDisplay({ projects }: { projects: Client<Project>[] }) {
                                         </div>
                                     </CardHeader>
                                     <CardContent className="flex-grow">
-                                        <CardDescription className="text-sm mt-1">{project.description}</CardDescription>
+                                        <CardDescription className="text-sm mt-1 whitespace-pre-wrap break-words">{project.description}</CardDescription>
                                     </CardContent>
                                     <CardFooter>
                                         <div className="flex flex-wrap gap-1">
@@ -329,7 +329,7 @@ export function AchievementsDisplay({ achievements }: { achievements: Client<Ach
                                         </div>
                                     </CardHeader>
                                     <CardContent className="flex-grow">
-                                        <CardDescription className="text-sm mt-1">{achievement.description}</CardDescription>
+                                        <CardDescription className="text-sm mt-1 whitespace-pre-wrap break-words">{achievement.description}</CardDescription>
                                     </CardContent>
                                 </div>
                             </Card>
@@ -480,7 +480,7 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
                                     </div>
                                     <div className="flex-grow min-w-0">
                                         <p className="font-medium truncate">{link.platform}</p>
-                                        <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary truncate block">{link.url}</a>
+                                        <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary break-all">{link.url}</a>
                                     </div>
                                 </div>
                                 <div className="flex-shrink-0 flex items-center">
