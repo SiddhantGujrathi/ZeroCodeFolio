@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { getAboutCollection } from '@/models/About';
+import { getAboutCollection, type About } from '@/models/About';
 import { getSkillsCollection } from '@/models/Skill';
 import { getProjectsCollection } from '@/models/Project';
 import { getAchievementsCollection } from '@/models/Achievement';
@@ -115,10 +115,49 @@ async function handleForm<T extends z.ZodType<any, any>>(
 
 export async function updateAbout(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const aboutCollection = await getAboutCollection();
-    return handleForm(aboutSchema, formData, async (data) => 
-        aboutCollection.updateOne({}, { $set: data }, { upsert: true })
-    );
+    const dataFromForm = Object.fromEntries(formData.entries());
+
+    const parsed = aboutSchema.safeParse(dataFromForm);
+
+    if (!parsed.success) {
+        return {
+            message: 'Invalid form data. Please ensure all fields are correctly filled.',
+            errors: parsed.error.flatten().fieldErrors,
+            success: false,
+        };
+    }
+
+    try {
+        const existingData = await aboutCollection.findOne({});
+        const updatePayload: Partial<About> = {};
+
+        for (const key in parsed.data) {
+            if (Object.prototype.hasOwnProperty.call(parsed.data, key)) {
+                const formValue = parsed.data[key as keyof typeof parsed.data];
+                const existingValue = existingData ? existingData[key as keyof typeof existingData] : undefined;
+                
+                if (formValue !== existingValue) {
+                    (updatePayload as any)[key] = formValue;
+                }
+            }
+        }
+
+        if (Object.keys(updatePayload).length === 0) {
+            return { message: "No changes to update.", success: true, errors: {} };
+        }
+
+        await aboutCollection.updateOne({}, { $set: updatePayload }, { upsert: true });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'About section updated successfully!', success: true, errors: {} };
+
+    } catch (e) {
+        console.error(e);
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
 }
+
 
 export async function addSkill(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
   const skillsCollection = await getSkillsCollection();
