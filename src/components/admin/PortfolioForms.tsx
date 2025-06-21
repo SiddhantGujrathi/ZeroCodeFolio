@@ -1,12 +1,12 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { addSkill, addProject, addAchievement, type AdminFormState } from '@/app/dashboard/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useEffect, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { stringToIconMap } from '@/lib/icon-map';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,7 +25,7 @@ const availableIcons = Object.keys(stringToIconMap);
 
 export function SkillForm() {
   const initialState: AdminFormState = { message: null, errors: {}, success: false };
-  const [state, dispatch] = useFormState(addSkill, initialState);
+  const [state, dispatch] = useActionState(addSkill, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -72,7 +72,7 @@ export function SkillForm() {
 
 export function ProjectForm() {
     const initialState: AdminFormState = { message: null, errors: {}, success: false };
-    const [state, dispatch] = useFormState(addProject, initialState);
+    const [state, dispatch] = useActionState(addProject, initialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -192,7 +192,7 @@ export function ProjectForm() {
 
 export function AchievementForm() {
     const initialState: AdminFormState = { message: null, errors: {}, success: false };
-    const [state, dispatch] = useFormState(addAchievement, initialState);
+    const [state, dispatch] = useActionState(addAchievement, initialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
   
