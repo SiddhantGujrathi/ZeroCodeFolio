@@ -105,6 +105,12 @@ const layoutSchema = z.object({
     }),
 });
 
+const skillsOrderSchema = z.object({
+    skillsOrder: z.string().transform((str, ctx) => {
+        try { return JSON.parse(str); }
+        catch (e) { ctx.addIssue({ code: 'custom', message: 'Invalid JSON for skillsOrder' }); return z.NEVER; }
+    }),
+});
 
 async function getCollection(collectionName: string) {
     const client = await clientPromise;
@@ -173,7 +179,11 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
             return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
         }
 
-        const dataToInsert = { ...parsed.data };
+        const skillsCollection = await getCollection('skills');
+        const lastSkill = await skillsCollection.findOne({}, { sort: { order: -1 } });
+        const newOrder = (lastSkill?.order || 0) + 1;
+
+        const dataToInsert: any = { ...parsed.data, order: newOrder };
         if (!dataToInsert.image) {
             delete dataToInsert.image;
         }
@@ -181,10 +191,10 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
             delete dataToInsert.icon;
         }
 
-        const skillsCollection = await getCollection('skills');
         await skillsCollection.insertOne(dataToInsert);
         
         revalidatePath('/');
+        revalidatePath('/dashboard');
         return { message: 'Skill added successfully!', success: true };
 
     } catch (e) {
@@ -364,6 +374,38 @@ export async function updateSkill(prevState: AdminFormState, formData: FormData)
     }
 }
 
+export async function updateSkillsOrder(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = skillsOrderSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+        
+        const skillIds = parsed.data.skillsOrder as string[];
+        const collection = await getCollection('skills');
+
+        const bulkOps = skillIds.map((id, index) => ({
+            updateOne: {
+                filter: { _id: new ObjectId(id) },
+                update: { $set: { order: index } }
+            }
+        }));
+
+        if (bulkOps.length > 0) {
+            await collection.bulkWrite(bulkOps);
+        }
+
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Skill order updated successfully!', success: true };
+
+    } catch (e) {
+        console.error("Failed to update skill order:", e);
+        return handleDbError(e);
+    }
+}
+
+
 export async function updateProject(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     try {
         const parsed = updateProjectSchema.safeParse(Object.fromEntries(formData.entries()));
@@ -541,6 +583,7 @@ async function deleteItem(collectionName: string, id: string): Promise<AdminForm
             return { message: 'Database Error: Could not find the item to delete. It may have already been removed.', success: false };
         }
         revalidatePath('/');
+        revalidatePath('/dashboard');
         return { message: 'Item deleted successfully.', success: true };
     } catch (e) {
         console.error(`Failed to delete item from ${collectionName}:`, e);

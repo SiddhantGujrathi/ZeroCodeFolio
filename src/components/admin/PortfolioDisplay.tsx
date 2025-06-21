@@ -1,19 +1,20 @@
 'use client';
 
 import Image from "next/image";
-import React, { useActionState, useEffect, useState, useCallback } from 'react';
+import React, { useActionState, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, ArrowUp, ArrowDown } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { AdminFormState } from "@/app/dashboard/actions";
 import { 
     deleteSkill, deleteProject, deleteAchievement, deleteCertification, 
-    deleteEducation, deleteWorkExperience, deleteProfileLink
+    deleteEducation, deleteWorkExperience, deleteProfileLink,
+    updateSkillsOrder
 } from "@/app/dashboard/actions";
 import { 
     SkillForm, ProjectForm, AchievementForm, CertificationForm, EducationForm, WorkExperienceForm, ProfileLinkForm 
@@ -213,49 +214,95 @@ export function AboutDisplay({ about }: { about: Client<About> | null }) {
     );
 }
 
+function ReorderSubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" className="w-full mt-4" disabled={pending}>
+            {pending ? 'Saving Order...' : 'Save Skill Order'}
+        </Button>
+    );
+}
+
 export function SkillsDisplay({ skills }: { skills: Client<Skill>[] }) {
+    const [orderedSkills, setOrderedSkills] = useState(skills);
+    const [state, dispatch] = useActionState(updateSkillsOrder, { message: null, success: false });
+    const formRef = useRef<HTMLFormElement>(null);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        setOrderedSkills(skills);
+    }, [skills]);
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({
+                variant: state.success ? 'default' : 'destructive',
+                title: state.success ? 'Success!' : 'Error',
+                description: state.message,
+            });
+        }
+    }, [state, toast]);
+
+    const moveSkill = (index: number, direction: 'up' | 'down') => {
+        const newList = [...orderedSkills];
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= newList.length) return;
+        [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
+        setOrderedSkills(newList);
+    };
+
+    const skillIdsInOrder = useMemo(() => JSON.stringify(orderedSkills.map(s => s._id)), [orderedSkills]);
+
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Current Skills</CardTitle>
-                <CardDescription>The skills currently displayed on your portfolio.</CardDescription>
+                <CardDescription>The skills currently displayed on your portfolio. Click arrows to reorder, then save.</CardDescription>
             </CardHeader>
             <CardContent>
-                {skills.length > 0 ? (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[80px]">Image</TableHead>
-                                <TableHead>Title</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {skills.map(skill => (
-                                <TableRow key={skill._id}>
-                                    <TableCell>
-                                        <div className="relative h-10 w-10 flex items-center justify-center">
-                                            {(() => {
-                                                if (skill.image) {
-                                                    return <Image src={skill.image} alt={skill.title} fill className="object-contain rounded-md" />;
-                                                }
-                                                if (skill.icon && stringToIconMap[skill.icon]) {
-                                                    const IconComponent = stringToIconMap[skill.icon];
-                                                    return <IconComponent className="h-8 w-8 text-primary" />;
-                                                }
-                                                return <div className="h-10 w-10 bg-muted rounded-md" />;
-                                            })()}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="font-medium">{skill.title}</TableCell>
-                                    <TableCell className="text-right flex justify-end items-center">
-                                        <EditSkillDialog skill={skill} />
-                                        <DeleteItemForm action={deleteSkill} itemId={skill._id!} />
-                                    </TableCell>
+                {orderedSkills.length > 0 ? (
+                    <form ref={formRef} action={dispatch}>
+                        <input type="hidden" name="skillsOrder" value={skillIdsInOrder} />
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-[80px]">Image</TableHead>
+                                    <TableHead>Title</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {orderedSkills.map((skill, index) => (
+                                    <TableRow key={skill._id}>
+                                        <TableCell>
+                                            <div className="relative h-10 w-10 flex items-center justify-center">
+                                                {(() => {
+                                                    if (skill.image) {
+                                                        return <Image src={skill.image} alt={skill.title} fill className="object-contain rounded-md" />;
+                                                    }
+                                                    if (skill.icon && stringToIconMap[skill.icon]) {
+                                                        const IconComponent = stringToIconMap[skill.icon];
+                                                        return <IconComponent className="h-8 w-8 text-primary" />;
+                                                    }
+                                                    return <div className="h-10 w-10 bg-muted rounded-md" />;
+                                                })()}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="font-medium">{skill.title}</TableCell>
+                                        <TableCell className="text-right flex justify-end items-center">
+                                            <div className="flex gap-1 mr-2">
+                                                <Button type="button" size="icon" variant="ghost" disabled={index === 0} onClick={() => moveSkill(index, 'up')}><ArrowUp className="h-4 w-4" /></Button>
+                                                <Button type="button" size="icon" variant="ghost" disabled={index === orderedSkills.length - 1} onClick={() => moveSkill(index, 'down')}><ArrowDown className="h-4 w-4" /></Button>
+                                            </div>
+                                            <EditSkillDialog skill={skill} />
+                                            <DeleteItemForm action={deleteSkill} itemId={skill._id!} />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <ReorderSubmitButton />
+                    </form>
                 ) : (
                     <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
                 )}

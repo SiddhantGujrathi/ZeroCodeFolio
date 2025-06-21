@@ -7,7 +7,7 @@ import { stringToIconMap } from "@/lib/icon-map";
 
 export async function Skills() {
   const skillsCollection = await getSkillsCollection();
-  const skills = await skillsCollection.find({}).toArray();
+  const skills = await skillsCollection.find({}).sort({ order: 1, _id: 1 }).toArray();
 
   if (skills.length === 0) {
     return null;

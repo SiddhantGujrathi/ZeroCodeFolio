@@ -41,7 +41,7 @@ export default async function DashboardPage() {
             layoutData
         ] = await Promise.all([
             getAboutCollection().then(c => c.findOne({})),
-            getSkillsCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
+            getSkillsCollection().then(c => c.find({}).sort({ order: 1, _id: 1 }).toArray()),
             getProjectsCollection().then(c => c.find({}).sort({ createdAt: -1 }).toArray()),
             getAchievementsCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
             getCertificationsCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
