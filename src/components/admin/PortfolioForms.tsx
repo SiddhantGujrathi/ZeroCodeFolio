@@ -135,6 +135,14 @@ function useFormFeedback(state: AdminFormState | null, formRef: React.RefObject<
 
 const availableIcons = Object.keys(stringToIconMap);
 
+function AboutSubmitButton({ label, hasDefaultValue }: { label: string; hasDefaultValue: boolean }) {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" size="sm" className="w-full" disabled={pending}>
+            {pending ? 'Saving...' : (hasDefaultValue ? `Update ${label}` : `Add ${label}`)}
+        </Button>
+    );
+}
 
 function AboutFieldForm({ fieldName, label, defaultValue, children }: {
     fieldName: keyof Client<About>,
@@ -165,9 +173,7 @@ function AboutFieldForm({ fieldName, label, defaultValue, children }: {
                     {children}
                 </div>
                 {state?.errors?.[fieldName] && <p className="text-sm text-destructive mt-1">{state.errors[fieldName][0]}</p>}
-                <Button type="submit" size="sm" className="w-full" disabled={useFormStatus().pending}>
-                    {useFormStatus().pending ? 'Saving...' : (defaultValue ? `Update ${label}` : `Add ${label}`)}
-                </Button>
+                <AboutSubmitButton label={label} hasDefaultValue={!!defaultValue} />
             </form>
         </div>
     )

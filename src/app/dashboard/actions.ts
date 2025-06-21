@@ -93,25 +93,25 @@ async function getCollection(collectionName: string) {
 const DB_ERROR_MESSAGE = 'Database Connection Error. Please ensure your IP address is whitelisted in MongoDB Atlas and that your MONGODB_URI environment variable is correct.';
 
 export async function updateAbout(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const dataFromForm = Object.fromEntries(formData.entries());
-    const fieldName = Object.keys(dataFromForm)[0];
-    if (!fieldName) {
-        return { message: "No data submitted.", success: false };
-    }
-    
-    const parsed = partialAboutSchema.safeParse(dataFromForm);
-
-    if (!parsed.success) {
-        return {
-            message: 'Invalid form data.',
-            errors: parsed.error.flatten().fieldErrors,
-            success: false,
-        };
-    }
-    
-    const updateData = parsed.data;
-
     try {
+        const dataFromForm = Object.fromEntries(formData.entries());
+        const fieldName = Object.keys(dataFromForm)[0];
+        if (!fieldName) {
+            return { message: "No data submitted.", success: false };
+        }
+        
+        const parsed = partialAboutSchema.safeParse(dataFromForm);
+
+        if (!parsed.success) {
+            return {
+                message: 'Invalid form data.',
+                errors: parsed.error.flatten().fieldErrors,
+                success: false,
+            };
+        }
+        
+        const updateData = parsed.data;
+
         const aboutCollection = await getCollection('about');
         let operation: any;
 
@@ -140,21 +140,21 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
 }
 
 export async function addSkill(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const parsed = skillSchema.safeParse(Object.fromEntries(formData.entries()));
-
-    if (!parsed.success) {
-        return {
-            message: 'Invalid form data.',
-            errors: parsed.error.flatten().fieldErrors,
-            success: false,
-        };
-    }
-
-    const dataToInsert = parsed.data;
-
     try {
-        if (dataToInsert.image === '') {
-            dataToInsert.image = undefined;
+        const parsed = skillSchema.safeParse(Object.fromEntries(formData.entries()));
+
+        if (!parsed.success) {
+            return {
+                message: 'Invalid form data.',
+                errors: parsed.error.flatten().fieldErrors,
+                success: false,
+            };
+        }
+
+        const dataToInsert = { ...parsed.data };
+
+        if (!dataToInsert.image) {
+            delete dataToInsert.image;
         }
 
         const skillsCollection = await getCollection('skills');
@@ -191,21 +191,21 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
 
 
 export async function addProject(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const parsed = projectSchema.safeParse(Object.fromEntries(formData.entries()));
-    if (!parsed.success) {
-        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
-    }
-
-    const { tags, ...rest } = parsed.data;
-    const dataToInsert: any = {
-        ...rest,
-        tags: tags.split(',').map(tag => tag.trim()),
-        createdAt: new Date(),
-    };
-
     try {
-        if (dataToInsert.projectImage === '') {
-            dataToInsert.projectImage = undefined;
+        const parsed = projectSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+
+        const { tags, ...rest } = parsed.data;
+        const dataToInsert: any = {
+            ...rest,
+            tags: tags.split(',').map(tag => tag.trim()),
+            createdAt: new Date(),
+        };
+
+        if (!dataToInsert.projectImage) {
+            delete dataToInsert.projectImage;
         }
 
         const projectsCollection = await getCollection('projects');
@@ -227,16 +227,16 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
 }
 
 export async function addAchievement(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const parsed = achievementSchema.safeParse(Object.fromEntries(formData.entries()));
-    if (!parsed.success) {
-        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
-    }
-
-    const dataToInsert: any = parsed.data;
-
     try {
-        if (dataToInsert.image === '') {
-            dataToInsert.image = undefined;
+        const parsed = achievementSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+
+        const dataToInsert: any = { ...parsed.data };
+
+        if (!dataToInsert.image) {
+            delete dataToInsert.image;
         }
 
         const achievementsCollection = await getCollection('achievements');
@@ -258,14 +258,15 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
 }
 
 export async function addCertification(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const parsed = certificationSchema.safeParse(Object.fromEntries(formData.entries()));
-    if (!parsed.success) {
-        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
-    }
-    const dataToInsert: any = parsed.data;
     try {
-        if (dataToInsert.image === '') {
-            dataToInsert.image = undefined;
+        const parsed = certificationSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+        const dataToInsert: any = { ...parsed.data };
+        
+        if (!dataToInsert.image) {
+            delete dataToInsert.image;
         }
 
         const certificationsCollection = await getCollection('certifications');
@@ -287,11 +288,11 @@ export async function addCertification(prevState: AdminFormState, formData: Form
 }
 
 export async function addEducation(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const parsed = educationSchema.safeParse(Object.fromEntries(formData.entries()));
-    if (!parsed.success) {
-        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
-    }
     try {
+        const parsed = educationSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
         const educationCollection = await getCollection('education');
         const result = await educationCollection.insertOne(parsed.data);
         if (!result.insertedId) {
@@ -311,11 +312,11 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
 }
 
 export async function addWorkExperience(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const parsed = workExperienceSchema.safeParse(Object.fromEntries(formData.entries()));
-    if (!parsed.success) {
-        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
-    }
     try {
+        const parsed = workExperienceSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
         const workExperienceCollection = await getCollection('workExperience');
         const result = await workExperienceCollection.insertOne(parsed.data);
         if (!result.insertedId) {
@@ -335,11 +336,11 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
 }
 
 export async function addProfileLink(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const parsed = profileLinkSchema.safeParse(Object.fromEntries(formData.entries()));
-    if (!parsed.success) {
-        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
-    }
     try {
+        const parsed = profileLinkSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
         const profileLinksCollection = await getCollection('profileLinks');
         const result = await profileLinksCollection.insertOne(parsed.data);
         if (!result.insertedId) {
