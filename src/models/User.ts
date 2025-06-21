@@ -12,5 +12,5 @@ export interface User extends Document {
 export async function getUsersCollection(): Promise<Collection<User>> {
   const client = await clientPromise;
   const db = client.db();
-  return db.collection<User>('users');
+  return db.collection<User>('User');
 }
