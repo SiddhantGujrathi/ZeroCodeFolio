@@ -9,7 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
-const NAV_LINKS = [
+interface NavLink {
+    name: string;
+    href: string;
+}
+
+const DEFAULT_NAV_LINKS: NavLink[] = [
   { name: "About", href: "#about" },
   { name: "Skills", href: "#skills" },
   { name: "Experience", href: "#experience" },
@@ -19,7 +24,12 @@ const NAV_LINKS = [
   { name: "Contact", href: "#contact" },
 ];
 
-export function Header() {
+
+interface HeaderProps {
+    navLinks?: NavLink[];
+}
+
+export function Header({ navLinks = DEFAULT_NAV_LINKS }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -33,7 +43,7 @@ export function Header() {
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
@@ -66,7 +76,7 @@ export function Header() {
             </Link>
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
               <div className="flex flex-col space-y-3">
-                {NAV_LINKS.map((link) => (
+                {navLinks.map((link) => (
                   <Link
                     key={link.name}
                     href={link.href}
@@ -90,7 +100,7 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end space-x-2">
           <ThemeToggle />
           <Button asChild variant="ghost" size="icon">
-              <Link href="/login">
+              <Link href="/c2lkZGhhbnQ=">
                 <User />
                 <span className="sr-only">Admin Login</span>
               </Link>

@@ -12,6 +12,7 @@ import { getProfileLinksCollection } from "@/models/ProfileLink";
 import { getProjectsCollection } from "@/models/Project";
 import { getSkillsCollection } from "@/models/Skill";
 import { getWorkExperienceCollection } from "@/models/WorkExperience";
+import { getLayout } from "@/models/Layout";
 
 function serialize(doc: any) {
     if (doc._id) {
@@ -36,7 +37,8 @@ export default async function DashboardPage() {
             certificationsData,
             educationData,
             workExperienceData,
-            profileLinksData
+            profileLinksData,
+            layoutData
         ] = await Promise.all([
             getAboutCollection().then(c => c.findOne({})),
             getSkillsCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
@@ -46,6 +48,7 @@ export default async function DashboardPage() {
             getEducationCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
             getWorkExperienceCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
             getProfileLinksCollection().then(c => c.find({}).sort({ _id: -1 }).toArray()),
+            getLayout(),
         ]);
         
         props = {
@@ -57,6 +60,10 @@ export default async function DashboardPage() {
             education: educationData.map(serialize),
             workExperience: workExperienceData.map(serialize),
             profileLinks: profileLinksData.map(serialize),
+            layout: {
+                ...layoutData,
+                _id: layoutData._id ? layoutData._id.toString() : undefined
+            },
         };
     } catch (e) {
         console.error("Failed to fetch dashboard data:", e);
@@ -71,6 +78,7 @@ export default async function DashboardPage() {
             education: [],
             workExperience: [],
             profileLinks: [],
+            layout: { navLinks: [], sections: [] },
         };
     }
 

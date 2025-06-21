@@ -9,6 +9,7 @@ import {
     AboutDisplay,
     SkillsDisplay, ProjectsDisplay, AchievementsDisplay, CertificationsDisplay, EducationDisplay, WorkExperienceDisplay, ProfileLinksDisplay 
 } from "./PortfolioDisplay";
+import { LayoutManager } from "./LayoutManager";
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -18,6 +19,7 @@ import type { Certification } from "@/models/Certification";
 import type { Education } from "@/models/Education";
 import type { WorkExperience } from "@/models/WorkExperience";
 import type { ProfileLink } from "@/models/ProfileLink";
+import type { Layout } from "@/models/Layout";
 
 type Client<T> = Omit<T, '_id' | 'collection'> & { _id?: string };
 
@@ -30,10 +32,11 @@ interface AdminDashboardProps {
     education: Client<Education>[];
     workExperience: Client<WorkExperience>[];
     profileLinks: Client<ProfileLink>[];
+    layout: Layout;
 }
 
 export function AdminDashboard(props: AdminDashboardProps) {
-    const { about, skills, projects, achievements, certifications, education, workExperience, profileLinks } = props;
+    const { about, skills, projects, achievements, certifications, education, workExperience, profileLinks, layout } = props;
     
     return (
         <Card className="w-full">
@@ -52,6 +55,7 @@ export function AdminDashboard(props: AdminDashboardProps) {
                         <TabsTrigger value="education">Education</TabsTrigger>
                         <TabsTrigger value="experience">Experience</TabsTrigger>
                         <TabsTrigger value="links">Links</TabsTrigger>
+                        <TabsTrigger value="layout">Layout</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="about" className="mt-6">
@@ -108,6 +112,10 @@ export function AdminDashboard(props: AdminDashboardProps) {
                             <ProfileLinksDisplay profileLinks={profileLinks} />
                             <ProfileLinkForm />
                         </div>
+                    </TabsContent>
+
+                    <TabsContent value="layout" className="mt-6">
+                        <LayoutManager layout={layout} />
                     </TabsContent>
 
                 </Tabs>

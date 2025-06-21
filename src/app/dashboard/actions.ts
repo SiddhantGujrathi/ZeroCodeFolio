@@ -92,6 +92,17 @@ const profileLinkSchema = z.object({
 });
 const updateProfileLinkSchema = profileLinkSchema.extend({ id: z.string().min(1) });
 
+const layoutSchema = z.object({
+    navLinks: z.string().transform((str, ctx) => {
+        try { return JSON.parse(str); }
+        catch (e) { ctx.addIssue({ code: 'custom', message: 'Invalid JSON for navLinks' }); return z.NEVER; }
+    }),
+    sections: z.string().transform((str, ctx) => {
+        try { return JSON.parse(str); }
+        catch (e) { ctx.addIssue({ code: 'custom', message: 'Invalid JSON for sections' }); return z.NEVER; }
+    }),
+});
+
 
 async function getCollection(collectionName: string) {
     const client = await clientPromise;
@@ -145,7 +156,6 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
         await aboutCollection.updateOne({}, operation, { upsert: true });
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: `'${fieldName}' updated successfully!`, success: true };
 
     } catch (e) {
@@ -170,7 +180,6 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
         await skillsCollection.insertOne(dataToInsert);
         
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Skill added successfully!', success: true };
 
     } catch (e) {
@@ -202,7 +211,6 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
         await projectsCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Project added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add project:", e);
@@ -227,7 +235,6 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
         await achievementsCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Achievement added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add achievement:", e);
@@ -251,7 +258,6 @@ export async function addCertification(prevState: AdminFormState, formData: Form
         await certificationsCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Certification added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add certification:", e);
@@ -275,7 +281,6 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
         await educationCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Education added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add education:", e);
@@ -298,7 +303,6 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
         await workExperienceCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Work experience added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add work experience:", e);
@@ -321,7 +325,6 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
         await profileLinksCollection.insertOne(dataToInsert);
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Profile link added successfully!', success: true };
     } catch (e) {
         console.error("Failed to add profile link:", e);
@@ -345,7 +348,6 @@ export async function updateSkill(prevState: AdminFormState, formData: FormData)
         await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Skill updated successfully!', success: true };
 
     } catch (e) {
@@ -371,7 +373,6 @@ export async function updateProject(prevState: AdminFormState, formData: FormDat
         await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Project updated successfully!', success: true };
     } catch (e) {
         console.error("Failed to update project:", e);
@@ -395,7 +396,6 @@ export async function updateAchievement(prevState: AdminFormState, formData: For
         await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Achievement updated successfully!', success: true };
     } catch (e) {
         console.error("Failed to update achievement:", e);
@@ -419,7 +419,6 @@ export async function updateCertification(prevState: AdminFormState, formData: F
         await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Certification updated successfully!', success: true };
     } catch (e) {
         console.error("Failed to update certification:", e);
@@ -443,7 +442,6 @@ export async function updateEducation(prevState: AdminFormState, formData: FormD
         await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
 
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Education updated successfully!', success: true };
     } catch (e) {
         console.error("Failed to update education:", e);
@@ -467,7 +465,6 @@ export async function updateWorkExperience(prevState: AdminFormState, formData: 
         await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
         
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Work experience updated successfully!', success: true };
     } catch (e) {
         console.error("Failed to update work experience:", e);
@@ -491,10 +488,34 @@ export async function updateProfileLink(prevState: AdminFormState, formData: For
         await collection.updateOne({ _id: new ObjectId(id) }, { $set: dataToUpdate });
         
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Profile link updated successfully!', success: true };
     } catch (e) {
         console.error("Failed to update profile link:", e);
+        return handleDbError(e);
+    }
+}
+
+export async function updateLayout(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
+    try {
+        const parsed = layoutSchema.safeParse(Object.fromEntries(formData.entries()));
+        if (!parsed.success) {
+            return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+        }
+        
+        const { navLinks, sections } = parsed.data;
+
+        const layoutCollection = await getCollection('layout');
+        await layoutCollection.updateOne(
+            {}, 
+            { $set: { navLinks, sections } }, 
+            { upsert: true }
+        );
+
+        revalidatePath('/');
+        return { message: 'Layout updated successfully!', success: true };
+
+    } catch (e) {
+        console.error("Failed to update layout:", e);
         return handleDbError(e);
     }
 }
@@ -512,7 +533,6 @@ async function deleteItem(collectionName: string, id: string): Promise<AdminForm
             return { message: 'Database Error: Could not find the item to delete. It may have already been removed.', success: false };
         }
         revalidatePath('/');
-        revalidatePath('/dashboard');
         return { message: 'Item deleted successfully.', success: true };
     } catch (e) {
         console.error(`Failed to delete item from ${collectionName}:`, e);
@@ -565,7 +585,7 @@ export async function deleteProfileLink(prevState: AdminFormState, formData: For
 export async function setupDatabase(prevState: SetupResult | null, formData: FormData): Promise<SetupResult> {
     const collectionsToCreate = [
         'about', 'skills', 'projects', 'achievements',
-        'certifications', 'education', 'workExperience', 'profileLinks'
+        'certifications', 'education', 'workExperience', 'profileLinks', 'layout'
     ];
 
     const results: { collection: string; status: 'success' | 'error'; message: string }[] = [];
