@@ -35,13 +35,10 @@ export async function Hero() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Button asChild size="lg">
-            <a href={about.resumeUrl} download target="_blank" rel="noopener noreferrer">
+            <a href={about.resumeUrl || '#'} download>
               <Download />
               Download Resume
             </a>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-             <Link href="#contact">Contact Me</Link>
           </Button>
         </div>
         <div className="mt-8 flex items-center space-x-4">
