@@ -7,7 +7,7 @@ import { useFormStatus } from 'react-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { 
     AlertDialog,
@@ -59,19 +59,20 @@ function DeleteItemDialog({ action, itemId, itemName, children }: {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (state?.message) {
-        if (state.success) {
-            toast({ title: 'Success', description: state.message });
-            setOpen(false);
-        } else if (state.message !== "Invalid ID.") {
-             toast({ variant: 'destructive', title: 'Error', description: state.message });
-        }
+    if (!state?.message) return; // Exit if no message
+
+    if (state.success) {
+        toast({ title: 'Success', description: state.message });
+        setOpen(false); // Close dialog on success
+    } else {
+        // For any error, show a destructive toast
+        toast({ variant: 'destructive', title: 'Error', description: state.message });
     }
   }, [state, toast]);
 
   const handleOpenChange = (isOpen: boolean) => {
       if(isOpen) {
-          setFormKey(k => k + 1);
+          setFormKey(k => k + 1); // Reset form state on open
       }
       setOpen(isOpen);
   }
@@ -79,10 +80,12 @@ function DeleteItemDialog({ action, itemId, itemName, children }: {
   function DeleteConfirmationButton() {
       const { pending } = useFormStatus();
       return (
-          <AlertDialogAction asChild>
-              <Button type="submit" variant="destructive" disabled={pending}>
-                  {pending ? "Deleting..." : "Yes, delete"}
-              </Button>
+          <AlertDialogAction
+              type="submit"
+              className={buttonVariants({ variant: "destructive" })}
+              disabled={pending}
+          >
+              {pending ? "Deleting..." : "Yes, delete"}
           </AlertDialogAction>
       );
   }
@@ -523,7 +526,11 @@ export function EducationDisplay({ education }: { education: Client<Education>[]
                             <Card key={edu._id} className="p-4 flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-4 flex-grow min-w-0">
                                     <div className="relative h-12 w-12 flex-shrink-0">
-                                        {edu.icon && <Image src={edu.icon} alt={edu.degreeName} fill className="object-contain rounded-md" />}
+                                        {edu.icon && stringToIconMap[edu.icon] ? 
+                                            React.createElement(stringToIconMap[edu.icon], { className: "h-10 w-10 text-primary" }) : 
+                                            edu.icon ? <Image src={edu.icon} alt={edu.degreeName} fill className="object-contain rounded-md" /> :
+                                            <div className="h-10 w-10 bg-muted rounded-md" />
+                                        }
                                     </div>
                                     <div className="flex-grow min-w-0">
                                         <p className="font-medium truncate">{edu.degreeName}</p>
@@ -564,7 +571,11 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
                             <Card key={exp._id} className="p-4 flex items-start justify-between gap-4">
                                 <div className="flex items-start gap-4 flex-grow min-w-0">
                                     <div className="relative h-12 w-12 flex-shrink-0">
-                                        {exp.icon && <Image src={exp.icon} alt={exp.companyName} fill className="object-contain rounded-md" />}
+                                       {exp.icon && stringToIconMap[exp.icon] ? 
+                                            React.createElement(stringToIconMap[exp.icon], { className: "h-10 w-10 text-primary" }) : 
+                                            exp.icon ? <Image src={exp.icon} alt={exp.companyName} fill className="object-contain rounded-md" /> :
+                                            <div className="h-10 w-10 bg-muted rounded-md" />
+                                        }
                                     </div>
                                     <div className="flex-grow min-w-0">
                                         <p className="font-medium">{exp.role}</p>
@@ -607,7 +618,11 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
                             <Card key={link._id} className="p-4 flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-4 flex-grow min-w-0">
                                     <div className="relative h-12 w-12 flex-shrink-0">
-                                        {link.icon && <Image src={link.icon} alt={link.platform} fill className="object-contain rounded-md" />}
+                                        {link.icon && stringToIconMap[link.icon] ? 
+                                            React.createElement(stringToIconMap[link.icon], { className: "h-10 w-10 text-primary" }) : 
+                                            link.icon ? <Image src={link.icon} alt={link.platform} fill className="object-contain rounded-md" /> :
+                                            <div className="h-10 w-10 bg-muted rounded-md" />
+                                        }
                                     </div>
                                     <div className="flex-grow min-w-0">
                                         <p className="font-medium truncate">{link.platform}</p>
@@ -636,3 +651,4 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
     
 
     
+
