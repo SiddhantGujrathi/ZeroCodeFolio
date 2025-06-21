@@ -1,29 +1,50 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Download } from "lucide-react";
 
-import { SOCIAL_LINKS } from "@/lib/data";
+import { getAboutCollection } from "@/models/About";
+import { getProfileLinksCollection } from "@/models/ProfileLink";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { stringToIconMap } from "@/lib/icon-map";
+import type { ComponentProps } from "react";
+import { Globe } from "lucide-react";
 
-export function Hero() {
+function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
+  const Icon = stringToIconMap[name] || Globe;
+  return <Icon {...props} />;
+}
+
+export async function Hero() {
+  const aboutCollection = await getAboutCollection();
+  const about = await aboutCollection.findOne({});
+
+  const profileLinksCollection = await getProfileLinksCollection();
+  const socialLinks = await profileLinksCollection.find({}).toArray();
+
+  if (!about) {
+    return (
+      <section id="about" className="container flex flex-col items-center justify-center py-20 text-center md:py-32">
+        <p>About section not configured yet.</p>
+      </section>
+    );
+  }
+
   return (
     <section id="about" className="container flex flex-col items-center justify-center py-20 text-center md:py-32">
         <Avatar className="h-28 w-28 border-2 border-primary">
-          <AvatarImage src="https://avatars.githubusercontent.com/u/79981854?v=4" alt="Siddhant Gujrathi" />
-          <AvatarFallback>SG</AvatarFallback>
+          <AvatarImage src={about.profileImage} alt={about.name} />
+          <AvatarFallback>{about.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <h1 className="mt-4 font-headline text-4xl font-bold tracking-tight md:text-6xl">
-          Siddhant Gujrathi
+          {about.name}
         </h1>
-        <p className="mt-2 text-lg text-muted-foreground">
-          Full Stack Software Developer
-        </p>
         <p className="mt-6 max-w-2xl text-balance">
-          A passionate Full Stack Software Developer with a knack for creating elegant and efficient solutions. I thrive on turning complex problems into simple, beautiful, and intuitive designs.
+         {about.bio}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Button asChild size="lg">
-            <a href="/Siddhant_Gujrathi_Resume.pdf" download>
+            <a href={about.resumeUrl} download target="_blank" rel="noopener noreferrer">
               <Download className="mr-2 h-5 w-5" />
               Download Resume
             </a>
@@ -33,10 +54,10 @@ export function Hero() {
           </Button>
         </div>
         <div className="mt-8 flex items-center space-x-4">
-          {SOCIAL_LINKS.map((link) => (
-             <Button key={link.name} variant="ghost" size="icon" asChild>
-             <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.name}>
-               <link.icon className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
+          {socialLinks.map((link) => (
+             <Button key={link.platform} variant="ghost" size="icon" asChild>
+             <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
+               <DynamicIcon name={link.icon} className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
              </a>
            </Button>
           ))}

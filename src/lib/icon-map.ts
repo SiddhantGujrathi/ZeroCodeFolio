@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Github, ExternalLink, GitBranch } from "lucide-react";
+import { Github, ExternalLink, GitBranch, Linkedin, Twitter, Mail } from "lucide-react";
 import { CppIcon, GitIcon, JavaIcon, JavascriptIcon, NextjsIcon, NodejsIcon, PythonIcon, ReactIcon, TailwindcssIcon, TypescriptIcon } from "@/components/icons";
 
 export const stringToIconMap: Record<string, React.ElementType | LucideIcon> = {
@@ -18,4 +18,7 @@ export const stringToIconMap: Record<string, React.ElementType | LucideIcon> = {
   GitBranch,
   Github,
   ExternalLink,
+  Linkedin,
+  Twitter,
+  Mail,
 };

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Code, Menu } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { SOCIAL_LINKS } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
@@ -13,7 +12,9 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 const NAV_LINKS = [
   { name: "About", href: "#about" },
   { name: "Skills", href: "#skills" },
+  { name: "Experience", href: "#experience" },
   { name: "Projects", href: "#projects" },
+  { name: "Education", href: "#education" },
   { name: "Achievements", href: "#achievements" },
   { name: "Contact", href: "#contact" },
 ];

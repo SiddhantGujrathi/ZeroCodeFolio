@@ -1,7 +1,11 @@
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getAboutCollection } from "@/models/About";
 
-export function Contact() {
+export async function Contact() {
+  const aboutCollection = await getAboutCollection();
+  const about = await aboutCollection.findOne({});
+
   return (
     <section id="contact" className="py-20 text-center md:py-32">
       <div className="container">
@@ -13,7 +17,7 @@ export function Contact() {
         </p>
         <div className="mt-8">
           <Button asChild size="lg">
-            <a href="mailto:siddhant.gujrathi@gmail.com">
+            <a href={`mailto:${about?.email || 'your-email@example.com'}`}>
               <Mail className="mr-2 h-5 w-5" />
               Say Hello
             </a>

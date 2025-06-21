@@ -5,6 +5,8 @@ import { Achievements } from "@/components/sections/Achievements";
 import { Contact } from "@/components/sections/Contact";
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
+import { WorkExperience } from "@/components/sections/WorkExperience";
+import { Education } from "@/components/sections/Education";
 
 export default function Home() {
   return (
@@ -13,7 +15,9 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <Skills />
+        <WorkExperience />
         <Projects />
+        <Education />
         <Achievements />
         <Contact />
       </main>

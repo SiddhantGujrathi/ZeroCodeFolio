@@ -1,15 +1,6 @@
-import type { ComponentProps } from "react";
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { getSkillsCollection } from "@/models/Skill";
-import { stringToIconMap } from "@/lib/icon-map";
-
-function DynamicIcon({ name, ...props }: { name: string } & ComponentProps<"svg">) {
-  const Icon = stringToIconMap[name];
-  if (!Icon) {
-    return null;
-  }
-  return <Icon {...props} />;
-}
 
 export async function Skills() {
   const skillsCollection = await getSkillsCollection();
@@ -33,8 +24,10 @@ export async function Skills() {
         <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {skills.map((skill) => (
             <Card key={skill._id.toString()} className="flex flex-col items-center justify-center p-4 text-center transition-transform hover:scale-105 hover:shadow-lg">
-              <DynamicIcon name={skill.icon} className="h-12 w-12 text-primary" />
-              <p className="mt-4 font-semibold">{skill.name}</p>
+              <div className="relative h-16 w-16">
+                 <Image src={skill.image} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint} />
+              </div>
+              <p className="mt-4 font-semibold">{skill.title}</p>
             </Card>
           ))}
         </div>
