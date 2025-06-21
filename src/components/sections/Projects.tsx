@@ -1,27 +1,20 @@
-import type { LucideIcon } from "lucide-react";
 import { ProjectCard } from "@/components/shared/ProjectCard";
 import { getProjectsCollection } from "@/models/Project";
-import { stringToIconMap } from "@/lib/icon-map";
+import type { Project } from "@/models/Project";
 
 export async function Projects() {
   const projectsCollection = await getProjectsCollection();
-  const projectsFromDb = await projectsCollection.find({}).sort({ _id: -1 }).toArray();
+  const projectsFromDb = await projectsCollection.find({}).sort({ createdAt: -1 }).toArray();
 
   if (projectsFromDb.length === 0) {
     return null;
   }
 
   const projects = projectsFromDb.map(p => ({
-    title: p.title,
-    description: p.description,
-    image: p.image,
-    imageAiHint: p.imageAiHint,
-    tags: p.tags,
-    links: p.links.map(l => ({
-        ...l,
-        icon: stringToIconMap[l.icon] as LucideIcon
-    })),
-  }));
+    ...p,
+    _id: p._id.toString(),
+  })) as (Project & { _id: string })[];
+
 
   return (
     <section id="projects" className="py-20 md:py-32">
@@ -36,7 +29,7 @@ export async function Projects() {
         </div>
         <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <ProjectCard key={project.title} {...project} />
+            <ProjectCard key={project._id} project={project} />
           ))}
         </div>
       </div>

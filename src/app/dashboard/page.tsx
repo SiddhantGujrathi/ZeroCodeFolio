@@ -24,7 +24,7 @@ export default async function DashboardPage() {
         skills = (await skillsCollection.find({}).sort({ _id: -1 }).toArray()).map(d => ({...d, _id: d._id.toString()}));
         
         const projectsCollection = await getProjectsCollection();
-        projects = (await projectsCollection.find({}).sort({ _id: -1 }).toArray()).map(d => ({...d, _id: d._id.toString()}));
+        projects = (await projectsCollection.find({}).sort({ createdAt: -1 }).toArray()).map(d => ({...d, _id: d._id.toString()}));
 
         const achievementsCollection = await getAchievementsCollection();
         achievements = (await achievementsCollection.find({}).sort({ _id: -1 }).toArray()).map(d => ({...d, _id: d._id.toString()}));

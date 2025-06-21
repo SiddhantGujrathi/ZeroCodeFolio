@@ -14,7 +14,7 @@ const skillSchema = z.object({
 const projectSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  image: z.string().optional().or(z.literal('')),
+  projectImage: z.string().optional().or(z.literal('')),
   imageAiHint: z.string().optional(),
   tags: z.string().min(1, "Tags are required"),
   githubUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
@@ -65,15 +65,7 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
     };
   }
 
-  const { title, description, tags, githubUrl, websiteUrl, image, imageAiHint } = parsed.data;
-
-  const projectLinks = [];
-  if (websiteUrl) {
-    projectLinks.push({ name: 'Website', url: websiteUrl, icon: 'ExternalLink' });
-  }
-  if (githubUrl) {
-    projectLinks.push({ name: 'GitHub', url: githubUrl, icon: 'Github' });
-  }
+  const { title, description, tags, githubUrl, websiteUrl, projectImage, imageAiHint } = parsed.data;
 
   try {
     const projectsCollection = await getProjectsCollection();
@@ -81,9 +73,11 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
       title,
       description,
       tags: tags.split(',').map(tag => tag.trim()),
-      links: projectLinks,
-      image: image || `https://placehold.co/600x400.png`,
+      projectImage: projectImage || `https://placehold.co/600x400.png`,
       imageAiHint: imageAiHint || 'project placeholder',
+      websiteUrl: websiteUrl || '',
+      githubUrl: githubUrl || '',
+      createdAt: new Date(),
     });
     revalidatePath('/');
     return { message: 'Project added successfully!', success: true, errors: {} };

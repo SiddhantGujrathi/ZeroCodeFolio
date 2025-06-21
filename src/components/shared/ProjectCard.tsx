@@ -1,5 +1,6 @@
 import Image from "next/image";
-import type { LucideIcon } from "lucide-react";
+import { Github, ExternalLink } from "lucide-react";
+import type { Project } from "@/models/Project";
 import {
   Card,
   CardContent,
@@ -11,35 +12,27 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-type ProjectLink = {
-  name: string;
-  url: string;
-  icon: LucideIcon;
-};
-
 type ProjectCardProps = {
-  title: string;
-  description: string;
-  image: string;
-  imageAiHint: string;
-  tags: string[];
-  links: ProjectLink[];
+  project: Project & { _id: string };
 };
 
-export function ProjectCard({
-  title,
-  description,
-  image,
-  imageAiHint,
-  tags,
-  links,
-}: ProjectCardProps) {
+export function ProjectCard({ project }: ProjectCardProps) {
+  const { 
+    title, 
+    description, 
+    projectImage, 
+    imageAiHint, 
+    tags, 
+    websiteUrl, 
+    githubUrl 
+  } = project;
+
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-xl">
       <CardHeader>
         <div className="aspect-video overflow-hidden rounded-md border">
           <Image
-            src={image}
+            src={projectImage}
             alt={title}
             width={600}
             height={400}
@@ -61,14 +54,22 @@ export function ProjectCard({
           ))}
         </div>
         <div className="flex w-full items-center justify-start gap-2">
-          {links.map((link) => (
-            <Button key={link.name} asChild variant={link.name === 'GitHub' ? "outline" : "default"}>
-              <a href={link.url} target="_blank" rel="noopener noreferrer">
-                <link.icon className="mr-2 h-4 w-4" />
-                {link.name}
+          {websiteUrl && (
+            <Button asChild>
+              <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Website
               </a>
             </Button>
-          ))}
+          )}
+          {githubUrl && (
+            <Button asChild variant="outline">
+              <a href={githubUrl} target="_blank" rel="noopener noreferrer">
+                <Github className="mr-2 h-4 w-4" />
+                GitHub
+              </a>
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>

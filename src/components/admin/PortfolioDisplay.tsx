@@ -55,7 +55,7 @@ export function ProjectsDisplay({ projects }: { projects: ClientProject[] }) {
                     <Card key={project._id} className="overflow-hidden">
                         <CardHeader className="p-0">
                             <div className="aspect-video overflow-hidden border-b">
-                                <Image src={project.image} alt={project.title} width={400} height={250} className="w-full h-full object-cover" />
+                                <Image src={project.projectImage} alt={project.title} width={400} height={250} className="w-full h-full object-cover" />
                             </div>
                         </CardHeader>
                         <CardContent className="p-4">

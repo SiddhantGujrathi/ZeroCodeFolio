@@ -5,14 +5,12 @@ export interface Project extends Document {
     _id: ObjectId;
     title: string;
     description: string;
-    image: string;
+    projectImage: string;
     imageAiHint: string;
     tags: string[];
-    links: {
-        name: string;
-        url:string;
-        icon: string;
-    }[];
+    websiteUrl?: string;
+    githubUrl?: string;
+    createdAt: Date;
 }
 
 export async function getProjectsCollection(): Promise<Collection<Project>> {

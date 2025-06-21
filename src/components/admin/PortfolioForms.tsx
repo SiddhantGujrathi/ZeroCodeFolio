@@ -156,8 +156,8 @@ export function ProjectForm() {
                             onChange={handleImageChange} 
                             className="text-sm file:mr-2 file:text-muted-foreground"
                         />
-                        <input type="hidden" name="image" value={imagePreview || ''} />
-                         {state.errors?.image && <p className="text-sm text-destructive">{state.errors.image}</p>}
+                        <input type="hidden" name="projectImage" value={imagePreview || ''} />
+                         {state.errors?.projectImage && <p className="text-sm text-destructive">{state.errors.projectImage}</p>}
                     </div>
 
                     {imagePreview && (
