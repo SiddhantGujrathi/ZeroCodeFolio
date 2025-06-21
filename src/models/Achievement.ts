@@ -5,7 +5,7 @@ export interface Achievement extends Document {
   _id: ObjectId;
   title: string;
   description: string;
-  image: string;
+  image?: string;
   imageAiHint?: string;
 }
 

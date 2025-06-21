@@ -7,7 +7,7 @@ export interface Certification extends Document {
   issuedBy: string;
   date: string;
   certificateUrl: string;
-  image: string;
+  image?: string;
   imageAiHint?: string;
 }
 

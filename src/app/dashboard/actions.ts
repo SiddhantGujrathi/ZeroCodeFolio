@@ -32,7 +32,7 @@ const partialAboutSchema = aboutSchema.partial();
 
 const skillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
-  image: z.string().min(1, "Image is required"),
+  image: z.string(),
   imageAiHint: z.string().optional(),
 });
 
@@ -40,7 +40,7 @@ const projectSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   tags: z.string().min(1, "Tags are required"),
-  projectImage: z.string().min(1, "Image is required"),
+  projectImage: z.string(),
   imageAiHint: z.string().optional(),
   websiteUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
   githubUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
@@ -49,7 +49,7 @@ const projectSchema = z.object({
 const achievementSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  image: z.string().min(1, "Image is required"),
+  image: z.string(),
   imageAiHint: z.string().optional(),
 });
 
@@ -58,7 +58,7 @@ const certificationSchema = z.object({
   issuedBy: z.string().min(1, "Issuer is required"),
   date: z.string().min(1, "Date is required"),
   certificateUrl: z.string().url("Must be a valid URL"),
-  image: z.string().min(1, "Image is required"),
+  image: z.string(),
   imageAiHint: z.string().optional(),
 });
 
@@ -90,12 +90,12 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
     const aboutCollection = await getAboutCollection();
     const dataFromForm = Object.fromEntries(formData.entries());
 
-    // If the profileImage field is submitted with an empty value, it means no new image
-    // was uploaded. We treat this as a successful no-op rather than an error.
-    if (dataFromForm.profileImage === '') {
-        return { message: "No new profile image was selected.", success: true, errors: {} };
-    }
+    const fieldName = Object.keys(dataFromForm)[0];
 
+    if (!fieldName) {
+        return { message: "No data submitted.", success: false, errors: {} };
+    }
+    
     const parsed = partialAboutSchema.safeParse(dataFromForm);
 
     if (!parsed.success) {
@@ -106,18 +106,11 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
         };
     }
 
-    const updatePayload = parsed.data;
-
-    if (Object.keys(updatePayload).length === 0) {
-        return { message: "No new information provided.", success: false, errors: {} };
-    }
-
     try {
-        await aboutCollection.updateOne({}, { $set: updatePayload }, { upsert: true });
+        await aboutCollection.updateOne({}, { $set: parsed.data }, { upsert: true });
         revalidatePath('/');
         revalidatePath('/dashboard');
-        const updatedFieldNames = Object.keys(updatePayload).join(', ');
-        return { message: `'${updatedFieldNames}' updated successfully!`, success: true, errors: {} };
+        return { message: `'${fieldName}' updated successfully!`, success: true, errors: {} };
 
     } catch (e) {
         console.error(e);
@@ -133,7 +126,11 @@ export async function addSkill(prevState: AdminFormState, formData: FormData): P
     }
     try {
         const skillsCollection = await getSkillsCollection();
-        await skillsCollection.insertOne(parsed.data);
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
+        if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
+
+        await skillsCollection.insertOne(dataToInsert);
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Skill added successfully!', success: true, errors: {} };
@@ -151,11 +148,19 @@ export async function addProject(prevState: AdminFormState, formData: FormData):
     try {
         const projectsCollection = await getProjectsCollection();
         const { tags, ...rest } = parsed.data;
-        await projectsCollection.insertOne({
+        const dataToInsert = {
             ...rest,
             tags: tags.split(',').map(tag => tag.trim()),
             createdAt: new Date(),
-        });
+        };
+
+        if (!dataToInsert.projectImage) delete (dataToInsert as Partial<typeof dataToInsert>).projectImage;
+        if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
+        if (!dataToInsert.websiteUrl) delete (dataToInsert as Partial<typeof dataToInsert>).websiteUrl;
+        if (!dataToInsert.githubUrl) delete (dataToInsert as Partial<typeof dataToInsert>).githubUrl;
+
+
+        await projectsCollection.insertOne(dataToInsert);
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Project added successfully!', success: true, errors: {} };
@@ -172,7 +177,11 @@ export async function addAchievement(prevState: AdminFormState, formData: FormDa
     }
     try {
         const achievementsCollection = await getAchievementsCollection();
-        await achievementsCollection.insertOne(parsed.data);
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
+        if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
+
+        await achievementsCollection.insertOne(dataToInsert);
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Achievement added successfully!', success: true, errors: {} };
@@ -189,7 +198,11 @@ export async function addCertification(prevState: AdminFormState, formData: Form
     }
     try {
         const certificationsCollection = await getCertificationsCollection();
-        await certificationsCollection.insertOne(parsed.data);
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.image) delete (dataToInsert as Partial<typeof dataToInsert>).image;
+        if (!dataToInsert.imageAiHint) delete (dataToInsert as Partial<typeof dataToInsert>).imageAiHint;
+
+        await certificationsCollection.insertOne(dataToInsert);
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Certification added successfully!', success: true, errors: {} };
@@ -206,7 +219,10 @@ export async function addEducation(prevState: AdminFormState, formData: FormData
     }
     try {
         const educationCollection = await getEducationCollection();
-        await educationCollection.insertOne(parsed.data);
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
+
+        await educationCollection.insertOne(dataToInsert);
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Education added successfully!', success: true, errors: {} };
@@ -223,7 +239,10 @@ export async function addWorkExperience(prevState: AdminFormState, formData: For
     }
     try {
         const workExperienceCollection = await getWorkExperienceCollection();
-        await workExperienceCollection.insertOne(parsed.data);
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
+
+        await workExperienceCollection.insertOne(dataToInsert);
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Work experience added successfully!', success: true, errors: {} };
@@ -240,7 +259,10 @@ export async function addProfileLink(prevState: AdminFormState, formData: FormDa
     }
     try {
         const profileLinksCollection = await getProfileLinksCollection();
-        await profileLinksCollection.insertOne(parsed.data);
+        const dataToInsert = { ...parsed.data };
+        if (!dataToInsert.iconHint) delete (dataToInsert as Partial<typeof dataToInsert>).iconHint;
+
+        await profileLinksCollection.insertOne(dataToInsert);
         revalidatePath('/');
         revalidatePath('/dashboard');
         return { message: 'Profile link added successfully!', success: true, errors: {} };

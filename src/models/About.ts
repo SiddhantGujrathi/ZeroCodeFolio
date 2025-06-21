@@ -2,14 +2,14 @@ import type { Collection, Document, ObjectId } from 'mongodb';
 import clientPromise from '@/lib/mongodb';
 
 export interface About extends Document {
-  _id?: ObjectId; // Optional for inserts, available when fetching
+  _id?: ObjectId;
   name: string;
   bio: string;
   location: string;
   email: string;
   phone: string;
   resumeUrl: string;
-  profileImage: string;
+  profileImage?: string;
 }
 
 export async function getAboutCollection(): Promise<Collection<About>> {

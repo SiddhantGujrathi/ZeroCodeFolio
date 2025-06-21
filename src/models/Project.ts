@@ -5,7 +5,7 @@ export interface Project extends Document {
     _id: ObjectId;
     title: string;
     description: string;
-    projectImage: string;
+    projectImage?: string;
     imageAiHint?: string;
     tags: string[];
     websiteUrl?: string;

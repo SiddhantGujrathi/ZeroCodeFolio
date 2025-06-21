@@ -4,7 +4,7 @@ import clientPromise from '@/lib/mongodb';
 export interface Skill extends Document {
   _id: ObjectId;
   title: string;
-  image: string;
+  image?: string;
   imageAiHint?: string;
 }
 
