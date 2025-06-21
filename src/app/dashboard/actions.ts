@@ -84,35 +84,6 @@ const profileLinkSchema = z.object({
   iconHint: z.string().optional(),
 });
 
-
-// Generic action handler
-async function handleForm<T extends z.ZodType<any, any>>(
-    schema: T,
-    formData: FormData,
-    dbOperation: (data: z.infer<T>) => Promise<any>
-): Promise<AdminFormState> {
-    const parsed = schema.safeParse(Object.fromEntries(formData.entries()));
-
-    if (!parsed.success) {
-        return {
-            message: 'Invalid form data.',
-            errors: parsed.error.flatten().fieldErrors,
-            success: false,
-        };
-    }
-
-    try {
-        await dbOperation(parsed.data);
-        revalidatePath('/');
-        revalidatePath('/dashboard');
-        return { message: 'Operation successful!', success: true, errors: {} };
-    } catch (e) {
-        console.error(e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
-    }
-}
-
 export async function updateAbout(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
     const aboutCollection = await getAboutCollection();
     const dataFromForm = Object.fromEntries(formData.entries());
@@ -158,45 +129,156 @@ export async function updateAbout(prevState: AdminFormState, formData: FormData)
     }
 }
 
+async function parseAndInsert<T extends z.ZodType<any, any>>(
+    formData: FormData,
+    schema: T,
+    collectionPromise: Promise<any>,
+    successMessage: string,
+    transform?: (data: z.infer<T>) => any
+): Promise<AdminFormState> {
+    const parsed = schema.safeParse(Object.fromEntries(formData.entries()));
+    if (!parsed.success) {
+        return {
+            message: 'Invalid form data.',
+            errors: parsed.error.flatten().fieldErrors,
+            success: false,
+        };
+    }
+
+    try {
+        const collection = await collectionPromise;
+        const dataToInsert = transform ? transform(parsed.data) : parsed.data;
+        await collection.insertOne(dataToInsert);
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: successMessage, success: true, errors: {} };
+    } catch (e) {
+        console.error(e);
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
+}
 
 export async function addSkill(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-  const skillsCollection = await getSkillsCollection();
-  return handleForm(skillSchema, formData, async (data) => skillsCollection.insertOne(data));
+    const parsed = skillSchema.safeParse(Object.fromEntries(formData.entries()));
+    if (!parsed.success) {
+        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+    }
+    try {
+        const skillsCollection = await getSkillsCollection();
+        await skillsCollection.insertOne(parsed.data);
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Skill added successfully!', success: true, errors: {} };
+    } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
 }
 
 export async function addProject(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-  const projectsCollection = await getProjectsCollection();
-  return handleForm(projectSchema, formData, async (data) => {
-    const { tags, ...rest } = data;
-    return projectsCollection.insertOne({
-      ...rest,
-      tags: tags.split(',').map(tag => tag.trim()),
-      createdAt: new Date(),
-    });
-  });
+    const parsed = projectSchema.safeParse(Object.fromEntries(formData.entries()));
+    if (!parsed.success) {
+        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+    }
+    try {
+        const projectsCollection = await getProjectsCollection();
+        const { tags, ...rest } = parsed.data;
+        await projectsCollection.insertOne({
+            ...rest,
+            tags: tags.split(',').map(tag => tag.trim()),
+            createdAt: new Date(),
+        });
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Project added successfully!', success: true, errors: {} };
+    } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
 }
 
 export async function addAchievement(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const achievementsCollection = await getAchievementsCollection();
-    return handleForm(achievementSchema, formData, async (data) => achievementsCollection.insertOne(data));
+    const parsed = achievementSchema.safeParse(Object.fromEntries(formData.entries()));
+    if (!parsed.success) {
+        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+    }
+    try {
+        const achievementsCollection = await getAchievementsCollection();
+        await achievementsCollection.insertOne(parsed.data);
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Achievement added successfully!', success: true, errors: {} };
+    } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
 }
 
 export async function addCertification(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const certificationsCollection = await getCertificationsCollection();
-    return handleForm(certificationSchema, formData, async (data) => certificationsCollection.insertOne(data));
+    const parsed = certificationSchema.safeParse(Object.fromEntries(formData.entries()));
+    if (!parsed.success) {
+        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+    }
+    try {
+        const certificationsCollection = await getCertificationsCollection();
+        await certificationsCollection.insertOne(parsed.data);
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Certification added successfully!', success: true, errors: {} };
+    } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
 }
 
 export async function addEducation(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const educationCollection = await getEducationCollection();
-    return handleForm(educationSchema, formData, async (data) => educationCollection.insertOne(data));
+    const parsed = educationSchema.safeParse(Object.fromEntries(formData.entries()));
+    if (!parsed.success) {
+        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+    }
+    try {
+        const educationCollection = await getEducationCollection();
+        await educationCollection.insertOne(parsed.data);
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Education added successfully!', success: true, errors: {} };
+    } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
 }
 
 export async function addWorkExperience(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const workExperienceCollection = await getWorkExperienceCollection();
-    return handleForm(workExperienceSchema, formData, async (data) => workExperienceCollection.insertOne(data));
+    const parsed = workExperienceSchema.safeParse(Object.fromEntries(formData.entries()));
+    if (!parsed.success) {
+        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+    }
+    try {
+        const workExperienceCollection = await getWorkExperienceCollection();
+        await workExperienceCollection.insertOne(parsed.data);
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Work experience added successfully!', success: true, errors: {} };
+    } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
 }
 
 export async function addProfileLink(prevState: AdminFormState, formData: FormData): Promise<AdminFormState> {
-    const profileLinksCollection = await getProfileLinksCollection();
-    return handleForm(profileLinkSchema, formData, async (data) => profileLinksCollection.insertOne(data));
+    const parsed = profileLinkSchema.safeParse(Object.fromEntries(formData.entries()));
+    if (!parsed.success) {
+        return { message: 'Invalid form data.', errors: parsed.error.flatten().fieldErrors, success: false };
+    }
+    try {
+        const profileLinksCollection = await getProfileLinksCollection();
+        await profileLinksCollection.insertOne(parsed.data);
+        revalidatePath('/');
+        revalidatePath('/dashboard');
+        return { message: 'Profile link added successfully!', success: true, errors: {} };
+    } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        return { message: `Operation failed: ${errorMessage}`, success: false, errors: {} };
+    }
 }
