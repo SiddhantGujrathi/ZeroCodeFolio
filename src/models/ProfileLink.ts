@@ -11,7 +11,6 @@ export interface ProfileLink extends Document {
 
 export async function getProfileLinksCollection(): Promise<Collection<ProfileLink>> {
   const client = await clientPromise;
-  const dbName = process.env.MONGODB_DB || 'portfolio';
-  const db = client.db(dbName);
+  const db = client.db();
   return db.collection<ProfileLink>('profileLinks');
 }

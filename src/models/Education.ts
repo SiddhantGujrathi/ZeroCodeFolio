@@ -13,7 +13,6 @@ export interface Education extends Document {
 
 export async function getEducationCollection(): Promise<Collection<Education>> {
   const client = await clientPromise;
-  const dbName = process.env.MONGODB_DB || 'portfolio';
-  const db = client.db(dbName);
+  const db = client.db();
   return db.collection<Education>('education');
 }

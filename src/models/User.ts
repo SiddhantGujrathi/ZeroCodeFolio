@@ -11,7 +11,6 @@ export interface User extends Document {
 // Helper function to get the users collection
 export async function getUsersCollection(): Promise<Collection<User>> {
   const client = await clientPromise;
-  const dbName = process.env.MONGODB_DB || 'portfolio';
-  const db = client.db(dbName);
-  return db.collection<User>('User');
+  const db = client.db();
+  return db.collection<User>('users');
 }

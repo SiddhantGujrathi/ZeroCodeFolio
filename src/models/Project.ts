@@ -15,7 +15,6 @@ export interface Project extends Document {
 
 export async function getProjectsCollection(): Promise<Collection<Project>> {
   const client = await clientPromise;
-  const dbName = process.env.MONGODB_DB || 'portfolio';
-  const db = client.db(dbName);
+  const db = client.db();
   return db.collection<Project>('projects');
 }
