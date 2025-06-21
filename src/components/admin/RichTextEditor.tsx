@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { createEditor, Descendant, Editor, Transforms, Element as SlateElement } from 'slate';
-import { Slate, Editable, withReact, useSlate, ReactEditor } from 'slate-react';
+import { Slate, Editable, withReact, useSlate } from 'slate-react';
 import { withHistory } from 'slate-history';
 import isHotkey from 'is-hotkey';
-import { Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Pilcrow, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
+import { Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Pilcrow, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { BaseEditor } from 'slate';
@@ -178,6 +178,56 @@ const BlockButton = ({ format, icon: Icon }: { format: string, icon: React.Eleme
   };
 
 
+const Toolbar = () => {
+    const editor = useSlate();
+    return (
+        <div className="flex flex-wrap items-center gap-1 p-2 border-b">
+            <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                disabled={editor.history.undos.length === 0}
+                onMouseDown={(event) => {
+                    event.preventDefault();
+                    editor.undo();
+                }}
+            >
+                <Undo className="h-4 w-4" />
+            </Button>
+            <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                disabled={editor.history.redos.length === 0}
+                onMouseDown={(event) => {
+                    event.preventDefault();
+                    editor.redo();
+                }}
+            >
+                <Redo className="h-4 w-4" />
+            </Button>
+            <div className="mx-1 h-6 w-px bg-border" />
+            <MarkButton format="bold" icon={Bold} />
+            <MarkButton format="italic" icon={Italic} />
+            <MarkButton format="underline" icon={Underline} />
+            <div className="mx-1 h-6 w-px bg-border" />
+            <BlockButton format="heading-one" icon={Heading1} />
+            <BlockButton format="heading-two" icon={Heading2} />
+            <BlockButton format="paragraph" icon={Pilcrow} />
+            <div className="mx-1 h-6 w-px bg-border" />
+            <BlockButton format="numbered-list" icon={ListOrdered} />
+            <BlockButton format="bulleted-list" icon={List} />
+            <div className="mx-1 h-6 w-px bg-border" />
+            <BlockButton format="left" icon={AlignLeft} />
+            <BlockButton format="center" icon={AlignCenter} />
+            <BlockButton format="right" icon={AlignRight} />
+            <BlockButton format="justify" icon={AlignJustify} />
+        </div>
+    );
+};
+
 export function RichTextEditor({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const renderElement = useCallback((props: any) => <Element {...props} />, []);
@@ -210,23 +260,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
           }
         }}
       >
-        <div className="flex flex-wrap items-center gap-1 p-2 border-b">
-            <MarkButton format="bold" icon={Bold} />
-            <MarkButton format="italic" icon={Italic} />
-            <MarkButton format="underline" icon={Underline} />
-            <div className="mx-1 h-6 w-px bg-border" />
-            <BlockButton format="heading-one" icon={Heading1} />
-            <BlockButton format="heading-two" icon={Heading2} />
-            <BlockButton format="paragraph" icon={Pilcrow} />
-            <div className="mx-1 h-6 w-px bg-border" />
-            <BlockButton format="numbered-list" icon={ListOrdered} />
-            <BlockButton format="bulleted-list" icon={List} />
-            <div className="mx-1 h-6 w-px bg-border" />
-            <BlockButton format="left" icon={AlignLeft} />
-            <BlockButton format="center" icon={AlignCenter} />
-            <BlockButton format="right" icon={AlignRight} />
-            <BlockButton format="justify" icon={AlignJustify} />
-        </div>
+        <Toolbar />
         <div className="p-4 prose prose-sm dark:prose-invert max-w-none focus-within:outline-none">
             <Editable
               renderElement={renderElement}

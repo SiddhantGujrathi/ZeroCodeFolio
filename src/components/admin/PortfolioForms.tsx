@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useActionState, useEffect, useRef, useState, type ComponentProps, useCallback } from 'react';
+import { useActionState, useEffect, useRef, useState, type ComponentProps, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
@@ -368,6 +368,9 @@ function BioEditorForm({ bio }: { bio?: string | null }) {
     const { toast } = useToast();
 
     const [editorValue, setEditorValue] = useState(bio || '');
+    const [savedValue, setSavedValue] = useState(bio || '');
+
+    const isDirty = useMemo(() => editorValue !== savedValue, [editorValue, savedValue]);
 
     useEffect(() => {
         if (state?.message) {
@@ -376,14 +379,20 @@ function BioEditorForm({ bio }: { bio?: string | null }) {
                 title: state.success ? 'Success!' : 'Error',
                 description: state.message,
             });
+            if (state.success) {
+                setSavedValue(editorValue);
+            }
         }
-    }, [state, toast]);
+    }, [state, toast, editorValue]);
 
     return (
         <div className="space-y-3">
             <form action={dispatch} className="space-y-3">
                 <div className="space-y-2">
-                    <Label className="font-semibold">Bio</Label>
+                    <div className="flex justify-between items-center mb-1">
+                        <Label className="font-semibold">Bio</Label>
+                        {isDirty && <span className="text-xs font-semibold text-yellow-500 animate-pulse">Unsaved changes</span>}
+                    </div>
                     <RichTextEditor
                         value={editorValue}
                         onChange={setEditorValue}
