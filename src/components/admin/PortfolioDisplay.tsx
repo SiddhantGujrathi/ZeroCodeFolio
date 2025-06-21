@@ -397,38 +397,26 @@ export function EducationDisplay({ education }: { education: Client<Education>[]
             </CardHeader>
             <CardContent>
                 {education.length > 0 ? (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[80px]">Icon</TableHead>
-                                <TableHead>Degree</TableHead>
-                                <TableHead>Period</TableHead>
-                                <TableHead>CGPA</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {education.map(edu => (
-                                <TableRow key={edu._id}>
-                                    <TableCell>
-                                        <div className="relative h-10 w-10">
-                                            {edu.icon && <Image src={edu.icon} alt={edu.degreeName} fill className="object-contain rounded-md" />}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <p className="font-medium">{edu.degreeName}</p>
-                                        <p className="text-muted-foreground text-sm">{edu.collegeName}</p>
-                                    </TableCell>
-                                    <TableCell>{edu.period}</TableCell>
-                                    <TableCell>{edu.cgpa}</TableCell>
-                                    <TableCell className="text-right flex justify-end items-center">
-                                        <EditEducationDialog educationItem={edu} />
-                                        <DeleteItemForm action={deleteEducation} itemId={edu._id!} />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    <div className="space-y-4">
+                        {education.map(edu => (
+                            <Card key={edu._id} className="p-4 flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 flex-grow min-w-0">
+                                    <div className="relative h-12 w-12 flex-shrink-0">
+                                        {edu.icon && <Image src={edu.icon} alt={edu.degreeName} fill className="object-contain rounded-md" />}
+                                    </div>
+                                    <div className="flex-grow min-w-0">
+                                        <p className="font-medium truncate">{edu.degreeName}</p>
+                                        <p className="text-sm text-muted-foreground truncate">{edu.collegeName}</p>
+                                        <p className="text-xs text-muted-foreground">{edu.period} | CGPA: {edu.cgpa}</p>
+                                    </div>
+                                </div>
+                                <div className="flex-shrink-0 flex items-center">
+                                    <EditEducationDialog educationItem={edu} />
+                                    <DeleteItemForm action={deleteEducation} itemId={edu._id!} />
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
                 ) : (
                      <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
                 )}
@@ -446,36 +434,26 @@ export function WorkExperienceDisplay({ workExperience }: { workExperience: Clie
             </CardHeader>
             <CardContent>
                 {workExperience.length > 0 ? (
-                    <Table>
-                        <TableHeader>
-                             <TableRow>
-                                <TableHead className="w-[80px]">Icon</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {workExperience.map(exp => (
-                                <TableRow key={exp._id}>
-                                     <TableCell>
-                                        <div className="relative h-10 w-10">
-                                            {exp.icon && <Image src={exp.icon} alt={exp.companyName} fill className="object-contain rounded-md" />}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
+                    <div className="space-y-4">
+                        {workExperience.map(exp => (
+                            <Card key={exp._id} className="p-4 flex items-start justify-between gap-4">
+                                <div className="flex items-start gap-4 flex-grow min-w-0">
+                                    <div className="relative h-12 w-12 flex-shrink-0">
+                                        {exp.icon && <Image src={exp.icon} alt={exp.companyName} fill className="object-contain rounded-md" />}
+                                    </div>
+                                    <div className="flex-grow min-w-0">
                                         <p className="font-medium">{exp.role}</p>
-                                        <p className="text-muted-foreground text-sm">{exp.companyName}</p>
-                                    </TableCell>
-                                    <TableCell>{exp.description}</TableCell>
-                                    <TableCell className="text-right flex justify-end items-center">
-                                        <EditWorkExperienceDialog experience={exp} />
-                                        <DeleteItemForm action={deleteWorkExperience} itemId={exp._id!} />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                                        <p className="text-sm text-muted-foreground">{exp.companyName}</p>
+                                        <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{exp.description}</p>
+                                    </div>
+                                </div>
+                                <div className="flex-shrink-0 flex items-center">
+                                    <EditWorkExperienceDialog experience={exp} />
+                                    <DeleteItemForm action={deleteWorkExperience} itemId={exp._id!} />
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
                 ) : (
                     <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
                 )}
@@ -493,33 +471,25 @@ export function ProfileLinksDisplay({ profileLinks }: { profileLinks: Client<Pro
             </CardHeader>
             <CardContent>
                 {profileLinks.length > 0 ? (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[80px]">Icon</TableHead>
-                                <TableHead>Platform</TableHead>
-                                <TableHead>URL</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {profileLinks.map(link => (
-                                <TableRow key={link._id}>
-                                    <TableCell>
-                                        <div className="relative h-10 w-10">
-                                            {link.icon && <Image src={link.icon} alt={link.platform} fill className="object-contain rounded-md" />}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="font-medium">{link.platform}</TableCell>
-                                    <TableCell><a href={link.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary truncate">{link.url}</a></TableCell>
-                                    <TableCell className="text-right flex justify-end items-center">
-                                        <EditProfileLinkDialog link={link} />
-                                        <DeleteItemForm action={deleteProfileLink} itemId={link._id!} />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    <div className="space-y-4">
+                        {profileLinks.map(link => (
+                            <Card key={link._id} className="p-4 flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 flex-grow min-w-0">
+                                    <div className="relative h-12 w-12 flex-shrink-0">
+                                        {link.icon && <Image src={link.icon} alt={link.platform} fill className="object-contain rounded-md" />}
+                                    </div>
+                                    <div className="flex-grow min-w-0">
+                                        <p className="font-medium truncate">{link.platform}</p>
+                                        <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary truncate block">{link.url}</a>
+                                    </div>
+                                </div>
+                                <div className="flex-shrink-0 flex items-center">
+                                    <EditProfileLinkDialog link={link} />
+                                    <DeleteItemForm action={deleteProfileLink} itemId={link._id!} />
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
                 ) : (
                     <p className="text-muted-foreground text-center py-4">Nothing is added yet.</p>
                 )}
