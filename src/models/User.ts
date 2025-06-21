@@ -5,6 +5,7 @@ export interface User extends Document {
   _id: ObjectId;
   email: string;
   password_hash: string;
+  role: 'admin' | 'user';
 }
 
 // Helper function to get the users collection

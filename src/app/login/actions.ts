@@ -25,9 +25,9 @@ if (!process.env.JWT_SECRET) {
 const secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
 
 
-async function createSession(userId: ObjectId, email: string) {
+async function createSession(userId: ObjectId, email: string, role: 'admin' | 'user') {
     const expirationTime = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    const session = await new SignJWT({ userId: userId.toString(), email })
+    const session = await new SignJWT({ userId: userId.toString(), email, role })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime(expirationTime)
@@ -67,7 +67,14 @@ export async function login(prevState: FormState, formData: FormData): Promise<F
       return { message: 'Invalid email or password.' };
     }
 
-    await createSession(user._id, user.email);
+    // Backwards compatibility for users created before roles
+    let userRole = user.role;
+    if (!userRole) {
+      userRole = email === process.env.ADMIN_EMAIL ? 'admin' : 'user';
+      await usersCollection.updateOne({ _id: user._id }, { $set: { role: userRole } });
+    }
+
+    await createSession(user._id, user.email, userRole);
 
   } catch (error) {
     console.error(error);
@@ -98,10 +105,11 @@ export async function register(prevState: FormState, formData: FormData): Promis
           return { message: 'User with this email already exists.' };
       }
 
+      const role = email === process.env.ADMIN_EMAIL ? 'admin' : 'user';
       const password_hash = await bcrypt.hash(password, 10);
-      const result = await usersCollection.insertOne({ email, password_hash } as any);
+      const result = await usersCollection.insertOne({ email, password_hash, role });
 
-      await createSession(result.insertedId, email);
+      await createSession(result.insertedId, email, role);
 
   } catch (error) {
       console.error(error);
@@ -119,7 +127,7 @@ export async function getSession() {
         const { payload } = await jwtVerify(sessionCookie, secretKey, {
             algorithms: ['HS256'],
         });
-        return payload as { userId: string; email: string; iat: number; exp: number };
+        return payload as { userId: string; email: string; role: 'admin' | 'user'; iat: number; exp: number };
     } catch (error) {
         return null;
     }

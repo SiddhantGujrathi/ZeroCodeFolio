@@ -2,6 +2,7 @@ import { getSession, logout } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default async function DashboardPage() {
     const session = await getSession();
@@ -21,7 +22,10 @@ export default async function DashboardPage() {
                 <CardContent className="space-y-4">
                     <div className="flex flex-col space-y-1">
                         <p className="text-sm text-muted-foreground">You are logged in as:</p>
-                        <p className="font-semibold">{session.email}</p>
+                        <div className="flex items-center gap-2">
+                           <p className="font-semibold">{session.email}</p>
+                           {session.role === 'admin' && <Badge>Admin</Badge>}
+                        </div>
                     </div>
                     <form action={logout}>
                         <Button type="submit" variant="outline" className="w-full">
