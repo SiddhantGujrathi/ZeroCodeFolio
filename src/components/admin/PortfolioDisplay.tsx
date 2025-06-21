@@ -115,6 +115,7 @@ function DeleteItemDialog({ action, itemId, itemName, children }: {
 // Dialog Components
 function EditSkillDialog({ skill }: { skill: Client<Skill> }) {
     const [open, setOpen] = useState(false);
+    const handleSuccess = useCallback(() => setOpen(false), []);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
@@ -122,13 +123,14 @@ function EditSkillDialog({ skill }: { skill: Client<Skill> }) {
                 <DialogHeader>
                     <DialogTitle>Edit Skill</DialogTitle>
                 </DialogHeader>
-                <SkillForm skill={skill} onSuccess={() => setOpen(false)} />
+                <SkillForm skill={skill} onSuccess={handleSuccess} />
             </DialogContent>
         </Dialog>
     );
 }
 function EditProjectDialog({ project }: { project: Client<Project> }) {
     const [open, setOpen] = useState(false);
+    const handleSuccess = useCallback(() => setOpen(false), []);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
@@ -136,13 +138,14 @@ function EditProjectDialog({ project }: { project: Client<Project> }) {
                 <DialogHeader>
                     <DialogTitle>Edit Project</DialogTitle>
                 </DialogHeader>
-                <ProjectForm project={project} onSuccess={() => setOpen(false)} />
+                <ProjectForm project={project} onSuccess={handleSuccess} />
             </DialogContent>
         </Dialog>
     );
 }
 function EditAchievementDialog({ achievement }: { achievement: Client<Achievement> }) {
     const [open, setOpen] = useState(false);
+    const handleSuccess = useCallback(() => setOpen(false), []);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
@@ -150,13 +153,14 @@ function EditAchievementDialog({ achievement }: { achievement: Client<Achievemen
                 <DialogHeader>
                     <DialogTitle>Edit Achievement</DialogTitle>
                 </DialogHeader>
-                <AchievementForm achievement={achievement} onSuccess={() => setOpen(false)} />
+                <AchievementForm achievement={achievement} onSuccess={handleSuccess} />
             </DialogContent>
         </Dialog>
     );
 }
 function EditCertificationDialog({ certification }: { certification: Client<Certification> }) {
     const [open, setOpen] = useState(false);
+    const handleSuccess = useCallback(() => setOpen(false), []);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
@@ -164,13 +168,14 @@ function EditCertificationDialog({ certification }: { certification: Client<Cert
                 <DialogHeader>
                     <DialogTitle>Edit Certification</DialogTitle>
                 </DialogHeader>
-                <CertificationForm certification={certification} onSuccess={() => setOpen(false)} />
+                <CertificationForm certification={certification} onSuccess={handleSuccess} />
             </DialogContent>
         </Dialog>
     );
 }
 function EditEducationDialog({ educationItem }: { educationItem: Client<Education> }) {
     const [open, setOpen] = useState(false);
+    const handleSuccess = useCallback(() => setOpen(false), []);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
@@ -178,13 +183,14 @@ function EditEducationDialog({ educationItem }: { educationItem: Client<Educatio
                 <DialogHeader>
                     <DialogTitle>Edit Education</DialogTitle>
                 </DialogHeader>
-                <EducationForm education={educationItem} onSuccess={() => setOpen(false)} />
+                <EducationForm education={educationItem} onSuccess={handleSuccess} />
             </DialogContent>
         </Dialog>
     );
 }
 function EditWorkExperienceDialog({ experience }: { experience: Client<WorkExperience> }) {
     const [open, setOpen] = useState(false);
+    const handleSuccess = useCallback(() => setOpen(false), []);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
@@ -192,13 +198,14 @@ function EditWorkExperienceDialog({ experience }: { experience: Client<WorkExper
                 <DialogHeader>
                     <DialogTitle>Edit Work Experience</DialogTitle>
                 </DialogHeader>
-                <WorkExperienceForm experience={experience} onSuccess={() => setOpen(false)} />
+                <WorkExperienceForm experience={experience} onSuccess={handleSuccess} />
             </DialogContent>
         </Dialog>
     );
 }
 function EditProfileLinkDialog({ link }: { link: Client<ProfileLink> }) {
     const [open, setOpen] = useState(false);
+    const handleSuccess = useCallback(() => setOpen(false), []);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button></DialogTrigger>
@@ -206,7 +213,7 @@ function EditProfileLinkDialog({ link }: { link: Client<ProfileLink> }) {
                 <DialogHeader>
                     <DialogTitle>Edit Profile Link</DialogTitle>
                 </DialogHeader>
-                <ProfileLinkForm link={link} onSuccess={() => setOpen(false)} />
+                <ProfileLinkForm link={link} onSuccess={handleSuccess} />
             </DialogContent>
         </Dialog>
     );
