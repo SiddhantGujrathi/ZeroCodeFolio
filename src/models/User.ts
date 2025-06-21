@@ -13,5 +13,5 @@ export async function getUsersCollection(): Promise<Collection<User>> {
   const client = await clientPromise;
   const dbName = process.env.MONGODB_DB || 'portfolio';
   const db = client.db(dbName);
-  return db.collection<User>('users');
+  return db.collection<User>('User');
 }

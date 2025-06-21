@@ -19,5 +19,5 @@ export async function getProjectsCollection(): Promise<Collection<Project>> {
   const client = await clientPromise;
   const dbName = process.env.MONGODB_DB || 'portfolio';
   const db = client.db(dbName);
-  return db.collection<Project>('projects');
+  return db.collection<Project>('Project');
 }
