@@ -10,6 +10,11 @@ import {
     SkillsDisplay, ProjectsDisplay, AchievementsDisplay, CertificationsDisplay, EducationDisplay, WorkExperienceDisplay, ProfileLinksDisplay 
 } from "./PortfolioDisplay";
 import { LayoutManager } from "./LayoutManager";
+import { 
+    AboutPreview, SkillsPreview, ProjectsPreview, AchievementsPreview, 
+    EducationPreview, WorkExperiencePreview, ProfileLinksPreview 
+} from './Previews';
+
 
 import type { About } from "@/models/About";
 import type { Skill } from "@/models/Skill";
@@ -59,58 +64,82 @@ export function AdminDashboard(props: AdminDashboardProps) {
                     </TabsList>
 
                     <TabsContent value="about" className="mt-6">
-                        <div className="grid gap-6 lg:grid-cols-2">
-                             <AboutDisplay about={about} />
-                             <AboutForm about={about} />
+                        <div className="space-y-8">
+                            <AboutPreview about={about} profileLinks={profileLinks} />
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                <AboutDisplay about={about} />
+                                <AboutForm about={about} />
+                            </div>
                         </div>
                     </TabsContent>
                     
                     <TabsContent value="skills" className="mt-6">
-                         <div className="grid gap-6 lg:grid-cols-2">
-                            <SkillsDisplay skills={skills} />
-                            <SkillForm />
+                        <div className="space-y-8">
+                            <SkillsPreview skills={skills} />
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                <SkillsDisplay skills={skills} />
+                                <SkillForm />
+                            </div>
                         </div>
                     </TabsContent>
 
                     <TabsContent value="projects" className="mt-6">
-                        <div className="grid gap-6 lg:grid-cols-2">
-                            <ProjectsDisplay projects={projects} />
-                            <ProjectForm />
+                        <div className="space-y-8">
+                            <ProjectsPreview projects={projects} />
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                <ProjectsDisplay projects={projects} />
+                                <ProjectForm />
+                            </div>
                         </div>
                     </TabsContent>
 
                     <TabsContent value="achievements" className="mt-6">
-                         <div className="grid gap-6 lg:grid-cols-2">
-                            <AchievementsDisplay achievements={achievements} />
-                            <AchievementForm />
+                        <div className="space-y-8">
+                            <AchievementsPreview achievements={achievements} certifications={certifications} />
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                <AchievementsDisplay achievements={achievements} />
+                                <AchievementForm />
+                            </div>
                         </div>
                     </TabsContent>
 
                     <TabsContent value="certifications" className="mt-6">
-                        <div className="grid gap-6 lg:grid-cols-2">
-                            <CertificationsDisplay certifications={certifications} />
-                            <CertificationForm />
+                        <div className="space-y-8">
+                            <AchievementsPreview achievements={achievements} certifications={certifications} />
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                <CertificationsDisplay certifications={certifications} />
+                                <CertificationForm />
+                            </div>
                         </div>
                     </TabsContent>
 
                     <TabsContent value="education" className="mt-6">
-                        <div className="grid gap-6 lg:grid-cols-2">
-                            <EducationDisplay education={education} />
-                            <EducationForm />
+                        <div className="space-y-8">
+                            <EducationPreview education={education} />
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                <EducationDisplay education={education} />
+                                <EducationForm />
+                            </div>
                         </div>
                     </TabsContent>
 
                     <TabsContent value="experience" className="mt-6">
-                        <div className="grid gap-6 lg:grid-cols-2">
-                            <WorkExperienceDisplay workExperience={workExperience} />
-                            <WorkExperienceForm />
+                        <div className="space-y-8">
+                            <WorkExperiencePreview workExperience={workExperience} />
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                <WorkExperienceDisplay workExperience={workExperience} />
+                                <WorkExperienceForm />
+                            </div>
                         </div>
                     </TabsContent>
                     
                     <TabsContent value="links" className="mt-6">
-                        <div className="grid gap-6 lg:grid-cols-2">
-                            <ProfileLinksDisplay profileLinks={profileLinks} />
-                            <ProfileLinkForm />
+                        <div className="space-y-8">
+                            <ProfileLinksPreview profileLinks={profileLinks} about={about} />
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                <ProfileLinksDisplay profileLinks={profileLinks} />
+                                <ProfileLinkForm />
+                            </div>
                         </div>
                     </TabsContent>
 
