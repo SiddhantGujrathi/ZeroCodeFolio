@@ -25,18 +25,13 @@ export default function Icon() {
           height="24"
           viewBox="0 0 24 24"
           fill="none"
+          stroke="white"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <defs>
-            <linearGradient id="icon-gradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#f97316" />
-              <stop offset="100%" stopColor="#d946ef" />
-            </linearGradient>
-          </defs>
-          <path d="M16 18c-4-3-4-9 0-12" stroke="url(#icon-gradient)" />
-          <path d="M8 6c4 3 4 9 0 12" stroke="url(#icon-gradient)" />
+          <path d="M16 18c-4-3-4-9 0-12" />
+          <path d="M8 6c4 3 4 9 0 12" />
         </svg>
       </div>
     ),
