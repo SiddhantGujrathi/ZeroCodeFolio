@@ -19,18 +19,23 @@ export async function Hero() {
 
   if (!about) {
     return (
-      <p>About section not configured yet.</p>
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">About section not configured yet.</p>
+        <p className="text-sm mt-2">Please go to the admin dashboard to add your information.</p>
+      </div>
     );
   }
+  
+  const name = about.name || "Your Name";
 
   return (
     <>
         <Avatar className="h-40 w-40 border-4 border-primary">
-          {about.profileImage && <AvatarImage src={about.profileImage} alt={about.name} className="object-cover" />}
-          <AvatarFallback>{about.name.charAt(0)}</AvatarFallback>
+          {about.profileImage && <AvatarImage src={about.profileImage} alt={name} className="object-cover" />}
+          <AvatarFallback>{name?.charAt(0) || 'A'}</AvatarFallback>
         </Avatar>
         <h1 className="mt-4 font-headline text-4xl font-bold tracking-tight md:text-6xl">
-          {about.name}
+          {name}
         </h1>
         {about.tagline && <p className="mt-2 text-xl text-muted-foreground font-medium">{about.tagline}</p>}
         <div className="mt-6 max-w-2xl text-balance">
