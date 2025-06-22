@@ -78,7 +78,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <CardHeader>
         <div className="aspect-video overflow-hidden rounded-md border">
           <Image
-            src={projectImage || 'https://placehold.co/600x400.png'}
+            src={(projectImage && typeof projectImage === 'string') ? projectImage : 'https://placehold.co/600x400.png'}
             alt={title}
             width={600}
             height={400}

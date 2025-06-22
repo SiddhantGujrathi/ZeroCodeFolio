@@ -59,7 +59,7 @@ export async function Achievements() {
                           <Card className="transition-all duration-300 hover:shadow-lg h-full flex flex-col">
                             <CardHeader>
                               <div className="aspect-video relative border rounded-md overflow-hidden">
-                                <Image src={achievement.image || 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
+                                <Image src={(achievement.image && typeof achievement.image === 'string') ? achievement.image : 'https://placehold.co/600x400.png'} alt={achievement.title} fill className="object-cover" data-ai-hint={achievement.imageAiHint || 'award'} />
                               </div>
                             </CardHeader>
                             <CardContent className="flex-grow">
@@ -112,7 +112,7 @@ export async function Achievements() {
                                     </div>
                                     <div className="relative h-24 w-24 flex-shrink-0">
                                         <Image
-                                            src={cert.image || 'https://placehold.co/150x150.png'}
+                                            src={(cert.image && typeof cert.image === 'string') ? cert.image : 'https://placehold.co/150x150.png'}
                                             alt={cert.title}
                                             fill
                                             className="object-contain rounded-md"

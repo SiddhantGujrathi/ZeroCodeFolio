@@ -38,7 +38,7 @@ export async function Education() {
               <div className="pl-20 flex items-start gap-6">
                 <div className="relative h-16 w-16 flex-shrink-0">
                   <Image
-                    src={edu.icon || 'https://placehold.co/100x100.png'}
+                    src={(edu.icon && typeof edu.icon === 'string') ? edu.icon : 'https://placehold.co/100x100.png'}
                     alt={edu.collegeName}
                     fill
                     className="object-contain rounded-md"

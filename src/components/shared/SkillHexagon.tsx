@@ -19,7 +19,7 @@ export function SkillHexagon({ skill }: SkillHexagonProps) {
             <div className="hexagon">
                 <div className="relative h-12 w-12 flex items-center justify-center">
                 {(() => {
-                    if (skill.image) {
+                    if (skill.image && typeof skill.image === 'string') {
                         return <Image src={skill.image} alt={skill.title} fill className="object-contain" data-ai-hint={skill.imageAiHint || 'skill icon'} />;
                     }
                     if (IconComponent) {

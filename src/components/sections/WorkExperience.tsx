@@ -31,7 +31,7 @@ export async function WorkExperience() {
         {experiences.map((exp) => (
           <Card key={exp._id.toString()} className="flex flex-col sm:flex-row items-start gap-6 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <div className="relative h-16 w-16 flex-shrink-0 self-center sm:self-start">
-              {exp.icon ? (
+              {exp.icon && typeof exp.icon === 'string' ? (
                 <Image 
                   src={exp.icon} 
                   alt={exp.companyName} 
@@ -58,5 +58,3 @@ export async function WorkExperience() {
     </div>
   );
 }
-
-    

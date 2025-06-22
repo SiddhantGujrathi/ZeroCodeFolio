@@ -31,7 +31,7 @@ export async function Hero() {
   return (
     <>
         <Avatar className="h-40 w-40 border-4 border-primary">
-          {about.profileImage && <AvatarImage src={about.profileImage} alt={name} className="object-cover" />}
+          {about.profileImage && typeof about.profileImage === 'string' && <AvatarImage src={about.profileImage} alt={name} className="object-cover" />}
           <AvatarFallback>{name?.charAt(0) || 'A'}</AvatarFallback>
         </Avatar>
         <h1 className="mt-4 font-headline text-4xl font-bold tracking-tight md:text-6xl">
@@ -63,7 +63,7 @@ export async function Hero() {
                    <Button key={link._id.toString()} variant="ghost" size="icon" className="h-12 w-12" asChild>
                       <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
                           <div className="relative h-6 w-6">
-                              <Image src={link.icon || 'https://placehold.co/100x100.png'} alt={link.platform} fill className="object-contain" data-ai-hint={link.iconHint || 'logo'} />
+                              <Image src={(link.icon && typeof link.icon === 'string') ? link.icon : 'https://placehold.co/100x100.png'} alt={link.platform} fill className="object-contain" data-ai-hint={link.iconHint || 'logo'} />
                           </div>
                       </a>
                  </Button>
